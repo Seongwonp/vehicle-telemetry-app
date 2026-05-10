@@ -1,0 +1,47 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.g.dart
+*.freezed.dart
+
+# Android
+android/
+*.apk
+*.aab
+
+# iOS
+ios/
+*.ipa
+
+# macOS
+macos/
+
+# Web
+web/
+
+# Windows
+windows/
+
+# Linux
+linux/
+
+# 환경변수 (API 주소 등)
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Jupyter (서버 환경 잔재)
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
