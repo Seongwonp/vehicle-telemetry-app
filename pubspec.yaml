@@ -1,0 +1,41 @@
+name: vehicle_telemetry_app
+description: 차량 텔레메트리 모니터링 앱 — 실시간 센서 대시보드 + AI 진단
+
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP 클라이언트 — interceptor로 JWT 자동 첨부
+  dio: ^5.4.3
+
+  # 상태 관리
+  flutter_riverpod: ^2.5.1
+
+  # 차트 (속도/RPM/온도 실시간 그래프)
+  fl_chart: ^0.67.0
+
+  # JWT 토큰 안전 저장 (iOS Keychain / Android Keystore)
+  flutter_secure_storage: ^9.2.2
+
+  # 푸시 알림 (이상 감지 시)
+  firebase_messaging: ^14.9.4
+  firebase_core: ^2.30.1
+
+  # 시간 표시
+  timeago: ^3.6.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
