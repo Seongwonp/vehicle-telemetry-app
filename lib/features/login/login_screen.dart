@@ -65,28 +65,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Column(
                       children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: cs.primary.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Icon(
-                            Icons.directions_car,
-                            size: 48,
-                            color: cs.primary,
-                          ),
+                        Image.asset(
+                          'assets/logo.png',
+                          height: 100,
                         ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'Vehicle Telemetry',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 12),
                         Text(
                           '차량 실시간 모니터링 · AI 진단',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(

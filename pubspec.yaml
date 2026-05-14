@@ -1,5 +1,5 @@
-name: vehicle_telemetry_app
-description: 차량 텔레메트리 모니터링 앱 — 실시간 센서 대시보드 + AI 진단
+name: telemetrix
+description: TELEMETRIX — 차량 텔레메트리 모니터링 앱 · 실시간 센서 대시보드 · AI 진단
 
 publish_to: none
 version: 1.0.0+1
@@ -23,9 +23,10 @@ dependencies:
   # JWT 토큰 안전 저장 (iOS Keychain / Android Keystore)
   flutter_secure_storage: ^9.2.2
 
-  # 푸시 알림 (이상 감지 시)
-  firebase_messaging: ^14.9.4
-  firebase_core: ^2.30.1
+  # 푸시 알림 — Firebase 프로젝트 설정 후 주석 해제
+  # (android/google-services.json, ios/GoogleService-Info.plist 필요)
+  # firebase_messaging: ^14.9.4
+  # firebase_core: ^2.30.1
 
   # 시간 표시
   timeago: ^3.6.1

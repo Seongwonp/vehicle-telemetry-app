@@ -64,7 +64,7 @@ class ApiClient {
   Future<List<dynamic>> getRecentTelemetry(String vehicleId,
       {int limit = 20}) async {
     final response = await _dio.get(
-      '/api/vehicles/$vehicleId/telemetry/recent',
+      '/api/vehicles/$vehicleId/telemetry',
       queryParameters: {'limit': limit},
     );
     return response.data as List<dynamic>;

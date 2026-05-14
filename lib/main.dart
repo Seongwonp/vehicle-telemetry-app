@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'core/auth/auth_provider.dart';
 import 'features/login/login_screen.dart';
 import 'features/vehicle_list/vehicle_list_screen.dart';
 
 void main() {
+  timeago.setLocaleMessages('ko', timeago.KoMessages());
   runApp(const ProviderScope(child: TelemetryApp()));
 }
 
@@ -16,7 +18,7 @@ class TelemetryApp extends ConsumerWidget {
     final isLoggedIn = ref.watch(authProvider);
 
     return MaterialApp(
-      title: 'Vehicle Telemetry',
+      title: 'TELEMETRIX',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
