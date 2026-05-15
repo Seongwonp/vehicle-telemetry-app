@@ -26,19 +26,18 @@ class Telemetry {
   });
 
   factory Telemetry.fromJson(Map<String, dynamic> json) {
-    final gps = json['gps'] as Map<String, dynamic>?;
     return Telemetry(
-      vehicleId: json['vehicle_id'] as String,
+      vehicleId: json['vehicleId'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       speed: (json['speed'] as num).toDouble(),
-      rpm: json['rpm'] as int,
-      engineTemp: (json['engine_temp'] as num).toDouble(),
-      throttlePosition: (json['throttle_position'] as num).toDouble(),
-      fuelLevel: (json['fuel_level'] as num).toDouble(),
-      batteryVoltage: (json['battery_voltage'] as num).toDouble(),
-      lat: gps != null ? (gps['lat'] as num?)?.toDouble() : null,
-      lng: gps != null ? (gps['lng'] as num?)?.toDouble() : null,
-      dtcCodes: (json['dtc_codes'] as List<dynamic>?)
+      rpm: (json['rpm'] as num).toInt(),
+      engineTemp: (json['engineTemp'] as num).toDouble(),
+      throttlePosition: (json['throttlePosition'] as num).toDouble(),
+      fuelLevel: (json['fuelLevel'] as num).toDouble(),
+      batteryVoltage: (json['batteryVoltage'] as num).toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      dtcCodes: (json['dtcCodes'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
