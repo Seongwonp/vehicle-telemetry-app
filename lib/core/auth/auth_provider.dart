@@ -8,6 +8,11 @@ final authProvider = StateNotifierProvider<AuthNotifier, bool>((ref) {
 
 class AuthNotifier extends StateNotifier<bool> {
   AuthNotifier() : super(false) {
+    // refresh token 만료/무효 시 인터셉터에서 이 콜백을 호출 → 강제 로그아웃
+    ApiClient().onRefreshFailed = () {
+      TokenStorage.clear();
+      state = false;
+    };
     _checkToken();
   }
 
@@ -16,8 +21,8 @@ class AuthNotifier extends StateNotifier<bool> {
   }
 
   Future<void> login(String username, String password) async {
-    final token = await ApiClient().login(username, password);
-    await TokenStorage.save(token);
+    final result = await ApiClient().login(username, password);
+    await TokenStorage.save(result['accessToken']!, result['refreshToken']!);
     state = true;
   }
 
