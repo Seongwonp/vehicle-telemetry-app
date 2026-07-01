@@ -27,6 +27,14 @@ class AuthNotifier extends StateNotifier<bool> {
   }
 
   Future<void> logout() async {
+    final refreshToken = await TokenStorage.getRefreshToken();
+    if (refreshToken != null) {
+      try {
+        await ApiClient().logout(refreshToken);
+      } catch (_) {
+        // 서버 호출이 실패해도(오프라인 등) 클라이언트 로그아웃은 계속 진행한다.
+      }
+    }
     await TokenStorage.clear();
     state = false;
   }

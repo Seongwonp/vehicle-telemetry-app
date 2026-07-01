@@ -95,6 +95,14 @@ class ApiClient {
     };
   }
 
+  // 서버 측 refresh token을 폐기한다 — 이걸 안 부르면 로그아웃해도 Redis에 토큰이
+  // 남아있어서 재발급 사슬이 끊기지 않는다. 실패해도 로컬 로그아웃은 계속 진행되도록
+  // 호출부(AuthNotifier)에서 예외를 삼킨다.
+  Future<void> logout(String refreshToken) async {
+    if (refreshToken.isEmpty) return;
+    await _dio.post('/api/auth/logout', data: {'refreshToken': refreshToken});
+  }
+
   // ── 차량 관리 ─────────────────────────────────────────────────
   Future<List<dynamic>> getVehicles() async {
     final response = await _dio.get('/api/vehicles');

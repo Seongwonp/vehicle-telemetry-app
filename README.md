@@ -10,7 +10,7 @@
 | 차량 목록 | 등록된 차량 리스트 |
 | 대시보드 | 속도/RPM/엔진온도 등 실시간 센서 + 속도 추이 차트 |
 | 이상 이력 | 감지된 이상 이벤트 목록 |
-| AI 진단 | Claude API 기반 차량 진단 (Phase 7 백엔드 완성 후) |
+| AI 진단 | Gemini API 기반 차량 진단 (백엔드 `GET /api/vehicles/{vehicleId}/diagnosis` 연동 완료) |
 
 ## 시작하기
 
