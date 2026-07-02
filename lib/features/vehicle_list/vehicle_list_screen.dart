@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/api_client.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/models/vehicle.dart';
+import '../../core/responsive/breakpoints.dart';
 import '../dashboard/dashboard_screen.dart';
+import 'widgets/empty_view.dart';
+import 'widgets/error_view.dart';
+import 'widgets/vehicle_card.dart';
 
 class VehicleListScreen extends ConsumerStatefulWidget {
   const VehicleListScreen({super.key});
@@ -70,23 +74,18 @@ class _VehicleListScreenState extends ConsumerState<VehicleListScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? _ErrorView(message: _error!, onRetry: _loadVehicles)
+              ? VehicleListErrorView(message: _error!, onRetry: _loadVehicles)
               : _vehicles.isEmpty
-                  ? _EmptyView(onRetry: _loadVehicles)
+                  ? EmptyView(onRetry: _loadVehicles)
                   : RefreshIndicator(
                       onRefresh: _loadVehicles,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                        itemCount: _vehicles.length,
-                        itemBuilder: (context, index) => _VehicleCard(
-                          vehicle: _vehicles[index],
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DashboardScreen(
-                                vehicleId: _vehicles[index].vehicleId,
-                              ),
-                            ),
+                      child: _VehicleGrid(
+                        vehicles: _vehicles,
+                        onOpen: (vehicleId) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                DashboardScreen(vehicleId: vehicleId),
                           ),
                         ),
                       ),
@@ -95,226 +94,46 @@ class _VehicleListScreenState extends ConsumerState<VehicleListScreen> {
   }
 }
 
-// ── 차량 카드 ────────────────────────────────────────────────
+// 모바일에서는 세로 리스트, 데스크톱 폭에서는 2~3열 그리드로 전환한다.
+// 차량이 여러 대인 포트폴리오 데모에서 넓은 화면 공간을 그냥 낭비하지 않도록.
+class _VehicleGrid extends StatelessWidget {
+  final List<Vehicle> vehicles;
+  final void Function(String vehicleId) onOpen;
 
-class _VehicleCard extends StatelessWidget {
-  final Vehicle vehicle;
-  final VoidCallback onTap;
-
-  const _VehicleCard({required this.vehicle, required this.onTap});
+  const _VehicleGrid({required this.vehicles, required this.onOpen});
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    if (context.isMobile) {
+      return ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        itemCount: vehicles.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) => VehicleCard(
+          vehicle: vehicles[index],
+          onTap: () => onOpen(vehicles[index].vehicleId),
+        ),
+      );
+    }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 14),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // 차량 아이콘 + 활성 상태 표시
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: cs.primary.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      Icons.directions_car,
-                      size: 32,
-                      color: cs.primary,
-                    ),
-                  ),
-                  Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: vehicle.active ? Colors.greenAccent : Colors.grey,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 16),
-
-              // 차량 정보
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      vehicle.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        _InfoChip(
-                          label: vehicle.vehicleId,
-                          icon: Icons.tag,
-                        ),
-                        const SizedBox(width: 6),
-                        _InfoChip(
-                          label: vehicle.owner,
-                          icon: Icons.person_outline,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '등록: ${_formatDate(vehicle.registeredAt)}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: cs.onSurface.withOpacity(0.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // 상태 배지 + 이동 화살표
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: vehicle.active
-                          ? Colors.green.withOpacity(0.15)
-                          : Colors.grey.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      vehicle.active ? '활성' : '비활성',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: vehicle.active
-                            ? Colors.greenAccent
-                            : Colors.grey,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Icon(
-                    Icons.chevron_right,
-                    color: cs.onSurface.withOpacity(0.4),
-                  ),
-                ],
-              ),
-            ],
+    final columns = context.isDesktop ? 3 : 2;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        child: GridView.builder(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            mainAxisSpacing: 14,
+            crossAxisSpacing: 14,
+            childAspectRatio: 2.6,
+          ),
+          itemCount: vehicles.length,
+          itemBuilder: (context, index) => VehicleCard(
+            vehicle: vehicles[index],
+            onTap: () => onOpen(vehicles[index].vehicleId),
           ),
         ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime dt) {
-    return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final String label;
-  final IconData icon;
-
-  const _InfoChip({required this.label, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 11, color: cs.onSurface.withOpacity(0.5)),
-        const SizedBox(width: 3),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: cs.onSurface.withOpacity(0.6),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ── 빈 목록 / 에러 뷰 ────────────────────────────────────────
-
-class _EmptyView extends StatelessWidget {
-  final VoidCallback onRetry;
-  const _EmptyView({required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.directions_car_outlined,
-              size: 72, color: Colors.grey.shade600),
-          const SizedBox(height: 16),
-          const Text('등록된 차량이 없습니다',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 8),
-          Text('백엔드에 차량을 등록하거나\n시뮬레이터를 실행해 보세요.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade500)),
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: const Text('다시 시도'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.wifi_off, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(message,
-              style: const TextStyle(fontSize: 15),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 8),
-          Text('백엔드 서버가 실행 중인지 확인하세요.',
-              style: TextStyle(color: Colors.grey.shade500)),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: const Text('재시도'),
-          ),
-        ],
       ),
     );
   }
