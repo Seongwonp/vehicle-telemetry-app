@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'core/auth/auth_provider.dart';
-import 'features/login/login_screen.dart';
+import 'core/theme/app_theme.dart';
+import 'features/landing/landing_screen.dart';
 import 'features/vehicle_list/vehicle_list_screen.dart';
 
 void main() {
@@ -20,14 +21,8 @@ class TelemetryApp extends ConsumerWidget {
     return MaterialApp(
       title: 'TELEMETRIX',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1565C0),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      home: isLoggedIn ? const VehicleListScreen() : const LoginScreen(),
+      theme: AppTheme.dark(),
+      home: isLoggedIn ? const VehicleListScreen() : const LandingScreen(),
     );
   }
 }
