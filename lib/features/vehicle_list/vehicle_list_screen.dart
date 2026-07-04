@@ -5,6 +5,7 @@ import '../../core/auth/auth_provider.dart';
 import '../../core/models/vehicle.dart';
 import '../../core/responsive/breakpoints.dart';
 import '../dashboard/dashboard_screen.dart';
+import '../landing/landing_screen.dart';
 import 'widgets/empty_view.dart';
 import 'widgets/error_view.dart';
 import 'widgets/vehicle_card.dart';
@@ -67,7 +68,16 @@ class _VehicleListScreenState extends ConsumerState<VehicleListScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: '로그아웃',
-            onPressed: () => ref.read(authProvider.notifier).logout(),
+            onPressed: () async {
+              await ref.read(authProvider.notifier).logout();
+              // 로그인 성공 때와 같은 이유 — 명시적으로 스택을 비우고 전환한다.
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LandingScreen()),
+                  (route) => false,
+                );
+              }
+            },
           ),
         ],
       ),

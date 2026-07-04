@@ -9,11 +9,10 @@ class AnomalyBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppTheme.danger.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.danger.withOpacity(0.5)),
+        color: AppTheme.danger.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [

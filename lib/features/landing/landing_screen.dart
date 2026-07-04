@@ -4,7 +4,7 @@ import '../../core/theme/app_theme.dart';
 import '../login/login_screen.dart';
 import 'widgets/feature_card.dart';
 import 'widgets/hero_section.dart';
-import 'widgets/live_preview_card.dart';
+import 'widgets/promo_visual.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -70,7 +70,10 @@ class _LandingScreenState extends State<LandingScreen>
                 _bgDrift.value,
               )!,
               radius: 1.3,
-              colors: const [Color(0xFF17264A), AppTheme.bg],
+              // 반투명 색 → 불투명 색으로 보간하면 중간 지점의 알파값이 커지면서
+              // 오히려 더 진한 파란 띠가 생긴다. 처음부터 불투명한 두 색 사이를
+              // 보간해야 은은한 톤 변화로 보인다.
+              colors: [Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!, AppTheme.bg],
               stops: const [0.0, 0.8],
             ),
           ),
@@ -142,7 +145,7 @@ class _DesktopLayout extends StatelessWidget {
               Expanded(
                 child: FadeTransition(
                   opacity: previewReveal,
-                  child: const LivePreviewCard(),
+                  child: const PromoVisual(),
                 ),
               ),
             ],
@@ -174,7 +177,7 @@ class _MobileLayout extends StatelessWidget {
       children: [
         HeroSection(reveal: heroReveal, onGetStarted: onGetStarted),
         const SizedBox(height: 36),
-        FadeTransition(opacity: previewReveal, child: const LivePreviewCard()),
+        FadeTransition(opacity: previewReveal, child: const PromoVisual()),
         const SizedBox(height: 40),
         _FeatureGrid(columns: 2, revealBuilder: featureRevealBuilder),
       ],

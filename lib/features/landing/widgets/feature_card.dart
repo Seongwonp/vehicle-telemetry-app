@@ -18,11 +18,11 @@ class FeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
+        // 테두리 없이 배경색만으로 구분 — 토스 스타일의 플랫하고 부드러운 카드 느낌
         color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppTheme.border),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,11 +32,11 @@ class FeatureCard extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: accent.withOpacity(0.14),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(icon, color: accent, size: 24),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Text(
             title,
             style: const TextStyle(

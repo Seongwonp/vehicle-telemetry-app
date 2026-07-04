@@ -15,7 +15,6 @@ class DiagnosisResultSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final timeStr =
         '${diagnosedAt.hour.toString().padLeft(2, '0')}:${diagnosedAt.minute.toString().padLeft(2, '0')}';
 
@@ -43,11 +42,10 @@ class DiagnosisResultSection extends StatelessWidget {
         // AI 응답 본문
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: cs.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: cs.onSurface.withOpacity(0.1)),
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(18),
           ),
           child: SelectableText(
             diagnosis,

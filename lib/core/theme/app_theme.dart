@@ -48,23 +48,24 @@ class AppTheme {
   AppTheme._();
 
   // ── 팔레트 ───────────────────────────────────────────────────
-  // 기본 M3 seed 테마는 표면색이 밋밋한 회색조로 나와서 "차량 대시보드" 느낌이
-  // 안 산다. 살짝 푸른 기운이 도는 진한 배경 + 카드 테두리로 깊이감을 준다.
-  static const bg = Color(0xFF090D15);
-  static const surface = Color(0xFF141A26);
-  static const surfaceHigh = Color(0xFF1B2334);
-  static const border = Color(0xFF262F42);
+  // 라이트 테마: 연한 회색 배경 위에 흰 카드를 얹어 테두리/그림자 없이도
+  // 카드 경계가 자연스럽게 구분되도록 한다(토스 스타일).
+  static const bg = Color(0xFFF7F8FA);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceHigh = Color(0xFFF0F2F5);
+  static const border = Color(0xFFE5E7EB);
 
   static const primary = Color(0xFF3E7BFA);
   static const primaryDark = Color(0xFF2F5FD6);
 
-  static const textPrimary = Color(0xFFF2F4F8);
-  static const textSecondary = Color(0xFF8B93A7);
-  static const textTertiary = Color(0xFF5B6478);
+  static const textPrimary = Color(0xFF1A1D29);
+  static const textSecondary = Color(0xFF6B7280);
+  static const textTertiary = Color(0xFF9CA3AF);
 
-  static const success = Color(0xFF22C55E);
-  static const warning = Color(0xFFF5A623);
-  static const danger = Color(0xFFEF4444);
+  // 다크 배경 대비로 맞췄던 채도라 흰 배경에서는 명도를 낮춰 대비를 다시 맞춘다.
+  static const success = Color(0xFF16A34A);
+  static const warning = Color(0xFFD97706);
+  static const danger = Color(0xFFDC2626);
 
   static const primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -75,7 +76,7 @@ class AppTheme {
   static ThemeData dark() {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: primary,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
     ).copyWith(
       primary: primary,
       surface: surface,
@@ -119,9 +120,9 @@ class AppTheme {
         color: surface,
         elevation: 0,
         margin: EdgeInsets.zero,
+        // 테두리 없이 배경색 대비만으로 카드 경계를 표현하는 플랫 스타일.
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: border),
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

@@ -8,11 +8,10 @@ class DiagnosisHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: cs.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.primary.withOpacity(0.25)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         children: [

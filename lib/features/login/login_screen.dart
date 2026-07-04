@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../vehicle_list/vehicle_list_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -37,6 +38,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _usernameController.text.trim(),
             _passwordController.text,
           );
+      // MaterialApp의 home: isLoggedIn ? ... : ... 은 이 화면이 랜딩페이지 위에
+      // push된 상태라 authProvider 값만 바뀌어서는 반영되지 않는다(Flutter의 잘 알려진
+      // 함정 — 이미 push된 라우트는 부모의 home이 바뀌어도 자동으로 안 바뀜).
+      // 로그인 성공 시 스택을 통째로 비우고 명시적으로 전환한다.
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const VehicleListScreen()),
+          (route) => false,
+        );
+      }
     } catch (_) {
       if (mounted) {
         setState(() => _error = '아이디 또는 비밀번호가 올바르지 않습니다.');
@@ -53,12 +64,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       body: DecoratedBox(
         // 배경에 은은한 블루 글로우를 깔아 순수 단색 배경보다 입체감을 준다.
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: RadialGradient(
-            center: Alignment(0, -0.7),
+            center: const Alignment(0, -0.7),
             radius: 1.2,
-            colors: [Color(0xFF16233F), AppTheme.bg],
-            stops: [0.0, 0.75],
+            colors: [Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!, AppTheme.bg],
+            stops: const [0.0, 0.75],
           ),
         ),
         child: SafeArea(
@@ -84,9 +95,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppTheme.primary.withOpacity(0.35),
-                                    blurRadius: 40,
-                                    spreadRadius: 4,
+                                    color: AppTheme.primary.withOpacity(0.18),
+                                    blurRadius: 20,
                                   ),
                                 ],
                               ),
@@ -158,19 +168,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 10),
                           decoration: BoxDecoration(
-                            color: cs.error.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border:
-                                Border.all(color: cs.error.withOpacity(0.4)),
+                            color: cs.error.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(Icons.error_outline,
                                   size: 16, color: cs.error),
                               const SizedBox(width: 8),
-                              Text(_error!,
-                                  style:
-                                      TextStyle(color: cs.error, fontSize: 13)),
+                              Expanded(
+                                child: Text(_error!,
+                                    style: TextStyle(
+                                        color: cs.error, fontSize: 13)),
+                              ),
                             ],
                           ),
                         ),
@@ -185,7 +196,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primary.withOpacity(0.35),
+                              color: AppTheme.primary.withOpacity(0.28),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),

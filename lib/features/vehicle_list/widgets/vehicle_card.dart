@@ -18,7 +18,7 @@ class VehicleCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Row(
             children: [
               // 차량 아이콘 + 활성 상태 표시

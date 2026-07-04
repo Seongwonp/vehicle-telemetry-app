@@ -48,7 +48,7 @@ class SpeedChart extends StatelessWidget {
                 drawVerticalLine: false,
                 horizontalInterval: maxY / 3,
                 getDrawingHorizontalLine: (v) => FlLine(
-                  color: Colors.white.withOpacity(0.06),
+                  color: Colors.black.withOpacity(0.06),
                   strokeWidth: 1,
                 ),
               ),

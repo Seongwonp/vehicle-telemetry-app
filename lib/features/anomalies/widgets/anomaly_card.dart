@@ -31,8 +31,7 @@ class AnomalyCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: color.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -43,15 +42,15 @@ class AnomalyCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                  bottomLeft: Radius.circular(14),
+                  topLeft: Radius.circular(18),
+                  bottomLeft: Radius.circular(18),
                 ),
               ),
             ),
 
             // 아이콘
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 14, 4, 14),
+              padding: const EdgeInsets.fromLTRB(14, 16, 6, 16),
               child: Container(
                 width: 40,
                 height: 40,

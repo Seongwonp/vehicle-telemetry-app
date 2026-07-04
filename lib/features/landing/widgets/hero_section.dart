@@ -37,9 +37,8 @@ class HeroSection extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primary.withOpacity(0.4),
-                  blurRadius: 50,
-                  spreadRadius: 6,
+                  color: AppTheme.primary.withOpacity(0.18),
+                  blurRadius: 24,
                 ),
               ],
             ),
@@ -48,28 +47,29 @@ class HeroSection extends StatelessWidget {
                   height: 84, width: 84, fit: BoxFit.cover),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           Text(
-            'TELEMETRIX',
+            '내 차의 상태,\n더 빨리 알아채기',
             textAlign: textAlign,
             style: const TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.5,
+              fontSize: 32,
+              fontWeight: FontWeight.w800,
+              height: 1.3,
+              letterSpacing: -0.8,
               color: AppTheme.textPrimary,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           Text(
-            '차량 센서 데이터를 실시간으로 수집하고,\nAI가 이상 징후를 먼저 알아채는 텔레메트리 플랫폼',
+            'TELEMETRIX가 실시간으로 데이터를 모으고\nAI가 이상 징후를 먼저 알려드려요',
             textAlign: textAlign,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               height: 1.6,
-              color: AppTheme.textSecondary,
+              color: AppTheme.textSecondary.withOpacity(0.9),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 36),
           _GetStartedButton(onTap: onGetStarted, alignLeft: alignLeft),
         ],
       ),
@@ -90,7 +90,7 @@ class _GetStartedButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withOpacity(0.35),
+            color: AppTheme.primary.withOpacity(0.28),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),

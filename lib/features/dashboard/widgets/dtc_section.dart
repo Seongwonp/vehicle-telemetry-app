@@ -9,11 +9,10 @@ class DtcSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.warning.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.warning.withOpacity(0.35)),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,9 +39,7 @@ class DtcSection extends StatelessWidget {
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         color: AppTheme.warning.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.4)),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(code,
                           style: const TextStyle(
