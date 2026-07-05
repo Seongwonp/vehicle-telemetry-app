@@ -31,20 +31,30 @@ class HeroSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: crossAlign,
         children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primary.withOpacity(0.18),
-                  blurRadius: 24,
+          SizedBox(
+            height: 92,
+            width: 220,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // 로고 아이콘이 가로로 긴 비율이라 원형으로 잘라내는 대신,
+                // 뒤에 은은한 원형 글로우만 깔고 아이콘은 잘리지 않게 그 위에 얹는다.
+                Container(
+                  width: 92,
+                  height: 92,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primary.withOpacity(0.18),
+                        blurRadius: 24,
+                      ),
+                    ],
+                  ),
                 ),
+                Image.asset('assets/logo_icon.png',
+                    height: 72, fit: BoxFit.contain),
               ],
-            ),
-            child: ClipOval(
-              child: Image.asset('assets/logo.png',
-                  height: 84, width: 84, fit: BoxFit.cover),
             ),
           ),
           const SizedBox(height: 28),

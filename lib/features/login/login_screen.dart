@@ -89,24 +89,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Column(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppTheme.primary.withOpacity(0.18),
-                                    blurRadius: 20,
+                            SizedBox(
+                              height: 100,
+                              width: 240,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // 로고 아이콘이 가로로 긴 비율이라 원형으로 잘라내는 대신,
+                                  // 뒤에 은은한 원형 글로우만 깔고 아이콘은 잘리지 않게 얹는다.
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color:
+                                              AppTheme.primary.withOpacity(0.18),
+                                          blurRadius: 20,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Image.asset(
+                                    'assets/logo_icon.png',
+                                    height: 80,
+                                    fit: BoxFit.contain,
                                   ),
                                 ],
-                              ),
-                              child: ClipOval(
-                                child: Image.asset(
-                                  'assets/logo.png',
-                                  height: 96,
-                                  width: 96,
-                                  fit: BoxFit.cover,
-                                ),
                               ),
                             ),
                             const SizedBox(height: 20),
