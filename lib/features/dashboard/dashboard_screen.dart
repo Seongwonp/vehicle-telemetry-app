@@ -8,6 +8,7 @@ import '../anomalies/anomaly_list_screen.dart';
 import '../diagnosis/diagnosis_screen.dart';
 import 'widgets/anomaly_banner.dart';
 import 'widgets/dtc_section.dart';
+import 'widgets/error_view.dart';
 import 'widgets/no_data_view.dart';
 import 'widgets/primary_metric_card.dart';
 import 'widgets/secondary_metric_card.dart';
@@ -26,6 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Telemetry> _history = [];
   Timer? _timer;
   bool _loading = true;
+  bool _error = false;
   DateTime? _lastUpdated;
 
   @override
@@ -53,11 +55,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _latest = list.isNotEmpty ? list.first : null;
           _history = list;
           _loading = false;
+          _error = false;
           _lastUpdated = DateTime.now();
         });
       }
     } catch (_) {
-      if (mounted) setState(() => _loading = false);
+      // 2초마다 폴링하는 도중 한 번 실패한다고 화면을 통째로 에러로 덮진 않는다 —
+      // 이미 표시 중인 마지막 정상 데이터(_latest)는 그대로 유지한다. _error는
+      // "아직 한 번도 데이터를 못 받은 상태(_latest == null)"일 때만 의미가 있고,
+      // 그 경우에만 "데이터 없음"이 아니라 진짜 조회 실패임을 구분해서 보여준다.
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          if (_latest == null) _error = true;
+        });
+      }
     }
   }
 
@@ -81,8 +93,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             if (_lastUpdated != null)
               Text(_lastUpdatedText(),
-                  style:
-                      const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                  style: const TextStyle(
+                      fontSize: 11, color: AppTheme.textSecondary)),
           ],
         ),
         actions: [
@@ -110,7 +122,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _latest == null
-              ? NoDataView(vehicleId: widget.vehicleId)
+              ? (_error
+                  ? DashboardErrorView(onRetry: _fetchData)
+                  : NoDataView(vehicleId: widget.vehicleId))
               : _DashboardBody(latest: _latest!, history: _history),
     );
   }

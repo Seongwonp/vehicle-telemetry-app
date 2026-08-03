@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'core/auth/auth_provider.dart';
+import 'core/navigation/navigator_key.dart';
 import 'core/theme/app_theme.dart';
 import 'features/landing/landing_screen.dart';
 import 'features/vehicle_list/vehicle_list_screen.dart';
@@ -19,6 +20,7 @@ class TelemetryApp extends ConsumerWidget {
     final isLoggedIn = ref.watch(authProvider);
 
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
       title: 'TELEMETRIX',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark(),

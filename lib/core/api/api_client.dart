@@ -40,7 +40,7 @@ class ApiClient {
           if (refreshed) {
             // 새 access token으로 원래 요청 재시도
             final token = await TokenStorage.getToken();
-            final opts  = error.requestOptions;
+            final opts = error.requestOptions;
             opts.headers['Authorization'] = 'Bearer $token';
             try {
               final retryResp = await _dio.fetch(opts);
@@ -58,8 +58,18 @@ class ApiClient {
     ));
   }
 
+  // 동시에 여러 요청이 401을 맞아도 refresh는 한 번만 실행되게 진행 중인 Future를
+  // 공유한다(single-flight). 이 락이 없으면 백엔드가 refresh token을 1회성으로
+  // 회전(rotate)시킬 때, 동시에 도착한 두 번째 refresh 요청이 이미 무효화된
+  // 토큰으로 실패해 정상 세션인데도 강제 로그아웃되는 레이스 컨디션이 생긴다.
+  Future<bool>? _refreshing;
+
+  Future<bool> _tryRefresh() {
+    return _refreshing ??= _doRefresh().whenComplete(() => _refreshing = null);
+  }
+
   // 별도 Dio 인스턴스로 refresh 호출 — 인터셉터 재진입 방지
-  Future<bool> _tryRefresh() async {
+  Future<bool> _doRefresh() async {
     final refreshToken = await TokenStorage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) return false;
 
@@ -90,7 +100,7 @@ class ApiClient {
       'password': password,
     });
     return {
-      'accessToken':  response.data['accessToken']  as String,
+      'accessToken': response.data['accessToken'] as String,
       'refreshToken': response.data['refreshToken'] as String? ?? '',
     };
   }
