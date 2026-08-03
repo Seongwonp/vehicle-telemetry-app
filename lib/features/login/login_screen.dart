@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_provider.dart';
@@ -48,12 +49,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           (route) => false,
         );
       }
+    } on DioException catch (e) {
+      // 계정 존재 여부를 숨겨야 하는 401만 "아이디/비밀번호 오류"로 뭉뚱그리고,
+      // 네트워크/타임아웃/서버 다운은 별도 메시지로 구분한다 — 예전엔 전부
+      // "비번 틀렸다"로 보여서 백엔드가 안 떠 있어도 그렇게 나와 디버깅 중
+      // 헷갈리기 쉬웠다.
+      if (mounted) {
+        setState(() => _error = _loginErrorMessage(e));
+      }
     } catch (_) {
       if (mounted) {
-        setState(() => _error = '아이디 또는 비밀번호가 올바르지 않습니다.');
+        setState(() => _error = '알 수 없는 오류가 발생했습니다.');
       }
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String _loginErrorMessage(DioException e) {
+    if (e.response != null) {
+      // 서버가 응답은 했다 — 인증 실패(401 등)로 취급.
+      return '아이디 또는 비밀번호가 올바르지 않습니다.';
+    }
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.connectionError:
+        return '백엔드 서버에 연결할 수 없습니다. 서버 주소와 네트워크 상태를 확인하세요.';
+      default:
+        return '로그인에 실패했습니다. 잠시 후 다시 시도하세요.';
     }
   }
 
@@ -68,7 +93,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           gradient: RadialGradient(
             center: const Alignment(0, -0.7),
             radius: 1.2,
-            colors: [Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!, AppTheme.bg],
+            colors: [
+              Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!,
+              AppTheme.bg
+            ],
             stops: const [0.0, 0.75],
           ),
         ),
@@ -104,8 +132,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color:
-                                              AppTheme.primary.withOpacity(0.18),
+                                          color: AppTheme.primary
+                                              .withOpacity(0.18),
                                           blurRadius: 20,
                                         ),
                                       ],
@@ -218,8 +246,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             borderRadius: BorderRadius.circular(14),
                             onTap: _loading ? null : _login,
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               child: Center(
                                 child: _loading
                                     ? const SizedBox(
@@ -227,9 +254,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         width: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation(
-                                                  Colors.white),
+                                          valueColor: AlwaysStoppedAnimation(
+                                              Colors.white),
                                         ),
                                       )
                                     : const Text(

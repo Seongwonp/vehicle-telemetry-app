@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/api/api_client.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/models/vehicle.dart';
+import '../../core/providers/vehicle_providers.dart';
 import '../../core/responsive/breakpoints.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../landing/landing_screen.dart';
@@ -10,51 +10,13 @@ import 'widgets/empty_view.dart';
 import 'widgets/error_view.dart';
 import 'widgets/vehicle_card.dart';
 
-class VehicleListScreen extends ConsumerStatefulWidget {
+class VehicleListScreen extends ConsumerWidget {
   const VehicleListScreen({super.key});
 
   @override
-  ConsumerState<VehicleListScreen> createState() => _VehicleListScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vehiclesAsync = ref.watch(vehiclesProvider);
 
-class _VehicleListScreenState extends ConsumerState<VehicleListScreen> {
-  List<Vehicle> _vehicles = [];
-  bool _loading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVehicles();
-  }
-
-  Future<void> _loadVehicles() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final data = await ApiClient().getVehicles();
-      if (mounted) {
-        setState(() {
-          _vehicles = data
-              .map((e) => Vehicle.fromJson(e as Map<String, dynamic>))
-              .toList();
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = '차량 목록을 불러올 수 없습니다.';
-          _loading = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('내 차량'),
@@ -63,7 +25,7 @@ class _VehicleListScreenState extends ConsumerState<VehicleListScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: '새로고침',
-            onPressed: _loadVehicles,
+            onPressed: () => ref.invalidate(vehiclesProvider),
           ),
           IconButton(
             icon: const Icon(Icons.logout),
@@ -81,25 +43,31 @@ class _VehicleListScreenState extends ConsumerState<VehicleListScreen> {
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? VehicleListErrorView(message: _error!, onRetry: _loadVehicles)
-              : _vehicles.isEmpty
-                  ? EmptyView(onRetry: _loadVehicles)
-                  : RefreshIndicator(
-                      onRefresh: _loadVehicles,
-                      child: _VehicleGrid(
-                        vehicles: _vehicles,
-                        onOpen: (vehicleId) => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                DashboardScreen(vehicleId: vehicleId),
-                          ),
-                        ),
-                      ),
+      // AsyncValue.when이 loading/error/data 3상태를 그대로 매핑해준다 — 예전엔
+      // _loading/_error/_vehicles 3개 필드를 직접 관리하고 실수로 상태 하나를
+      // 빠뜨릴 여지가 있었다(코덱스 리뷰에서 대시보드/이상이력 화면이 실제로 그
+      // 실수를 했었다).
+      body: vehiclesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => VehicleListErrorView(
+          message: '차량 목록을 불러올 수 없습니다.',
+          onRetry: () => ref.invalidate(vehiclesProvider),
+        ),
+        data: (vehicles) => vehicles.isEmpty
+            ? EmptyView(onRetry: () => ref.invalidate(vehiclesProvider))
+            : RefreshIndicator(
+                onRefresh: () => ref.refresh(vehiclesProvider.future),
+                child: _VehicleGrid(
+                  vehicles: vehicles,
+                  onOpen: (vehicleId) => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DashboardScreen(vehicleId: vehicleId),
                     ),
+                  ),
+                ),
+              ),
+      ),
     );
   }
 }

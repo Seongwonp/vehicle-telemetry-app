@@ -22,25 +22,51 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with WidgetsBindingObserver {
+  static const _baseInterval = Duration(seconds: 2);
+  static const _maxInterval = Duration(seconds: 30);
+
   Telemetry? _latest;
   List<Telemetry> _history = [];
   Timer? _timer;
   bool _loading = true;
   bool _error = false;
+  int _consecutiveFailures = 0;
   DateTime? _lastUpdated;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _fetchData();
-    _timer = Timer.periodic(const Duration(seconds: 2), (_) => _fetchData());
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     super.dispose();
+  }
+
+  // 앱이 백그라운드로 가면 폴링을 멈춘다 — 화면이 안 보이는데 2초마다 계속
+  // 네트워크 요청을 보내는 건 배터리/데이터 낭비다. 포그라운드로 돌아오면
+  // 즉시 한 번 갱신하고 폴링을 재개한다.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      _timer?.cancel();
+      _timer = null;
+    } else if (state == AppLifecycleState.resumed) {
+      if (_timer == null) _fetchData();
+    }
+  }
+
+  void _scheduleNext(Duration delay) {
+    _timer?.cancel();
+    _timer = Timer(delay, _fetchData);
   }
 
   Future<void> _fetchData() async {
@@ -56,8 +82,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _history = list;
           _loading = false;
           _error = false;
+          _consecutiveFailures = 0;
           _lastUpdated = DateTime.now();
         });
+        _scheduleNext(_baseInterval);
       }
     } catch (_) {
       // 2초마다 폴링하는 도중 한 번 실패한다고 화면을 통째로 에러로 덮진 않는다 —
@@ -68,7 +96,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         setState(() {
           _loading = false;
           if (_latest == null) _error = true;
+          _consecutiveFailures++;
         });
+        // 서버가 죽었는데 2초마다 계속 두드리지 않도록, 연속 실패마다 대기 시간을
+        // 2배씩 늘리고 최대 30초로 캡한다(2s → 4s → 8s → 16s → 30s → 30s ...).
+        final backoff = _baseInterval * (1 << _consecutiveFailures.clamp(0, 4));
+        _scheduleNext(backoff > _maxInterval ? _maxInterval : backoff);
       }
     }
   }
