@@ -146,12 +146,12 @@ class ApiClient {
   }
 
   // ── AI 진단 ───────────────────────────────────────────────────
-  // Gemini 응답이 20~30초대로 오래 걸릴 수 있어 기본 receiveTimeout(15초)보다
-  // 넉넉하게 개별 지정한다.
+  // 상세 리포트 요청 시 Gemini 응답이 40~80초대까지 걸릴 수 있어 기본
+  // receiveTimeout(15초)보다 넉넉하게 개별 지정한다 (백엔드 타임아웃 90초 + 여유).
   Future<Map<String, dynamic>> getDiagnosis(String vehicleId) async {
     final response = await _dio.get(
       '/api/vehicles/$vehicleId/diagnosis',
-      options: Options(receiveTimeout: const Duration(seconds: 60)),
+      options: Options(receiveTimeout: const Duration(seconds: 100)),
     );
     return response.data as Map<String, dynamic>;
   }
