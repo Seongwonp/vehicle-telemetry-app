@@ -15,11 +15,52 @@ import 'widgets/primary_metric_card.dart';
 import 'widgets/secondary_metric_card.dart';
 import 'widgets/speed_chart.dart';
 
+typedef StompClientFactory = StompClient Function(StompConfig config);
+typedef TokenLoader = Future<String?> Function();
+typedef DashboardClock = DateTime Function();
+
+StompClient _createStompClient(StompConfig config) =>
+    StompClient(config: config);
+Future<String?> _loadAccessToken() => TokenStorage.getToken();
+DateTime _currentTime() => DateTime.now();
+
+String webSocketUrlForApiBase(String apiBaseUrl) {
+  final uri = Uri.parse(apiBaseUrl);
+  final path = '${uri.path.replaceFirst(RegExp(r'/$'), '')}/ws';
+  return uri
+      .replace(
+        scheme: uri.scheme == 'https' ? 'wss' : 'ws',
+        path: path,
+      )
+      .toString();
+}
+
+enum DashboardConnectionState {
+  connecting,
+  connected,
+  reconnecting,
+  stale,
+}
+
 // 차량 상세 화면(VehicleDetailScreen)의 첫 번째 탭 — 자체 Scaffold/AppBar
 // 없이 본문만 그린다. 웹소켓 연결 생명주기는 이 위젯이 계속 소유한다.
 class DashboardTab extends StatefulWidget {
   final String vehicleId;
-  const DashboardTab({required this.vehicleId, super.key});
+  final StompClientFactory stompClientFactory;
+  final TokenLoader tokenLoader;
+  final Duration noSignalTimeout;
+  final Duration staleTimeout;
+  final DashboardClock now;
+
+  const DashboardTab({
+    required this.vehicleId,
+    this.stompClientFactory = _createStompClient,
+    this.tokenLoader = _loadAccessToken,
+    this.noSignalTimeout = const Duration(seconds: 8),
+    this.staleTimeout = const Duration(seconds: 10),
+    this.now = _currentTime,
+    super.key,
+  });
 
   @override
   State<DashboardTab> createState() => _DashboardTabState();
@@ -34,16 +75,18 @@ class _DashboardTabState extends State<DashboardTab>
   bool get wantKeepAlive => true;
 
   static const _historyLimit = 20;
-  static const _noSignalTimeout = Duration(seconds: 8);
-
   Telemetry? _latest;
   List<Telemetry> _history = [];
   StompClient? _client;
   bool _loading = true;
   bool _error = false;
   bool _connected = false;
+  DashboardConnectionState _connectionState =
+      DashboardConnectionState.connecting;
   DateTime? _lastUpdated;
   Timer? _signalTimeout;
+  Timer? _staleTimer;
+  int _connectionGeneration = 0;
 
   @override
   void initState() {
@@ -56,6 +99,8 @@ class _DashboardTabState extends State<DashboardTab>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _signalTimeout?.cancel();
+    _staleTimer?.cancel();
+    _connectionGeneration++;
     _client?.deactivate();
     super.dispose();
   }
@@ -70,67 +115,140 @@ class _DashboardTabState extends State<DashboardTab>
       _client?.deactivate();
       _client = null;
       _connected = false;
+      _connectionState = _latest == null
+          ? DashboardConnectionState.connecting
+          : DashboardConnectionState.reconnecting;
     } else if (state == AppLifecycleState.resumed) {
       if (_client == null) _connect();
     }
   }
 
   String _wsUrl() {
-    final base = ApiClient.baseUrl
-        .replaceFirst('https://', 'wss://')
-        .replaceFirst('http://', 'ws://');
-    return '$base/ws';
+    return webSocketUrlForApiBase(ApiClient.baseUrl);
   }
 
   Future<void> _connect() async {
+    // 에러 화면의 수동 재시도와 stomp_dart_client의 자동 재연결이 겹치면
+    // 소켓/구독이 중복될 수 있으므로 새 클라이언트를 만들기 전에 기존 것을 끝낸다.
+    final generation = ++_connectionGeneration;
+    _client?.deactivate();
+    _client = null;
+
     setState(() {
-      _loading = true;
+      _loading = _latest == null;
       _error = false;
+      _connected = false;
+      _connectionState = _latest == null
+          ? DashboardConnectionState.connecting
+          : DashboardConnectionState.reconnecting;
     });
 
-    final token = await TokenStorage.getToken();
-    _client = StompClient(
-      config: StompConfig(
+    final connectHeaders = <String, String>{};
+    final client = widget.stompClientFactory(
+      StompConfig(
         url: _wsUrl(),
-        stompConnectHeaders: {if (token != null) 'Authorization': 'Bearer $token'},
-        onConnect: _onConnect,
-        onWebSocketError: (_) => _handleConnectionIssue(),
-        onStompError: (_) => _handleConnectionIssue(),
+        stompConnectHeaders: connectHeaders,
+        // 자동 재연결을 포함해 CONNECT 직전마다 최신 access token을 사용한다.
+        beforeConnect: () async {
+          final token = await widget.tokenLoader();
+          connectHeaders.clear();
+          if (token != null && token.isNotEmpty) {
+            connectHeaders['Authorization'] = 'Bearer $token';
+          }
+        },
+        onConnect: (frame) {
+          if (generation == _connectionGeneration) _onConnect(frame);
+        },
+        onWebSocketError: (_) {
+          if (generation == _connectionGeneration) _handleConnectionIssue();
+        },
+        onStompError: (_) {
+          if (generation == _connectionGeneration) _handleConnectionIssue();
+        },
+        onWebSocketDone: () {
+          if (generation == _connectionGeneration) _handleConnectionIssue();
+        },
         onDisconnect: (_) {
-          if (mounted) setState(() => _connected = false);
+          if (generation == _connectionGeneration) _handleConnectionIssue();
         },
         reconnectDelay: const Duration(seconds: 5),
       ),
     );
-    _client!.activate();
+    if (!mounted || generation != _connectionGeneration) {
+      client.deactivate();
+      return;
+    }
+    _client = client;
+    client.activate();
 
     // 연결은 됐는데 이 차량 데이터가 계속 안 들어오는 경우(비활성 차량 등)와
     // 아예 연결 자체가 안 되는 경우를 구분하기 위한 유예 시간.
     _signalTimeout?.cancel();
-    _signalTimeout = Timer(_noSignalTimeout, () {
+    _signalTimeout = Timer(widget.noSignalTimeout, () {
       if (!mounted || _latest != null) return;
       setState(() {
         _loading = false;
         _error = !_connected;
       });
     });
+    _startStaleTimer();
+  }
+
+  void _startStaleTimer() {
+    _staleTimer?.cancel();
+    _staleTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted || _lastUpdated == null) return;
+      final stale =
+          widget.now().difference(_lastUpdated!) > widget.staleTimeout;
+      final nextState = stale
+          ? DashboardConnectionState.stale
+          : (_connected
+              ? DashboardConnectionState.connected
+              : DashboardConnectionState.reconnecting);
+      // 매초 rebuild해 "N초 전" 표시도 데이터가 끊긴 동안 정확히 갱신한다.
+      setState(() => _connectionState = nextState);
+    });
   }
 
   void _onConnect(StompFrame frame) {
     if (!mounted) return;
-    setState(() => _connected = true);
-    _client!.subscribe(
+    setState(() {
+      _connected = true;
+      _connectionState = DashboardConnectionState.connected;
+    });
+    final client = _client;
+    if (client == null) return;
+    client.subscribe(
       destination: '/topic/vehicle/${widget.vehicleId}/telemetry',
       callback: (frame) {
         if (frame.body == null || !mounted) return;
-        final telemetry =
-            Telemetry.fromJson(jsonDecode(frame.body!) as Map<String, dynamic>);
+        Telemetry? telemetry;
+        try {
+          final decoded = jsonDecode(frame.body!);
+          if (decoded is! Map<String, dynamic>) {
+            throw const FormatException('telemetry payload is not an object');
+          }
+          telemetry = Telemetry.tryFromJson(
+            decoded,
+            onError: (error, stackTrace) => debugPrint(
+              'Malformed telemetry frame ignored for ${widget.vehicleId}: $error',
+            ),
+          );
+        } catch (error) {
+          debugPrint(
+            'Malformed telemetry frame ignored for ${widget.vehicleId}: $error',
+          );
+          return;
+        }
+        if (telemetry == null) return;
         setState(() {
           _latest = telemetry;
-          _history = [telemetry, ..._history].take(_historyLimit).toList();
+          _history = [telemetry!, ..._history].take(_historyLimit).toList();
           _loading = false;
           _error = false;
-          _lastUpdated = DateTime.now();
+          _connected = true;
+          _connectionState = DashboardConnectionState.connected;
+          _lastUpdated = widget.now();
         });
       },
     );
@@ -138,7 +256,12 @@ class _DashboardTabState extends State<DashboardTab>
 
   void _handleConnectionIssue() {
     if (!mounted) return;
-    setState(() => _connected = false);
+    setState(() {
+      _connected = false;
+      _connectionState = _latest == null
+          ? DashboardConnectionState.connecting
+          : DashboardConnectionState.reconnecting;
+    });
     // stomp_dart_client가 reconnectDelay에 따라 자동 재시도한다 — 여기선
     // "아직 한 번도 데이터를 못 받았다면" 에러 상태만 반영한다.
     if (_latest == null) {
@@ -151,9 +274,9 @@ class _DashboardTabState extends State<DashboardTab>
 
   String _lastUpdatedText() {
     if (_lastUpdated == null) return '';
-    final diff = DateTime.now().difference(_lastUpdated!).inSeconds;
+    final diff = widget.now().difference(_lastUpdated!).inSeconds;
     if (diff < 5) return '방금 업데이트';
-    return '${diff}초 전 업데이트';
+    return '$diff초 전 업데이트';
   }
 
   @override
@@ -169,6 +292,7 @@ class _DashboardTabState extends State<DashboardTab>
       latest: _latest!,
       history: _history,
       lastUpdatedText: _lastUpdatedText(),
+      connectionState: _connectionState,
     );
   }
 }
@@ -179,11 +303,13 @@ class _DashboardBody extends StatelessWidget {
   final Telemetry latest;
   final List<Telemetry> history;
   final String lastUpdatedText;
+  final DashboardConnectionState connectionState;
 
   const _DashboardBody({
     required this.latest,
     required this.history,
     required this.lastUpdatedText,
+    required this.connectionState,
   });
 
   @override
@@ -201,9 +327,10 @@ class _DashboardBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (lastUpdatedText.isNotEmpty) ...[
-                Text(lastUpdatedText,
-                    style: const TextStyle(
-                        fontSize: 11, color: AppTheme.textSecondary)),
+                _ConnectionStatus(
+                  state: connectionState,
+                  lastUpdatedText: lastUpdatedText,
+                ),
                 const SizedBox(height: 8),
               ],
 
@@ -299,6 +426,50 @@ class _DashboardBody extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ConnectionStatus extends StatelessWidget {
+  final DashboardConnectionState state;
+  final String lastUpdatedText;
+
+  const _ConnectionStatus({required this.state, required this.lastUpdatedText});
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, label, color) = switch (state) {
+      DashboardConnectionState.connected => (
+          Icons.wifi,
+          lastUpdatedText,
+          AppTheme.textSecondary
+        ),
+      DashboardConnectionState.connecting => (
+          Icons.sync,
+          '연결 중 · $lastUpdatedText',
+          AppTheme.warning
+        ),
+      DashboardConnectionState.reconnecting => (
+          Icons.sync_problem,
+          '재연결 중 · 마지막 $lastUpdatedText',
+          AppTheme.warning
+        ),
+      DashboardConnectionState.stale => (
+          Icons.schedule,
+          '데이터 지연 · 마지막 $lastUpdatedText',
+          AppTheme.danger
+        ),
+    };
+    return Semantics(
+      liveRegion: state != DashboardConnectionState.connected,
+      label: label,
+      child: Row(
+        children: [
+          Icon(icon, size: 13, color: color),
+          const SizedBox(width: 5),
+          Text(label, style: TextStyle(fontSize: 11, color: color)),
+        ],
       ),
     );
   }

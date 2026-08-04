@@ -1,5 +1,34 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+abstract interface class TokenStore {
+  Future<void> save(String accessToken, String refreshToken,
+      [String? username]);
+  Future<String?> getToken();
+  Future<String?> getRefreshToken();
+  Future<String?> getUsername();
+  Future<void> clear();
+  Future<bool> hasToken();
+}
+
+class SecureTokenStore implements TokenStore {
+  const SecureTokenStore();
+
+  @override
+  Future<void> save(String accessToken, String refreshToken,
+          [String? username]) =>
+      TokenStorage.save(accessToken, refreshToken, username);
+  @override
+  Future<String?> getToken() => TokenStorage.getToken();
+  @override
+  Future<String?> getRefreshToken() => TokenStorage.getRefreshToken();
+  @override
+  Future<String?> getUsername() => TokenStorage.getUsername();
+  @override
+  Future<void> clear() => TokenStorage.clear();
+  @override
+  Future<bool> hasToken() => TokenStorage.hasToken();
+}
+
 class TokenStorage {
   static const _storage = FlutterSecureStorage();
   static const _accessKey = 'jwt_token';

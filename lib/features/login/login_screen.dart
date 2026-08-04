@@ -5,6 +5,31 @@ import '../../core/auth/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../vehicle_list/vehicle_list_screen.dart';
 
+String loginErrorMessage(DioException e) {
+  final statusCode = e.response?.statusCode;
+  if (statusCode == 401 || statusCode == 403) {
+    return '아이디 또는 비밀번호가 올바르지 않습니다.';
+  }
+  if (statusCode == 429) {
+    return '로그인 시도가 너무 많습니다. 잠시 후 다시 시도하세요.';
+  }
+  if (statusCode != null && statusCode >= 500) {
+    return '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도하세요.';
+  }
+  if (statusCode != null) {
+    return '로그인 요청을 처리할 수 없습니다. 입력 내용을 확인하세요.';
+  }
+  switch (e.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.sendTimeout:
+    case DioExceptionType.receiveTimeout:
+    case DioExceptionType.connectionError:
+      return '백엔드 서버에 연결할 수 없습니다. 서버 주소와 네트워크 상태를 확인하세요.';
+    default:
+      return '로그인에 실패했습니다. 잠시 후 다시 시도하세요.';
+  }
+}
+
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -55,7 +80,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // "비번 틀렸다"로 보여서 백엔드가 안 떠 있어도 그렇게 나와 디버깅 중
       // 헷갈리기 쉬웠다.
       if (mounted) {
-        setState(() => _error = _loginErrorMessage(e));
+        setState(() => _error = loginErrorMessage(e));
       }
     } catch (_) {
       if (mounted) {
@@ -63,22 +88,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     } finally {
       if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  String _loginErrorMessage(DioException e) {
-    if (e.response != null) {
-      // 서버가 응답은 했다 — 인증 실패(401 등)로 취급.
-      return '아이디 또는 비밀번호가 올바르지 않습니다.';
-    }
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-      case DioExceptionType.connectionError:
-        return '백엔드 서버에 연결할 수 없습니다. 서버 주소와 네트워크 상태를 확인하세요.';
-      default:
-        return '로그인에 실패했습니다. 잠시 후 다시 시도하세요.';
     }
   }
 

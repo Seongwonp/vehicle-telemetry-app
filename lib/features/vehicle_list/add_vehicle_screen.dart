@@ -8,7 +8,8 @@ import '../../core/theme/app_theme.dart';
 // 차량이 미리 등록되어 있어야 한다(VehicleService.register) — 그동안 이
 // 등록 API를 호출할 화면이 앱 안에 없어서 curl로만 등록할 수 있었다.
 class AddVehicleScreen extends StatefulWidget {
-  const AddVehicleScreen({super.key});
+  final ApiClient? apiClient;
+  const AddVehicleScreen({this.apiClient, super.key});
 
   @override
   State<AddVehicleScreen> createState() => _AddVehicleScreenState();
@@ -40,7 +41,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
       _error = null;
     });
     try {
-      await ApiClient().registerVehicle(
+      await (widget.apiClient ?? ApiClient()).registerVehicle(
         _idController.text.trim(),
         _nameController.text.trim(),
         _ownerController.text.trim(),
@@ -53,8 +54,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
           ? (e.response?.data as Map)['message'] as String?
           : null;
       if (mounted) {
-        setState(() =>
-            _error = message ?? '차량 등록에 실패했습니다. 잠시 후 다시 시도하세요.');
+        setState(() => _error = message ?? '차량 등록에 실패했습니다. 잠시 후 다시 시도하세요.');
       }
     } catch (_) {
       if (mounted) setState(() => _error = '알 수 없는 오류가 발생했습니다.');
@@ -127,9 +127,8 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                       hintText: '예: 현대 아반떼',
                       prefixIcon: Icon(Icons.directions_car_outlined),
                     ),
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? '차량 이름을 입력하세요'
-                        : null,
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? '차량 이름을 입력하세요' : null,
                   ),
                   const SizedBox(height: 14),
                   TextFormField(
@@ -141,9 +140,8 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                     ),
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _submit(),
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? '소유자를 입력하세요'
-                        : null,
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? '소유자를 입력하세요' : null,
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 14),

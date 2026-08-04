@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/models/anomaly.dart';
 import '../../core/providers/anomaly_providers.dart';
 import '../../core/theme/app_theme.dart';
 import 'widgets/anomaly_card.dart';
@@ -28,28 +27,19 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
 
   String _severityFilter = '전체';
   _PeriodFilter _periodFilter = _PeriodFilter.all;
+  int _page = 0;
 
-  List<Anomaly> _applyFilters(List<Anomaly> anomalies) {
-    final now = DateTime.now();
-    return anomalies.where((a) {
-      if (_severityFilter != '전체' && a.severity != _severityFilter) {
-        return false;
-      }
-      switch (_periodFilter) {
-        case _PeriodFilter.day:
-          return now.difference(a.detectedAt).inHours <= 24;
-        case _PeriodFilter.week:
-          return now.difference(a.detectedAt).inDays <= 7;
-        case _PeriodFilter.all:
-          return true;
-      }
-    }).toList();
-  }
+  AnomalyQuery get _query => AnomalyQuery(
+        vehicleId: widget.vehicleId,
+        severity: _severityFilter == '전체' ? null : _severityFilter,
+        period: _periodFilter.name,
+        page: _page,
+      );
 
   @override
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin 필수 호출
-    final anomaliesAsync = ref.watch(anomaliesProvider(widget.vehicleId));
+    final anomaliesAsync = ref.watch(anomalyPageProvider(_query));
 
     // 조회 실패(error)와 "이상 이벤트 없음"(data가 빈 리스트, 정상)을
     // AsyncValue가 애초에 서로 다른 상태로 분리해주기 때문에, 예전처럼 catch에서
@@ -57,13 +47,12 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
     return anomaliesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (_, __) => AnomalyErrorView(
-        onRetry: () => ref.invalidate(anomaliesProvider(widget.vehicleId)),
+        onRetry: () => ref.invalidate(anomalyPageProvider(_query)),
       ),
-      data: (anomalies) {
-        final filtered = _applyFilters(anomalies);
+      data: (result) {
+        final anomalies = result.content;
         return RefreshIndicator(
-          onRefresh: () =>
-              ref.refresh(anomaliesProvider(widget.vehicleId).future),
+          onRefresh: () => ref.refresh(anomalyPageProvider(_query).future),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
@@ -87,7 +76,7 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            '${anomalies.length}건',
+                            '${result.totalElements}건',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -100,28 +89,56 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
                       ],
                     ),
                   ),
-                  if (anomalies.isNotEmpty)
-                    _FilterBar(
-                      severity: _severityFilter,
-                      period: _periodFilter,
-                      onSeverityChanged: (v) =>
-                          setState(() => _severityFilter = v),
-                      onPeriodChanged: (v) =>
-                          setState(() => _periodFilter = v),
-                    ),
+                  _FilterBar(
+                    severity: _severityFilter,
+                    period: _periodFilter,
+                    onSeverityChanged: (v) => setState(() {
+                      _severityFilter = v;
+                      _page = 0;
+                    }),
+                    onPeriodChanged: (v) => setState(() {
+                      _periodFilter = v;
+                      _page = 0;
+                    }),
+                  ),
                   Expanded(
                     child: anomalies.isEmpty
                         ? const AnomalyEmptyView()
-                        : filtered.isEmpty
+                        : anomalies.isEmpty
                             ? const AnomalyEmptyView(filtered: true)
                             : ListView.separated(
                                 padding:
                                     const EdgeInsets.fromLTRB(16, 4, 16, 32),
-                                itemCount: filtered.length,
+                                itemCount: anomalies.length + 1,
                                 separatorBuilder: (_, __) =>
                                     const SizedBox(height: 10),
-                                itemBuilder: (context, i) =>
-                                    AnomalyCard(anomaly: filtered[i]),
+                                itemBuilder: (context, i) {
+                                  if (i < anomalies.length) {
+                                    return AnomalyCard(anomaly: anomalies[i]);
+                                  }
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      TextButton(
+                                        onPressed: _page == 0
+                                            ? null
+                                            : () => setState(() => _page--),
+                                        child: const Text('이전'),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12),
+                                        child: Text('${result.page + 1}페이지'),
+                                      ),
+                                      TextButton(
+                                        onPressed: result.hasNext
+                                            ? () => setState(() => _page++)
+                                            : null,
+                                        child: const Text('다음'),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                   ),
                 ],
@@ -212,12 +229,11 @@ class _FilterChip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: selected
-              ? AppTheme.primary.withOpacity(0.15)
-              : AppTheme.surface,
+          color:
+              selected ? AppTheme.primary.withOpacity(0.15) : AppTheme.surface,
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(
-              color: selected ? AppTheme.primary : AppTheme.border),
+          border:
+              Border.all(color: selected ? AppTheme.primary : AppTheme.border),
         ),
         child: Text(
           label,

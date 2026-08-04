@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../auth/token_storage.dart';
 
 class ApiClient {
@@ -9,24 +10,68 @@ class ApiClient {
     defaultValue: 'http://localhost:8080',
   );
 
+  /// 개발 중 localhost HTTP는 허용하지만 release 빌드는 HTTPS endpoint를
+  /// 명시하지 않으면 시작하지 않는다. 잘못된 운영 빌드가 평문 HTTP/WS로 토큰을
+  /// 전송하는 것을 배포 전에 드러내기 위한 fail-fast 검증이다.
+  static void validateConfiguration() {
+    validateBaseUrl(baseUrl, releaseMode: kReleaseMode);
+  }
+
+  @visibleForTesting
+  static void validateBaseUrl(String value, {required bool releaseMode}) {
+    final uri = Uri.tryParse(value);
+    if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
+      throw StateError('API_BASE_URL must be an absolute URL: $value');
+    }
+    if (releaseMode &&
+        (uri.scheme != 'https' ||
+            uri.host == 'localhost' ||
+            uri.host == '127.0.0.1')) {
+      throw StateError(
+        'Release builds require a non-local HTTPS API_BASE_URL. '
+        'Pass --dart-define=API_BASE_URL=https://<host>.',
+      );
+    }
+  }
+
   static final ApiClient _instance = ApiClient._internal();
   factory ApiClient() => _instance;
 
   late final Dio _dio;
+  late final TokenStore _tokenStore;
+  late final Dio Function() _refreshDioFactory;
 
   // refresh 만료/실패 시 AuthNotifier가 콜백 등록 → 강제 로그아웃
   void Function()? onRefreshFailed;
 
   ApiClient._internal() {
+    _tokenStore = const SecureTokenStore();
+    _refreshDioFactory = Dio.new;
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 15),
     ));
 
+    _installInterceptors();
+  }
+
+  @visibleForTesting
+  ApiClient.forTesting({
+    required Dio dio,
+    required TokenStore tokenStore,
+    Dio Function()? refreshDioFactory,
+  }) {
+    _dio = dio;
+    _tokenStore = tokenStore;
+    _refreshDioFactory = refreshDioFactory ?? Dio.new;
+    _installInterceptors();
+  }
+
+  void _installInterceptors() {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final token = await TokenStorage.getToken();
+        final token = await _tokenStore.getToken();
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }
@@ -39,7 +84,7 @@ class ApiClient {
           final refreshed = await _tryRefresh();
           if (refreshed) {
             // 새 access token으로 원래 요청 재시도
-            final token = await TokenStorage.getToken();
+            final token = await _tokenStore.getToken();
             final opts = error.requestOptions;
             opts.headers['Authorization'] = 'Bearer $token';
             try {
@@ -70,11 +115,11 @@ class ApiClient {
 
   // 별도 Dio 인스턴스로 refresh 호출 — 인터셉터 재진입 방지
   Future<bool> _doRefresh() async {
-    final refreshToken = await TokenStorage.getRefreshToken();
+    final refreshToken = await _tokenStore.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) return false;
 
     try {
-      final response = await Dio().post(
+      final response = await _refreshDioFactory().post(
         '$baseUrl/api/auth/refresh',
         data: {'refreshToken': refreshToken},
         options: Options(
@@ -82,13 +127,13 @@ class ApiClient {
           receiveTimeout: const Duration(seconds: 10),
         ),
       );
-      await TokenStorage.save(
+      await _tokenStore.save(
         response.data['accessToken'] as String,
         response.data['refreshToken'] as String,
       );
       return true;
     } catch (_) {
-      await TokenStorage.clear();
+      await _tokenStore.clear();
       return false;
     }
   }
@@ -154,6 +199,25 @@ class ApiClient {
       queryParameters: {'limit': 100},
     );
     return response.data as List<dynamic>;
+  }
+
+  Future<Map<String, dynamic>> getAnomalyPage(
+    String vehicleId, {
+    String? severity,
+    DateTime? from,
+    int page = 0,
+    int size = 20,
+  }) async {
+    final response = await _dio.get(
+      '/api/vehicles/$vehicleId/anomalies/page',
+      queryParameters: {
+        if (severity != null) 'severity': severity,
+        if (from != null) 'from': from.toUtc().toIso8601String(),
+        'page': page,
+        'size': size,
+      },
+    );
+    return response.data as Map<String, dynamic>;
   }
 
   // ── AI 진단 ───────────────────────────────────────────────────

@@ -8,11 +8,13 @@ class VehicleCard extends StatelessWidget {
   final Vehicle vehicle;
   final VoidCallback onTap;
   final VoidCallback onDeleted;
+  final ApiClient? apiClient;
 
   const VehicleCard({
     required this.vehicle,
     required this.onTap,
     required this.onDeleted,
+    this.apiClient,
     super.key,
   });
 
@@ -21,8 +23,7 @@ class VehicleCard extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('차량 삭제'),
-        content: Text(
-            '${vehicle.name}(${vehicle.vehicleId})을(를) 삭제하시겠습니까?\n'
+        content: Text('${vehicle.name}(${vehicle.vehicleId})을(를) 삭제하시겠습니까?\n'
             '기존 텔레메트리/이상 이력은 보존되지만 목록에서는 사라집니다.'),
         actions: [
           TextButton(
@@ -39,7 +40,7 @@ class VehicleCard extends StatelessWidget {
     if (confirmed != true) return;
 
     try {
-      await ApiClient().deactivateVehicle(vehicle.vehicleId);
+      await (apiClient ?? ApiClient()).deactivateVehicle(vehicle.vehicleId);
       onDeleted();
     } catch (_) {
       if (context.mounted) {
@@ -173,8 +174,7 @@ class VehicleCard extends StatelessWidget {
                                     size: 18, color: AppTheme.danger),
                                 SizedBox(width: 8),
                                 Text('삭제',
-                                    style:
-                                        TextStyle(color: AppTheme.danger)),
+                                    style: TextStyle(color: AppTheme.danger)),
                               ],
                             ),
                           ),

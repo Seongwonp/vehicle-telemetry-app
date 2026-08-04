@@ -6,8 +6,8 @@
 
 ## 디자인
 
-라이트 테마(`lib/core/theme/app_theme.dart`) 기반 — 옅은 회색 배경(`#F7F8FA`) 위에
-테두리 없는 흰 카드, 큰 radius, 넉넉한 여백을 쓰는 플랫 스타일로 전 화면을 통일했다.
+`lib/core/theme/app_theme.dart`의 "코크핏 다크" 테마를 사용한다. 앰버 포인트 컬러,
+Orbitron 계기판 숫자, Manrope 본문, 커스텀 아크 게이지로 차량 HUD 분위기를 구성했다.
 반응형(`lib/core/responsive/breakpoints.dart`)도 적용되어 모바일/데스크톱(웹) 폭에서
 레이아웃이 분기된다.
 
@@ -18,9 +18,11 @@
 | 랜딩 | 첫 진입 화면 — 서비스 소개 + "시작하기" → 로그인 |
 | 로그인 | JWT 인증 |
 | 차량 목록 | 등록된 차량 리스트 |
-| 대시보드 | 속도/RPM/엔진온도 등 실시간 센서 + 속도 추이 차트 |
-| 이상 이력 | 감지된 이상 이벤트 목록 |
-| AI 진단 | Gemini API 기반 차량 진단 (백엔드 `GET /api/vehicles/{vehicleId}/diagnosis` 연동 완료) |
+| 차량 상세 | 대시보드/이상 이력/AI 진단 TabBar + 스와이프, 탭 상태 유지 |
+| 대시보드 | STOMP WebSocket 실시간 센서 + 재연결/stale 상태 + 속도 추이 차트 |
+| 이상 이력 | 감지된 이상 이벤트 목록 + 심각도/기간 필터 |
+| AI 진단 | Gemini 진단 마크다운 + A~F 등급/건강 점수 |
+| 설정 | 계정 정보, 알림 준비 상태, 로그아웃 |
 
 ## 시작하기
 
@@ -28,13 +30,16 @@
 # 1. 의존성 설치
 flutter pub get
 
-# 2. 백엔드 주소 설정
-# lib/core/api/api_client.dart → baseUrl 수정
-# 로컬: http://localhost:8080
-# AWS 배포 후: http://<EC2-IP>:8080
-
-# 3. 실행
+# 2. 로컬 실행 (기본값 http://localhost:8080)
 flutter run
+
+# 다른 개발 서버 사용
+flutter run --dart-define=API_BASE_URL=http://<개발서버>:8080
+
+# 운영 release 빌드: 토큰 보호를 위해 non-local HTTPS URL이 필수다.
+# 누락하거나 http:// URL을 주면 앱 시작 단계의 설정 검증이 실패한다.
+flutter build apk --release \
+  --dart-define=API_BASE_URL=https://api.example.com
 ```
 
 ## 백엔드 연동
@@ -74,13 +79,27 @@ lib/
     ├── vehicle_list/
     │   ├── vehicle_list_screen.dart
     │   └── widgets/                # vehicle_card, empty_view, error_view, info_chip
-    ├── dashboard/                  # 실시간 센서 + fl_chart
+    ├── dashboard/                  # STOMP 실시간 센서 + 연결/stale 상태 + fl_chart
     │   ├── dashboard_screen.dart
     │   └── widgets/                # metric_card, speed_chart, dtc_section 등
     ├── anomalies/
     │   ├── anomaly_list_screen.dart
     │   └── widgets/                # anomaly_card, empty_view
-    └── diagnosis/                  # AI 진단
-        ├── diagnosis_screen.dart
-        └── widgets/                # header_card, result_section, error_section 등
+    ├── diagnosis/                  # AI 진단
+    │   ├── diagnosis_screen.dart
+    │   └── widgets/                # header_card, result_section, error_section 등
+    ├── settings/                   # 계정/알림 준비 상태/로그아웃
+    └── vehicle_detail/             # 3개 탭 컨테이너
 ```
+
+## 테스트
+
+```bash
+flutter analyze
+flutter test
+```
+
+단위/위젯 테스트는 모델 파싱, API refresh single-flight, 차량 CRUD 계약,
+WebSocket 재연결·최신 토큰·stale·malformed frame, 진단 결과/탭 상태 유지와
+인증 초기화·로그인·로그아웃·refresh 실패, 에러/빈 상태를 검증한다. 실제 백엔드
+통합 흐름은 `integration_test/app_test.dart`에 있다.

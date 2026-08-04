@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/token_storage.dart';
 import '../../core/auth/auth_provider.dart';
-import '../../core/settings/local_settings.dart';
 import '../../core/theme/app_theme.dart';
 import '../landing/landing_screen.dart';
 
@@ -15,7 +14,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String? _username;
-  bool _notificationsEnabled = true;
   bool _loading = true;
 
   @override
@@ -26,11 +24,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _load() async {
     final username = await TokenStorage.getUsername();
-    final notifications = await LocalSettings.getNotificationsEnabled();
     if (mounted) {
       setState(() {
         _username = username;
-        _notificationsEnabled = notifications;
         _loading = false;
       });
     }
@@ -58,7 +54,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                   children: [
-                    _SectionLabel('계정'),
+                    const _SectionLabel('계정'),
                     _SettingsCard(
                       children: [
                         _InfoRow(
@@ -69,19 +65,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    _SectionLabel('알림'),
-                    _SettingsCard(
+                    const _SectionLabel('알림'),
+                    const _SettingsCard(
                       children: [
                         _SwitchRow(
                           icon: Icons.notifications_outlined,
-                          label: '이상 감지 알림',
-                          subtitle: '이상 징후 발생 시 알림을 받습니다',
-                          value: _notificationsEnabled,
-                          onChanged: (value) async {
-                            setState(() => _notificationsEnabled = value);
-                            await LocalSettings.setNotificationsEnabled(
-                                value);
-                          },
+                          label: '이상 감지 알림 (준비 중)',
+                          subtitle: '푸시 알림 연동 후 사용할 수 있습니다',
+                          value: false,
+                          onChanged: null,
                         ),
                       ],
                     ),
@@ -160,12 +152,12 @@ class _InfoRow extends StatelessWidget {
           Icon(icon, size: 20, color: AppTheme.textSecondary),
           const SizedBox(width: 12),
           Text(label,
-              style: const TextStyle(
-                  fontSize: 14, color: AppTheme.textSecondary)),
+              style:
+                  const TextStyle(fontSize: 14, color: AppTheme.textSecondary)),
           const Spacer(),
           Text(value,
-              style: const TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.w600)),
+              style:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -177,7 +169,7 @@ class _SwitchRow extends StatelessWidget {
   final String label;
   final String subtitle;
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool>? onChanged;
 
   const _SwitchRow({
     required this.icon,
@@ -212,7 +204,7 @@ class _SwitchRow extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppTheme.primary,
+            activeThumbColor: AppTheme.primary,
           ),
         ],
       ),

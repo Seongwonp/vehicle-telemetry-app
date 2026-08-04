@@ -44,6 +44,20 @@ class Telemetry {
     );
   }
 
+  /// 실시간 스트림처럼 개별 레코드 하나의 실패가 전체 구독을 깨면 안 되는 곳에서
+  /// 사용한다. REST 응답은 기존 [fromJson]을 유지해 잘못된 계약을 즉시 드러낸다.
+  static Telemetry? tryFromJson(
+    Map<String, dynamic> json, {
+    void Function(Object error, StackTrace stackTrace)? onError,
+  }) {
+    try {
+      return Telemetry.fromJson(json);
+    } catch (error, stackTrace) {
+      onError?.call(error, stackTrace);
+      return null;
+    }
+  }
+
   bool get hasAnomaly =>
       engineTemp > 105 ||
       rpm > 6000 ||

@@ -6,8 +6,10 @@ import 'core/navigation/navigator_key.dart';
 import 'core/theme/app_theme.dart';
 import 'features/landing/landing_screen.dart';
 import 'features/vehicle_list/vehicle_list_screen.dart';
+import 'core/api/api_client.dart';
 
 void main() {
+  ApiClient.validateConfiguration();
   timeago.setLocaleMessages('ko', timeago.KoMessages());
   runApp(const ProviderScope(child: TelemetryApp()));
 }
@@ -17,14 +19,34 @@ class TelemetryApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLoggedIn = ref.watch(authProvider);
+    final authStatus = ref.watch(authProvider);
 
     return MaterialApp(
       navigatorKey: rootNavigatorKey,
       title: 'TELEMETRIX',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark(),
-      home: isLoggedIn ? const VehicleListScreen() : const LandingScreen(),
+      home: switch (authStatus) {
+        AuthStatus.initializing => const _AuthInitializingScreen(),
+        AuthStatus.authenticated => const VehicleListScreen(),
+        AuthStatus.unauthenticated => const LandingScreen(),
+      },
+    );
+  }
+}
+
+class _AuthInitializingScreen extends StatelessWidget {
+  const _AuthInitializingScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Semantics(
+          label: '로그인 상태 확인 중',
+          child: const CircularProgressIndicator(),
+        ),
+      ),
     );
   }
 }
