@@ -129,6 +129,12 @@ class ApiClient {
     return response.data as Map<String, dynamic>;
   }
 
+  // 물리 삭제가 아니라 active=false로 내리는 소프트 삭제(백엔드
+  // VehicleService.deactivate와 동일한 정책) — InfluxDB 이력과의 연결을 보존한다.
+  Future<void> deactivateVehicle(String vehicleId) async {
+    await _dio.delete('/api/vehicles/$vehicleId');
+  }
+
   // ── 텔레메트리 ────────────────────────────────────────────────
   Future<List<dynamic>> getRecentTelemetry(String vehicleId,
       {int limit = 20}) async {

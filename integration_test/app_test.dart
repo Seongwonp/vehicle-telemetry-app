@@ -30,9 +30,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:telemetrix/features/anomalies/anomaly_list_screen.dart';
-import 'package:telemetrix/features/dashboard/dashboard_screen.dart';
 import 'package:telemetrix/features/login/login_screen.dart';
+import 'package:telemetrix/features/vehicle_detail/vehicle_detail_screen.dart';
 import 'package:telemetrix/features/vehicle_list/vehicle_list_screen.dart';
 import 'package:telemetrix/features/vehicle_list/widgets/vehicle_card.dart';
 import 'package:telemetrix/main.dart' as app;
@@ -45,7 +44,7 @@ const _testPassword =
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('로그인 → 차량목록 → 대시보드 → 이상이력 → 로그아웃', (tester) async {
+  testWidgets('로그인 → 차량목록 → 차량 상세(탭 스와이프) → 로그아웃', (tester) async {
     app.main();
     await tester.pumpAndSettle();
 
@@ -106,25 +105,34 @@ void main() {
     );
     await tester.tap(find.byType(VehicleCard).first);
     await tester.pumpAndSettle(const Duration(seconds: 3));
-    expect(find.byType(DashboardScreen), findsOneWidget);
+    expect(find.byType(VehicleDetailScreen), findsOneWidget);
 
-    // ── 대시보드 → 이상 이력 ────────────────────────────────────
-    await tester.tap(find.byTooltip('이상 이력'));
-    await tester.pumpAndSettle(const Duration(seconds: 3));
-    expect(find.byType(AnomalyListScreen), findsOneWidget);
+    // ── 탭 전환: 대시보드(기본) → 이상 이력 → AI 진단 ───────────────
+    // TabBarView는 세 탭을 전부 미리 마운트해두므로(스와이프 지연 없이 즉시
+    // 전환), 위젯이 "존재"하는지가 아니라 TabController.index로 "지금 보이는
+    // 탭이 맞는지"를 확인한다.
+    final tabController =
+        DefaultTabController.of(tester.element(find.byType(TabBar)));
+    expect(tabController.index, 0);
 
-    // 대시보드로 복귀
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    expect(find.byType(DashboardScreen), findsOneWidget);
+    await tester.tap(find.widgetWithText(Tab, '이상 이력'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(tabController.index, 1);
+
+    await tester.tap(find.widgetWithText(Tab, 'AI 진단'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(tabController.index, 2);
+    expect(find.text('고장진단하기'), findsOneWidget);
 
     // 차량 목록으로 복귀
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(find.byType(VehicleListScreen), findsOneWidget);
 
-    // ── 로그아웃 → 랜딩 화면 복귀 ────────────────────────────────
-    await tester.tap(find.byTooltip('로그아웃'));
+    // ── 설정 → 로그아웃 → 랜딩 화면 복귀 ─────────────────────────
+    await tester.tap(find.byTooltip('설정'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('로그아웃'));
     await tester.pumpAndSettle(const Duration(seconds: 3));
     expect(find.text('시작하기'), findsOneWidget);
   });

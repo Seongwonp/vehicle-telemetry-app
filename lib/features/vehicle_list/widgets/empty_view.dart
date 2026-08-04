@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../add_vehicle_screen.dart';
 
 class EmptyView extends StatelessWidget {
   final VoidCallback onRetry;
@@ -17,10 +18,22 @@ class EmptyView extends StatelessWidget {
           const Text('등록된 차량이 없습니다',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
-          const Text('백엔드에 차량을 등록하거나\n시뮬레이터를 실행해 보세요.',
+          const Text('차량을 추가하고 OBD-II 동글/시뮬레이터를 연결해 보세요.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppTheme.textSecondary)),
           const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: () async {
+              final registered = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(builder: (_) => const AddVehicleScreen()),
+              );
+              if (registered == true) onRetry();
+            },
+            icon: const Icon(Icons.add),
+            label: const Text('차량 추가'),
+          ),
+          const SizedBox(height: 10),
           OutlinedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),

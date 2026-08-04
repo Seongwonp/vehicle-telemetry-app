@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/api/api_client.dart';
 import '../../../core/models/vehicle.dart';
 import '../../../core/theme/app_theme.dart';
 import 'info_chip.dart';
@@ -6,8 +7,48 @@ import 'info_chip.dart';
 class VehicleCard extends StatelessWidget {
   final Vehicle vehicle;
   final VoidCallback onTap;
+  final VoidCallback onDeleted;
 
-  const VehicleCard({required this.vehicle, required this.onTap, super.key});
+  const VehicleCard({
+    required this.vehicle,
+    required this.onTap,
+    required this.onDeleted,
+    super.key,
+  });
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('차량 삭제'),
+        content: Text(
+            '${vehicle.name}(${vehicle.vehicleId})을(를) 삭제하시겠습니까?\n'
+            '기존 텔레메트리/이상 이력은 보존되지만 목록에서는 사라집니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('삭제', style: TextStyle(color: AppTheme.danger)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await ApiClient().deactivateVehicle(vehicle.vehicleId);
+      onDeleted();
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('차량 삭제에 실패했습니다. 잠시 후 다시 시도하세요.')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +131,7 @@ class VehicleCard extends StatelessWidget {
                 ),
               ),
 
-              // 상태 배지 + 이동 화살표
+              // 상태 배지 + 더보기 메뉴
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -114,10 +155,36 @@ class VehicleCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Icon(
-                    Icons.chevron_right,
-                    color: cs.onSurface.withOpacity(0.4),
+                  Row(
+                    children: [
+                      PopupMenuButton<String>(
+                        icon: Icon(Icons.more_vert,
+                            size: 20, color: cs.onSurface.withOpacity(0.6)),
+                        padding: EdgeInsets.zero,
+                        onSelected: (value) {
+                          if (value == 'delete') _confirmDelete(context);
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete_outline,
+                                    size: 18, color: AppTheme.danger),
+                                SizedBox(width: 8),
+                                Text('삭제',
+                                    style:
+                                        TextStyle(color: AppTheme.danger)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: cs.onSurface.withOpacity(0.4),
+                      ),
+                    ],
                   ),
                 ],
               ),

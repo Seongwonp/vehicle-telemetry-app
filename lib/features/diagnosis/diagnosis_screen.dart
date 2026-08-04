@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import '../../core/api/api_client.dart';
-import '../../core/theme/app_theme.dart';
 import 'widgets/error_section.dart';
 import 'widgets/header_card.dart';
 import 'widgets/loading_section.dart';
 import 'widgets/result_section.dart';
 
-class DiagnosisScreen extends StatefulWidget {
+// 차량 상세 화면(VehicleDetailScreen)의 세 번째 탭 — 자체 Scaffold/AppBar 없이
+// 본문만 그린다.
+class DiagnosisTab extends StatefulWidget {
   final String vehicleId;
-  const DiagnosisScreen({required this.vehicleId, super.key});
+  const DiagnosisTab({required this.vehicleId, super.key});
 
   @override
-  State<DiagnosisScreen> createState() => _DiagnosisScreenState();
+  State<DiagnosisTab> createState() => _DiagnosisTabState();
 }
 
-class _DiagnosisScreenState extends State<DiagnosisScreen> {
+class _DiagnosisTabState extends State<DiagnosisTab>
+    with AutomaticKeepAliveClientMixin {
+  // 탭을 멀리 스와이프했다 돌아왔을 때 진단 결과가 날아가면 안 된다 —
+  // Gemini 호출이 20~35초씩 걸리는데 그걸 매번 다시 하게 만들 순 없다.
+  @override
+  bool get wantKeepAlive => true;
+
   String? _diagnosis;
   int? _dataPoints;
   String? _grade;
@@ -58,78 +65,68 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('AI 진단',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text(widget.vehicleId,
-                style: const TextStyle(
-                    fontSize: 11, color: AppTheme.textSecondary)),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 700),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 헤더 카드
-                DiagnosisHeaderCard(vehicleId: widget.vehicleId),
-                const SizedBox(height: 16),
+    super.build(context); // AutomaticKeepAliveClientMixin 필수 호출
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 헤더 카드
+              DiagnosisHeaderCard(vehicleId: widget.vehicleId),
+              const SizedBox(height: 16),
 
-                // 진단 시작 버튼
-                FilledButton.icon(
-                  onPressed: _loading ? null : _requestDiagnosis,
-                  icon: _loading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Color(0xFF241503)),
-                        )
-                      : const Icon(Icons.search),
-                  label: Text(
-                    _loading ? 'AI 분석 중...' : '진단 시작',
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
+              // 진단 시작/재진단 버튼 — 이미 결과가 있어도 눌러서 최신 데이터
+              // 기준으로 새 진단을 다시 요청할 수 있다. 처음과 재진단을 라벨로
+              // 구분해 "다시 눌러도 새로 진단되는지" 헷갈리지 않게 한다.
+              FilledButton.icon(
+                onPressed: _loading ? null : _requestDiagnosis,
+                icon: _loading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Color(0xFF241503)),
+                      )
+                    : Icon(_diagnosis != null ? Icons.refresh : Icons.search),
+                label: Text(
+                  _loading
+                      ? 'AI 분석 중...'
+                      : (_diagnosis != null ? '다시 진단하기' : '고장진단하기'),
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold),
                 ),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
 
-                // 로딩 상태
-                if (_loading) ...[
-                  const SizedBox(height: 24),
-                  const DiagnosisLoadingSection(),
-                ],
-
-                // 에러
-                if (_error != null) ...[
-                  const SizedBox(height: 16),
-                  DiagnosisErrorSection(message: _error!),
-                ],
-
-                // 진단 결과
-                if (_diagnosis != null) ...[
-                  const SizedBox(height: 16),
-                  DiagnosisResultSection(
-                    diagnosis: _diagnosis!,
-                    dataPoints: _dataPoints ?? 0,
-                    grade: _grade ?? '?',
-                    score: _score ?? 0,
-                    diagnosedAt: _diagnosedAt!,
-                  ),
-                ],
+              // 로딩 상태
+              if (_loading) ...[
+                const SizedBox(height: 24),
+                const DiagnosisLoadingSection(),
               ],
-            ),
+
+              // 에러
+              if (_error != null) ...[
+                const SizedBox(height: 16),
+                DiagnosisErrorSection(message: _error!),
+              ],
+
+              // 진단 결과
+              if (_diagnosis != null) ...[
+                const SizedBox(height: 16),
+                DiagnosisResultSection(
+                  diagnosis: _diagnosis!,
+                  dataPoints: _dataPoints ?? 0,
+                  grade: _grade ?? '?',
+                  score: _score ?? 0,
+                  diagnosedAt: _diagnosedAt!,
+                ),
+              ],
+            ],
           ),
         ),
       ),

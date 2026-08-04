@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/vehicle.dart';
 import '../../core/providers/vehicle_providers.dart';
 import '../../core/responsive/breakpoints.dart';
-import '../dashboard/dashboard_screen.dart';
 import '../settings/settings_screen.dart';
+import '../vehicle_detail/vehicle_detail_screen.dart';
+import 'add_vehicle_screen.dart';
 import 'widgets/empty_view.dart';
 import 'widgets/error_view.dart';
 import 'widgets/vehicle_card.dart';
@@ -21,6 +22,17 @@ class VehicleListScreen extends ConsumerWidget {
         title: const Text('내 차량'),
         centerTitle: false,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: '차량 추가',
+            onPressed: () async {
+              final registered = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(builder: (_) => const AddVehicleScreen()),
+              );
+              if (registered == true) ref.invalidate(vehiclesProvider);
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: '새로고침',
@@ -55,9 +67,11 @@ class VehicleListScreen extends ConsumerWidget {
                   onOpen: (vehicleId) => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => DashboardScreen(vehicleId: vehicleId),
+                      builder: (_) =>
+                          VehicleDetailScreen(vehicleId: vehicleId),
                     ),
                   ),
+                  onDeleted: () => ref.invalidate(vehiclesProvider),
                 ),
               ),
       ),
@@ -70,8 +84,10 @@ class VehicleListScreen extends ConsumerWidget {
 class _VehicleGrid extends StatelessWidget {
   final List<Vehicle> vehicles;
   final void Function(String vehicleId) onOpen;
+  final VoidCallback onDeleted;
 
-  const _VehicleGrid({required this.vehicles, required this.onOpen});
+  const _VehicleGrid(
+      {required this.vehicles, required this.onOpen, required this.onDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +99,7 @@ class _VehicleGrid extends StatelessWidget {
         itemBuilder: (context, index) => VehicleCard(
           vehicle: vehicles[index],
           onTap: () => onOpen(vehicles[index].vehicleId),
+          onDeleted: onDeleted,
         ),
       );
     }
@@ -103,6 +120,7 @@ class _VehicleGrid extends StatelessWidget {
           itemBuilder: (context, index) => VehicleCard(
             vehicle: vehicles[index],
             onTap: () => onOpen(vehicles[index].vehicleId),
+            onDeleted: onDeleted,
           ),
         ),
       ),

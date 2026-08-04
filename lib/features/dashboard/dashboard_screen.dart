@@ -7,8 +7,6 @@ import '../../core/auth/token_storage.dart';
 import '../../core/models/telemetry.dart';
 import '../../core/responsive/breakpoints.dart';
 import '../../core/theme/app_theme.dart';
-import '../anomalies/anomaly_list_screen.dart';
-import '../diagnosis/diagnosis_screen.dart';
 import 'widgets/anomaly_banner.dart';
 import 'widgets/dtc_section.dart';
 import 'widgets/error_view.dart';
@@ -17,16 +15,24 @@ import 'widgets/primary_metric_card.dart';
 import 'widgets/secondary_metric_card.dart';
 import 'widgets/speed_chart.dart';
 
-class DashboardScreen extends StatefulWidget {
+// 차량 상세 화면(VehicleDetailScreen)의 첫 번째 탭 — 자체 Scaffold/AppBar
+// 없이 본문만 그린다. 웹소켓 연결 생명주기는 이 위젯이 계속 소유한다.
+class DashboardTab extends StatefulWidget {
   final String vehicleId;
-  const DashboardScreen({required this.vehicleId, super.key});
+  const DashboardTab({required this.vehicleId, super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<DashboardTab> createState() => _DashboardTabState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen>
-    with WidgetsBindingObserver {
+class _DashboardTabState extends State<DashboardTab>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+  // TabBarView는 기본적으로 현재 탭과 바로 인접한 탭만 살려두고 멀리
+  // 스와이프하면 언마운트한다 — 그러면 웹소켓이 끊기고 히스토리가 초기화된다.
+  // KeepAlive로 세 탭 다 항상 살아있게 유지한다.
+  @override
+  bool get wantKeepAlive => true;
+
   static const _historyLimit = 20;
   static const _noSignalTimeout = Duration(seconds: 8);
 
@@ -152,50 +158,17 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(widget.vehicleId,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            if (_lastUpdated != null)
-              Text(_lastUpdatedText(),
-                  style: const TextStyle(
-                      fontSize: 11, color: AppTheme.textSecondary)),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.warning_amber_outlined),
-            tooltip: '이상 이력',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) =>
-                      AnomalyListScreen(vehicleId: widget.vehicleId)),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.psychology_outlined),
-            tooltip: 'AI 진단',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => DiagnosisScreen(vehicleId: widget.vehicleId)),
-            ),
-          ),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _latest == null
-              ? (_error
-                  ? DashboardErrorView(onRetry: _connect)
-                  : NoDataView(vehicleId: widget.vehicleId))
-              : _DashboardBody(latest: _latest!, history: _history),
+    super.build(context); // AutomaticKeepAliveClientMixin 필수 호출
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_latest == null) {
+      return _error
+          ? DashboardErrorView(onRetry: _connect)
+          : NoDataView(vehicleId: widget.vehicleId);
+    }
+    return _DashboardBody(
+      latest: _latest!,
+      history: _history,
+      lastUpdatedText: _lastUpdatedText(),
     );
   }
 }
@@ -205,8 +178,13 @@ class _DashboardScreenState extends State<DashboardScreen>
 class _DashboardBody extends StatelessWidget {
   final Telemetry latest;
   final List<Telemetry> history;
+  final String lastUpdatedText;
 
-  const _DashboardBody({required this.latest, required this.history});
+  const _DashboardBody({
+    required this.latest,
+    required this.history,
+    required this.lastUpdatedText,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -222,6 +200,13 @@ class _DashboardBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (lastUpdatedText.isNotEmpty) ...[
+                Text(lastUpdatedText,
+                    style: const TextStyle(
+                        fontSize: 11, color: AppTheme.textSecondary)),
+                const SizedBox(height: 8),
+              ],
+
               // 이상 감지 배너
               if (latest.hasAnomaly) ...[
                 AnomalyBanner(dtcCodes: latest.dtcCodes),
