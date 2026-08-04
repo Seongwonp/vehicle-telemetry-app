@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/auth/auth_provider.dart';
 import '../../core/models/vehicle.dart';
 import '../../core/providers/vehicle_providers.dart';
 import '../../core/responsive/breakpoints.dart';
 import '../dashboard/dashboard_screen.dart';
-import '../landing/landing_screen.dart';
+import '../settings/settings_screen.dart';
 import 'widgets/empty_view.dart';
 import 'widgets/error_view.dart';
 import 'widgets/vehicle_card.dart';
@@ -28,18 +27,12 @@ class VehicleListScreen extends ConsumerWidget {
             onPressed: () => ref.invalidate(vehiclesProvider),
           ),
           IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: '로그아웃',
-            onPressed: () async {
-              await ref.read(authProvider.notifier).logout();
-              // 로그인 성공 때와 같은 이유 — 명시적으로 스택을 비우고 전환한다.
-              if (context.mounted) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LandingScreen()),
-                  (route) => false,
-                );
-              }
-            },
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: '설정',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
           ),
         ],
       ),

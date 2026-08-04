@@ -34,7 +34,8 @@ class AuthNotifier extends StateNotifier<bool> {
 
   Future<void> login(String username, String password) async {
     final result = await ApiClient().login(username, password);
-    await TokenStorage.save(result['accessToken']!, result['refreshToken']!);
+    await TokenStorage.save(
+        result['accessToken']!, result['refreshToken']!, username);
     state = true;
   }
 

@@ -140,8 +140,13 @@ class ApiClient {
   }
 
   // ── 이상 이벤트 ───────────────────────────────────────────────
+  // 화면에서 기간/등급 필터를 클라이언트 사이드로 적용하므로 기본 20건보다
+  // 넉넉한 풀(서버 최대치인 100건)을 받아온다.
   Future<List<dynamic>> getAnomalies(String vehicleId) async {
-    final response = await _dio.get('/api/vehicles/$vehicleId/anomalies');
+    final response = await _dio.get(
+      '/api/vehicles/$vehicleId/anomalies',
+      queryParameters: {'limit': 100},
+    );
     return response.data as List<dynamic>;
   }
 
