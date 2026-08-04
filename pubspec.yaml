@@ -33,6 +33,7 @@ dependencies:
 
   # 커스텀 타이포그래피 — 계기판/HUD 톤의 숫자 폰트(Orbitron) + 본문용 Manrope
   google_fonts: ^6.2.1
+  flutter_markdown_plus: ^1.0.12
 
 dev_dependencies:
   flutter_test:

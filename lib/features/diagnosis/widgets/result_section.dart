@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../../../core/theme/app_theme.dart';
 
 class DiagnosisResultSection extends StatelessWidget {
@@ -48,9 +49,24 @@ class DiagnosisResultSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: AppTheme.border),
           ),
-          child: SelectableText(
-            diagnosis,
-            style: const TextStyle(fontSize: 14, height: 1.7),
+          child: MarkdownBody(
+            data: diagnosis,
+            selectable: true,
+            styleSheet: MarkdownStyleSheet(
+              p: const TextStyle(
+                  fontSize: 14, height: 1.7, color: AppTheme.textPrimary),
+              strong: const TextStyle(
+                  fontWeight: FontWeight.w700, color: AppTheme.primaryBright),
+              h1: AppTheme.gaugeNumberStyle(fontSize: 20),
+              h2: AppTheme.gaugeNumberStyle(fontSize: 18),
+              h3: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primary),
+              listBullet: const TextStyle(
+                  fontSize: 14, color: AppTheme.textSecondary),
+              blockSpacing: 12,
+            ),
           ),
         ),
 
