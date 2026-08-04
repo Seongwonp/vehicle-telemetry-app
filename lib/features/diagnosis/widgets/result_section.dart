@@ -5,11 +5,15 @@ import '../../../core/theme/app_theme.dart';
 class DiagnosisResultSection extends StatelessWidget {
   final String diagnosis;
   final int dataPoints;
+  final String grade;
+  final int score;
   final DateTime diagnosedAt;
 
   const DiagnosisResultSection({
     required this.diagnosis,
     required this.dataPoints,
+    required this.grade,
+    required this.score,
     required this.diagnosedAt,
     super.key,
   });
@@ -38,6 +42,10 @@ class DiagnosisResultSection extends StatelessWidget {
                     fontSize: 11, color: AppTheme.textSecondary)),
           ],
         ),
+        const SizedBox(height: 10),
+
+        // 등급/점수 카드
+        _GradeScoreCard(grade: grade, score: score),
         const SizedBox(height: 10),
 
         // AI 응답 본문
@@ -80,6 +88,97 @@ class DiagnosisResultSection extends StatelessWidget {
               fontStyle: FontStyle.italic),
         ),
       ],
+    );
+  }
+}
+
+// A~F 등급을 3단계 색상(양호/주의/위험)으로 매핑해 점수 막대와 함께 보여준다.
+// 텍스트 진단을 다 읽지 않아도 한눈에 상태를 파악할 수 있게 하는 목적.
+class _GradeScoreCard extends StatelessWidget {
+  final String grade;
+  final int score;
+
+  const _GradeScoreCard({required this.grade, required this.score});
+
+  Color get _gradeColor {
+    switch (grade.toUpperCase()) {
+      case 'A':
+      case 'B':
+        return AppTheme.success;
+      case 'C':
+      case 'D':
+        return AppTheme.warning;
+      default:
+        return AppTheme.danger;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _gradeColor;
+    final clampedScore = score.clamp(0, 100);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withOpacity(0.35)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: color, width: 2),
+            ),
+            child: Text(
+              grade.toUpperCase(),
+              style: AppTheme.gaugeNumberStyle(fontSize: 24, color: color),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text('차량 건강 점수',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.textSecondary.withOpacity(0.9))),
+                    const Spacer(),
+                    Text('$clampedScore',
+                        style: AppTheme.gaugeNumberStyle(
+                            fontSize: 18, color: color)),
+                    Text('/100',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.textSecondary.withOpacity(0.7))),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: clampedScore / 100,
+                    minHeight: 6,
+                    backgroundColor: AppTheme.bgElevated,
+                    valueColor: AlwaysStoppedAnimation(color),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

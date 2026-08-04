@@ -17,6 +17,8 @@ class DiagnosisScreen extends StatefulWidget {
 class _DiagnosisScreenState extends State<DiagnosisScreen> {
   String? _diagnosis;
   int? _dataPoints;
+  String? _grade;
+  int? _score;
   bool _loading = false;
   String? _error;
   DateTime? _diagnosedAt;
@@ -27,6 +29,8 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
       _error = null;
       _diagnosis = null;
       _dataPoints = null;
+      _grade = null;
+      _score = null;
       _diagnosedAt = null;
     });
 
@@ -36,6 +40,8 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
         setState(() {
           _diagnosis = result['diagnosis'] as String?;
           _dataPoints = result['dataPoints'] as int?;
+          _grade = result['grade'] as String?;
+          _score = result['score'] as int?;
           _loading = false;
           _diagnosedAt = DateTime.now();
         });
@@ -117,6 +123,8 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
                   DiagnosisResultSection(
                     diagnosis: _diagnosis!,
                     dataPoints: _dataPoints ?? 0,
+                    grade: _grade ?? '?',
+                    score: _score ?? 0,
                     diagnosedAt: _diagnosedAt!,
                   ),
                 ],
