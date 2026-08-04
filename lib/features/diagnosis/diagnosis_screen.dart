@@ -86,7 +86,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2, color: Color(0xFF241503)),
                         )
                       : const Icon(Icons.search),
                   label: Text(

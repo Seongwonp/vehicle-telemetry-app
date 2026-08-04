@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/responsive/breakpoints.dart';
 import '../../core/theme/app_theme.dart';
 import '../login/login_screen.dart';
-import 'widgets/feature_card.dart';
 import 'widgets/hero_section.dart';
 import 'widgets/promo_visual.dart';
 
@@ -73,7 +72,10 @@ class _LandingScreenState extends State<LandingScreen>
               // 반투명 색 → 불투명 색으로 보간하면 중간 지점의 알파값이 커지면서
               // 오히려 더 진한 파란 띠가 생긴다. 처음부터 불투명한 두 색 사이를
               // 보간해야 은은한 톤 변화로 보인다.
-              colors: [Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!, AppTheme.bg],
+              colors: [
+                Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!,
+                AppTheme.bg
+              ],
               stops: const [0.0, 0.8],
             ),
           ),
@@ -185,36 +187,20 @@ class _MobileLayout extends StatelessWidget {
   }
 }
 
-// 좁은 화면에서도 2줄 안에 들어가도록 설명을 짧게 유지한다 — 줄바꿈은
-// 강제로 넣지 않고 Text가 알아서 감싸게 둔다(수동 \n과 자동 wrap이 겹치면
-// 의도치 않게 줄 수가 늘어나 오버플로우가 난다).
 const _features = [
   (
     icon: Icons.monitor_heart_outlined,
     title: '실시간 모니터링',
-    desc: '속도·RPM·온도 등 센서 데이터 실시간 수집',
-    accent: AppTheme.primary,
+    accent: AppTheme.primary
   ),
-  (
-    icon: Icons.warning_amber_rounded,
-    title: '이상 감지',
-    desc: '룰 + ML로 이상 징후 즉시 포착',
-    accent: AppTheme.warning,
-  ),
-  (
-    icon: Icons.psychology_outlined,
-    title: 'AI 진단',
-    desc: 'Gemini가 원인과 조치를 제안',
-    accent: AppTheme.success,
-  ),
-  (
-    icon: Icons.shield_outlined,
-    title: '보안',
-    desc: 'JWT·mTLS로 통신 구간을 보호',
-    accent: AppTheme.danger,
-  ),
+  (icon: Icons.warning_amber_rounded, title: '이상 감지', accent: AppTheme.warning),
+  (icon: Icons.psychology_outlined, title: 'AI 진단', accent: AppTheme.success),
+  (icon: Icons.shield_outlined, title: '보안', accent: AppTheme.danger),
 ];
 
+// 아이콘+설명이 딸린 큰 카드 4개 대신, 계기판 하단 인디케이터처럼 얇고
+// 압축된 띠 하나로 능력치를 나열한다 — "기능 소개 카드 그리드"라는 흔한
+// 랜딩페이지 패턴에서 벗어나기 위한 의도적인 선택.
 class _FeatureGrid extends StatelessWidget {
   final int columns;
   final _IntervalBuilder revealBuilder;
@@ -223,40 +209,77 @@ class _FeatureGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      // 카드 안 설명 텍스트 길이가 제각각이라 childAspectRatio로는 좁은 화면에서
-      // 오버플로우가 났다 — 고정 높이(mainAxisExtent)를 줘서 폭이 좁아져도 안전하게.
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 14,
-        mainAxisExtent: columns == 4 ? 190 : 200,
+    final reveal = revealBuilder(0.3, 0.8);
+    return AnimatedBuilder(
+      animation: reveal,
+      builder: (context, child) => Opacity(
+        opacity: reveal.value,
+        child: Transform.translate(
+          offset: Offset(0, 16 * (1 - reveal.value)),
+          child: child,
+        ),
       ),
-      itemCount: _features.length,
-      itemBuilder: (context, i) {
-        final f = _features[i];
-        // 카드가 순서대로 살짝 늦게 나타나도록 구간을 겹쳐서 stagger 효과를 준다.
-        final start = 0.25 + i * 0.08;
-        final reveal = revealBuilder(start.clamp(0.0, 0.9), (start + 0.5).clamp(0.0, 1.0));
-        return AnimatedBuilder(
-          animation: reveal,
-          builder: (context, child) => Opacity(
-            opacity: reveal.value,
-            child: Transform.translate(
-              offset: Offset(0, 16 * (1 - reveal.value)),
-              child: child,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppTheme.border),
+        ),
+        child: Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          runSpacing: 20,
+          children: _features
+              .map((f) => _CapabilityItem(
+                    icon: f.icon,
+                    title: f.title,
+                    accent: f.accent,
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class _CapabilityItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Color accent;
+
+  const _CapabilityItem({
+    required this.icon,
+    required this.title,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 128,
+      child: Column(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: accent.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: accent, size: 20),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
             ),
           ),
-          child: FeatureCard(
-            icon: f.icon,
-            title: f.title,
-            description: f.desc,
-            accent: f.accent,
-          ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

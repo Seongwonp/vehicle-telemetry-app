@@ -32,6 +32,7 @@ class AnomalyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withOpacity(0.06),
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withOpacity(0.25)),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -107,8 +108,7 @@ class AnomalyCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),

@@ -57,7 +57,9 @@ class HeroSection extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
+          const _StatusPill(),
+          const SizedBox(height: 18),
           Text(
             '내 차의 상태,\n더 빨리 알아채기',
             textAlign: textAlign,
@@ -81,6 +83,46 @@ class HeroSection extends StatelessWidget {
           ),
           const SizedBox(height: 36),
           _GetStartedButton(onTap: onGetStarted, alignLeft: alignLeft),
+        ],
+      ),
+    );
+  }
+}
+
+// 계기판이 "켜졌다"는 인상을 주는 작은 상태 배지 — 일반적인 랜딩페이지엔
+// 잘 안 쓰는 HUD 어휘(모노스페이스 + 점멸 점)라 제품 정체성을 바로 드러낸다.
+class _StatusPill extends StatelessWidget {
+  const _StatusPill();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppTheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: const BoxDecoration(
+              color: AppTheme.primary,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'SYSTEM ONLINE',
+            style: AppTheme.gaugeNumberStyle(
+              fontSize: 11,
+              color: AppTheme.primary,
+              weight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -121,11 +163,12 @@ class _GetStartedButton extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Color(0xFF241503),
                   ),
                 ),
                 SizedBox(width: 8),
-                Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
+                Icon(Icons.arrow_forward_rounded,
+                    size: 18, color: Color(0xFF241503)),
               ],
             ),
           ),

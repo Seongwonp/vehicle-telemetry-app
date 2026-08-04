@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/arc_gauge.dart';
 
-/// 대시보드 상단의 속도/RPM처럼 가장 중요한 지표를 크게 보여주는 카드.
+/// 대시보드 상단의 속도/RPM처럼 가장 중요한 지표 — 막대 대신 실물 계기판을
+/// 흉내낸 아크 게이지(ArcGauge)로 보여준다.
 class PrimaryMetricCard extends StatelessWidget {
   final String label;
-  final String value;
+  final double value;
+  final double maxValue;
   final String unit;
   final IconData icon;
-  final double ratio; // 0.0 ~ 1.0
   final bool danger;
   final bool warning;
 
   const PrimaryMetricCard({
     required this.label,
     required this.value,
+    required this.maxValue,
     required this.unit,
     required this.icon,
-    required this.ratio,
     required this.danger,
     required this.warning,
     super.key,
@@ -32,51 +34,23 @@ class PrimaryMetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _accentColor;
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.border),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Icon(icon, size: 18, color: color.withOpacity(0.8)),
-              const SizedBox(width: 6),
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 12, color: color.withOpacity(0.8))),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(value,
-                  style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                      height: 1.0)),
-              const SizedBox(width: 4),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 3),
-                child: Text(unit,
-                    style: TextStyle(
-                        fontSize: 13, color: color.withOpacity(0.7))),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: ratio,
-              minHeight: 5,
-              backgroundColor: color.withOpacity(0.12),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-            ),
+          ArcGauge(
+            value: value,
+            maxValue: maxValue,
+            label: label,
+            unit: unit,
+            danger: danger,
+            warning: warning,
+            color: color,
           ),
         ],
       ),

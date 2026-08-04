@@ -13,6 +13,7 @@ class AnomalyBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.danger.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.danger.withOpacity(0.35)),
       ),
       child: Row(
         children: [

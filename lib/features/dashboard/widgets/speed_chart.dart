@@ -31,8 +31,8 @@ class SpeedChart extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             const Spacer(),
             Text('최근 ${history.length}개',
-                style:
-                    const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                style: const TextStyle(
+                    fontSize: 11, color: AppTheme.textSecondary)),
           ],
         ),
         const SizedBox(height: 12),
@@ -48,7 +48,7 @@ class SpeedChart extends StatelessWidget {
                 drawVerticalLine: false,
                 horizontalInterval: maxY / 3,
                 getDrawingHorizontalLine: (v) => FlLine(
-                  color: Colors.black.withOpacity(0.06),
+                  color: AppTheme.border,
                   strokeWidth: 1,
                 ),
               ),
@@ -65,12 +65,12 @@ class SpeedChart extends StatelessWidget {
                     ),
                   ),
                 ),
-                rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false)),
-                topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false)),
-                bottomTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false)),
+                rightTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
               borderData: FlBorderData(show: false),
               lineBarsData: [

@@ -13,6 +13,7 @@ class DtcSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.warning.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.warning.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

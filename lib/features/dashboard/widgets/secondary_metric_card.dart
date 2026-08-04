@@ -29,8 +29,9 @@ class SecondaryMetricCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.07),
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,8 +42,8 @@ class SecondaryMetricCard extends StatelessWidget {
               Icon(icon, size: 16, color: color.withOpacity(0.8)),
               const SizedBox(width: 5),
               Text(label,
-                  style: TextStyle(
-                      fontSize: 11, color: color.withOpacity(0.7))),
+                  style:
+                      TextStyle(fontSize: 11, color: color.withOpacity(0.7))),
               if (danger) ...[
                 const Spacer(),
                 Icon(Icons.warning_rounded, size: 14, color: color),
@@ -51,8 +52,7 @@ class SecondaryMetricCard extends StatelessWidget {
           ),
           Text(
             value,
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.bold, color: color),
+            style: AppTheme.gaugeNumberStyle(fontSize: 22, color: color),
           ),
         ],
       ),

@@ -33,8 +33,8 @@ class DiagnosisResultSection extends StatelessWidget {
                     fontWeight: FontWeight.w600)),
             const Spacer(),
             Text('데이터 $dataPoints개 · $timeStr',
-                style:
-                    const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                style: const TextStyle(
+                    fontSize: 11, color: AppTheme.textSecondary)),
           ],
         ),
         const SizedBox(height: 10),
@@ -46,6 +46,7 @@ class DiagnosisResultSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppTheme.surface,
             borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppTheme.border),
           ),
           child: SelectableText(
             diagnosis,

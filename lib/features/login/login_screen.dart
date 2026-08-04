@@ -260,7 +260,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                           valueColor: AlwaysStoppedAnimation(
-                                              Colors.white),
+                                              Color(0xFF241503)),
                                         ),
                                       )
                                     : const Text(
@@ -268,7 +268,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                          color: Color(0xFF241503),
                                         ),
                                       ),
                               ),

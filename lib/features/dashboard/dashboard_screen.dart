@@ -197,10 +197,10 @@ class _DashboardBody extends StatelessWidget {
                   Expanded(
                     child: PrimaryMetricCard(
                       label: '속도',
-                      value: latest.speed.toStringAsFixed(1),
+                      value: latest.speed,
+                      maxValue: 220,
                       unit: 'km/h',
                       icon: Icons.speed_outlined,
-                      ratio: (latest.speed / 220).clamp(0.0, 1.0),
                       danger: latest.speed > 200,
                       warning: latest.speed > 120,
                     ),
@@ -209,10 +209,10 @@ class _DashboardBody extends StatelessWidget {
                   Expanded(
                     child: PrimaryMetricCard(
                       label: 'RPM',
-                      value: latest.rpm.toString(),
+                      value: latest.rpm.toDouble(),
+                      maxValue: 7000,
                       unit: 'rpm',
                       icon: Icons.rotate_right,
-                      ratio: (latest.rpm / 7000).clamp(0.0, 1.0),
                       danger: latest.rpm > 6000,
                       warning: latest.rpm > 4500,
                     ),
