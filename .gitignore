@@ -18,8 +18,11 @@ android/
 ios/
 *.ipa
 
-# macOS
-macos/
+# macOS — 앱 설정(entitlements, Info.plist, Xcode 프로젝트)은 추적하되
+# 로컬 빌드 산출물/CocoaPods 캐시는 제외한다.
+macos/Flutter/ephemeral/
+macos/Pods/
+macos/build/
 
 # Web
 web/

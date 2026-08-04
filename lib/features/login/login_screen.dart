@@ -165,7 +165,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 12),
 
                       // ── 입력 폼 ─────────────────────────────────
+                      // Key는 integration_test가 라벨 텍스트가 아니라 안정적인
+                      // 식별자로 필드를 찾을 수 있게 하기 위함(라벨은 문구가 바뀔 수 있음).
                       TextFormField(
+                        key: const Key('login_username_field'),
                         controller: _usernameController,
                         decoration: const InputDecoration(
                           labelText: '아이디',
@@ -178,6 +181,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 14),
                       TextFormField(
+                        key: const Key('login_password_field'),
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
@@ -243,6 +247,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
+                            key: const Key('login_submit_button'),
                             borderRadius: BorderRadius.circular(14),
                             onTap: _loading ? null : _login,
                             child: Padding(
