@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 import '../../core/api/api_client.dart';
+import '../../core/auth/token_storage.dart';
 import '../../core/models/telemetry.dart';
 import '../../core/responsive/breakpoints.dart';
 import '../../core/theme/app_theme.dart';
@@ -24,85 +27,119 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen>
     with WidgetsBindingObserver {
-  static const _baseInterval = Duration(seconds: 2);
-  static const _maxInterval = Duration(seconds: 30);
+  static const _historyLimit = 20;
+  static const _noSignalTimeout = Duration(seconds: 8);
 
   Telemetry? _latest;
   List<Telemetry> _history = [];
-  Timer? _timer;
+  StompClient? _client;
   bool _loading = true;
   bool _error = false;
-  int _consecutiveFailures = 0;
+  bool _connected = false;
   DateTime? _lastUpdated;
+  Timer? _signalTimeout;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _fetchData();
+    _connect();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _timer?.cancel();
+    _signalTimeout?.cancel();
+    _client?.deactivate();
     super.dispose();
   }
 
-  // 앱이 백그라운드로 가면 폴링을 멈춘다 — 화면이 안 보이는데 2초마다 계속
-  // 네트워크 요청을 보내는 건 배터리/데이터 낭비다. 포그라운드로 돌아오면
-  // 즉시 한 번 갱신하고 폴링을 재개한다.
+  // 앱이 백그라운드로 가면 소켓을 끊는다 — 화면이 안 보이는데 계속 연결을
+  // 유지하는 건 배터리 낭비다. 포그라운드로 돌아오면 재연결한다.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.hidden) {
-      _timer?.cancel();
-      _timer = null;
+      _client?.deactivate();
+      _client = null;
+      _connected = false;
     } else if (state == AppLifecycleState.resumed) {
-      if (_timer == null) _fetchData();
+      if (_client == null) _connect();
     }
   }
 
-  void _scheduleNext(Duration delay) {
-    _timer?.cancel();
-    _timer = Timer(delay, _fetchData);
+  String _wsUrl() {
+    final base = ApiClient.baseUrl
+        .replaceFirst('https://', 'wss://')
+        .replaceFirst('http://', 'ws://');
+    return '$base/ws';
   }
 
-  Future<void> _fetchData() async {
-    try {
-      final data =
-          await ApiClient().getRecentTelemetry(widget.vehicleId, limit: 20);
-      final list = data
-          .map((e) => Telemetry.fromJson(e as Map<String, dynamic>))
-          .toList();
-      if (mounted) {
+  Future<void> _connect() async {
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
+
+    final token = await TokenStorage.getToken();
+    _client = StompClient(
+      config: StompConfig(
+        url: _wsUrl(),
+        stompConnectHeaders: {if (token != null) 'Authorization': 'Bearer $token'},
+        onConnect: _onConnect,
+        onWebSocketError: (_) => _handleConnectionIssue(),
+        onStompError: (_) => _handleConnectionIssue(),
+        onDisconnect: (_) {
+          if (mounted) setState(() => _connected = false);
+        },
+        reconnectDelay: const Duration(seconds: 5),
+      ),
+    );
+    _client!.activate();
+
+    // 연결은 됐는데 이 차량 데이터가 계속 안 들어오는 경우(비활성 차량 등)와
+    // 아예 연결 자체가 안 되는 경우를 구분하기 위한 유예 시간.
+    _signalTimeout?.cancel();
+    _signalTimeout = Timer(_noSignalTimeout, () {
+      if (!mounted || _latest != null) return;
+      setState(() {
+        _loading = false;
+        _error = !_connected;
+      });
+    });
+  }
+
+  void _onConnect(StompFrame frame) {
+    if (!mounted) return;
+    setState(() => _connected = true);
+    _client!.subscribe(
+      destination: '/topic/vehicle/${widget.vehicleId}/telemetry',
+      callback: (frame) {
+        if (frame.body == null || !mounted) return;
+        final telemetry =
+            Telemetry.fromJson(jsonDecode(frame.body!) as Map<String, dynamic>);
         setState(() {
-          _latest = list.isNotEmpty ? list.first : null;
-          _history = list;
+          _latest = telemetry;
+          _history = [telemetry, ..._history].take(_historyLimit).toList();
           _loading = false;
           _error = false;
-          _consecutiveFailures = 0;
           _lastUpdated = DateTime.now();
         });
-        _scheduleNext(_baseInterval);
-      }
-    } catch (_) {
-      // 2초마다 폴링하는 도중 한 번 실패한다고 화면을 통째로 에러로 덮진 않는다 —
-      // 이미 표시 중인 마지막 정상 데이터(_latest)는 그대로 유지한다. _error는
-      // "아직 한 번도 데이터를 못 받은 상태(_latest == null)"일 때만 의미가 있고,
-      // 그 경우에만 "데이터 없음"이 아니라 진짜 조회 실패임을 구분해서 보여준다.
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          if (_latest == null) _error = true;
-          _consecutiveFailures++;
-        });
-        // 서버가 죽었는데 2초마다 계속 두드리지 않도록, 연속 실패마다 대기 시간을
-        // 2배씩 늘리고 최대 30초로 캡한다(2s → 4s → 8s → 16s → 30s → 30s ...).
-        final backoff = _baseInterval * (1 << _consecutiveFailures.clamp(0, 4));
-        _scheduleNext(backoff > _maxInterval ? _maxInterval : backoff);
-      }
+      },
+    );
+  }
+
+  void _handleConnectionIssue() {
+    if (!mounted) return;
+    setState(() => _connected = false);
+    // stomp_dart_client가 reconnectDelay에 따라 자동 재시도한다 — 여기선
+    // "아직 한 번도 데이터를 못 받았다면" 에러 상태만 반영한다.
+    if (_latest == null) {
+      setState(() {
+        _loading = false;
+        _error = true;
+      });
     }
   }
 
@@ -156,7 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           ? const Center(child: CircularProgressIndicator())
           : _latest == null
               ? (_error
-                  ? DashboardErrorView(onRetry: _fetchData)
+                  ? DashboardErrorView(onRetry: _connect)
                   : NoDataView(vehicleId: widget.vehicleId))
               : _DashboardBody(latest: _latest!, history: _history),
     );
