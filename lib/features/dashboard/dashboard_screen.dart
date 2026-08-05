@@ -13,6 +13,7 @@ import 'widgets/error_view.dart';
 import 'widgets/no_data_view.dart';
 import 'widgets/primary_metric_card.dart';
 import 'widgets/secondary_metric_card.dart';
+import 'widgets/route_map.dart';
 import 'widgets/speed_chart.dart';
 
 typedef StompClientFactory = StompClient Function(StompConfig config);
@@ -423,6 +424,10 @@ class _DashboardBody extends StatelessWidget {
                 const SizedBox(height: 24),
                 SpeedChart(history: history),
               ],
+
+              // 주행 경로 지도
+              const SizedBox(height: 24),
+              RouteMap(history: history),
             ],
           ),
         ),
