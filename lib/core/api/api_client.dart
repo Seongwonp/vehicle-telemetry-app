@@ -190,6 +190,16 @@ class ApiClient {
     return response.data as List<dynamic>;
   }
 
+  // 지정 기간(시간 단위, 최대 6시간) 텔레메트리를 수신 간격 기준으로 트립
+  // 단위로 나눠 거리/평균속도 등을 요약해 받아온다.
+  Future<List<dynamic>> getTrips(String vehicleId, {int? hours}) async {
+    final response = await _dio.get(
+      '/api/vehicles/$vehicleId/telemetry/trips',
+      queryParameters: hours != null ? {'hours': hours} : null,
+    );
+    return response.data as List<dynamic>;
+  }
+
   // ── 이상 이벤트 ───────────────────────────────────────────────
   // 화면에서 기간/등급 필터를 클라이언트 사이드로 적용하므로 기본 20건보다
   // 넉넉한 풀(서버 최대치인 100건)을 받아온다.

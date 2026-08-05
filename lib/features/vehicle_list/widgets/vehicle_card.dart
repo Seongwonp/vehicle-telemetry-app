@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import '../../../core/api/api_client.dart';
 import '../../../core/models/vehicle.dart';
 import '../../../core/theme/app_theme.dart';
@@ -128,6 +129,8 @@ class VehicleCard extends StatelessWidget {
                         color: cs.onSurface.withOpacity(0.5),
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    _FleetSummaryRow(vehicle: vehicle),
                   ],
                 ),
               ),
@@ -197,5 +200,72 @@ class VehicleCard extends StatelessWidget {
 
   String _formatDate(DateTime dt) {
     return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
+  }
+}
+
+// 차량마다 대시보드에 들어가지 않고도 상태를 한눈에 비교할 수 있게
+// (fleet overview) 마지막 신호 시각·최근 속도·HIGH 이상 누적 건수를 보여준다.
+class _FleetSummaryRow extends StatelessWidget {
+  final Vehicle vehicle;
+  const _FleetSummaryRow({required this.vehicle});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasSignal = vehicle.lastSeenAt != null;
+    final hasHighAnomaly = vehicle.highAnomalyCount > 0;
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: [
+        _Badge(
+          icon: hasSignal ? Icons.wifi_tethering : Icons.wifi_off,
+          label: hasSignal
+              ? timeago.format(vehicle.lastSeenAt!, locale: 'ko')
+              : '데이터 없음',
+          color: hasSignal ? AppTheme.success : AppTheme.textTertiary,
+        ),
+        if (vehicle.latestSpeed != null)
+          _Badge(
+            icon: Icons.speed_outlined,
+            label: '${vehicle.latestSpeed!.toStringAsFixed(0)} km/h',
+            color: AppTheme.primary,
+          ),
+        if (hasHighAnomaly)
+          _Badge(
+            icon: Icons.warning_amber_rounded,
+            label: 'HIGH ${vehicle.highAnomalyCount}',
+            color: AppTheme.danger,
+          ),
+      ],
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const _Badge({required this.icon, required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 3),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 10.5, fontWeight: FontWeight.w600, color: color)),
+        ],
+      ),
+    );
   }
 }
