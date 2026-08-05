@@ -211,7 +211,7 @@ class _FleetSummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasSignal = vehicle.lastSeenAt != null;
+    final signalState = fleetSignalState(vehicle.lastSeenAt, DateTime.now());
     final hasHighAnomaly = vehicle.highAnomalyCount > 0;
 
     return Wrap(
@@ -219,11 +219,12 @@ class _FleetSummaryRow extends StatelessWidget {
       runSpacing: 4,
       children: [
         _Badge(
-          icon: hasSignal ? Icons.wifi_tethering : Icons.wifi_off,
-          label: hasSignal
-              ? timeago.format(vehicle.lastSeenAt!, locale: 'ko')
-              : '데이터 없음',
-          color: hasSignal ? AppTheme.success : AppTheme.textTertiary,
+          icon: signalState.icon,
+          label: vehicle.lastSeenAt == null
+              ? '데이터 없음'
+              : '${signalState.label} · '
+                  '${timeago.format(vehicle.lastSeenAt!, locale: 'ko')}',
+          color: signalState.color,
         ),
         if (vehicle.latestSpeed != null)
           _Badge(
@@ -240,6 +241,39 @@ class _FleetSummaryRow extends StatelessWidget {
       ],
     );
   }
+}
+
+enum FleetSignalState { recent, delayed, offline, noData }
+
+FleetSignalState fleetSignalState(DateTime? lastSeenAt, DateTime now) {
+  if (lastSeenAt == null) return FleetSignalState.noData;
+
+  final age = now.toUtc().difference(lastSeenAt.toUtc());
+  if (age <= const Duration(minutes: 5)) return FleetSignalState.recent;
+  if (age <= const Duration(minutes: 15)) return FleetSignalState.delayed;
+  return FleetSignalState.offline;
+}
+
+extension on FleetSignalState {
+  String get label => switch (this) {
+        FleetSignalState.recent => '정상',
+        FleetSignalState.delayed => '지연',
+        FleetSignalState.offline => '오프라인',
+        FleetSignalState.noData => '데이터 없음',
+      };
+
+  IconData get icon => switch (this) {
+        FleetSignalState.recent => Icons.wifi_tethering,
+        FleetSignalState.delayed => Icons.wifi_tethering_error,
+        FleetSignalState.offline || FleetSignalState.noData => Icons.wifi_off,
+      };
+
+  Color get color => switch (this) {
+        FleetSignalState.recent => AppTheme.success,
+        FleetSignalState.delayed => AppTheme.warning,
+        FleetSignalState.offline => AppTheme.danger,
+        FleetSignalState.noData => AppTheme.textTertiary,
+      };
 }
 
 class _Badge extends StatelessWidget {

@@ -67,8 +67,7 @@ class VehicleListScreen extends ConsumerWidget {
                   onOpen: (vehicleId) => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          VehicleDetailScreen(vehicleId: vehicleId),
+                      builder: (_) => VehicleDetailScreen(vehicleId: vehicleId),
                     ),
                   ),
                   onDeleted: () => ref.invalidate(vehiclesProvider),
@@ -114,7 +113,9 @@ class _VehicleGrid extends StatelessWidget {
             crossAxisCount: columns,
             mainAxisSpacing: 14,
             crossAxisSpacing: 14,
-            childAspectRatio: 2.6,
+            // 카드 안의 fleet 배지가 줄바꿈되어도 세로 공간이 보장되도록
+            // 너비 비율 대신 명시적인 높이를 사용한다.
+            mainAxisExtent: context.isDesktop ? 190 : 220,
           ),
           itemCount: vehicles.length,
           itemBuilder: (context, index) => VehicleCard(

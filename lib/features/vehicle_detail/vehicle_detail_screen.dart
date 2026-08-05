@@ -15,6 +15,9 @@ class VehicleDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compactTabs = MediaQuery.sizeOf(context).width < 400 ||
+        MediaQuery.textScalerOf(context).scale(11.5) > 14;
+
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -22,8 +25,10 @@ class VehicleDetailScreen extends StatelessWidget {
           title: Text(vehicleId,
               style:
                   const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          bottom: const TabBar(
-            tabs: [
+          bottom: TabBar(
+            isScrollable: compactTabs,
+            tabAlignment: compactTabs ? TabAlignment.start : TabAlignment.fill,
+            tabs: const [
               Tab(icon: Icon(Icons.speed_outlined), text: '대시보드'),
               Tab(icon: Icon(Icons.warning_amber_outlined), text: '이상 이력'),
               Tab(icon: Icon(Icons.psychology_outlined), text: 'AI 진단'),
@@ -32,8 +37,8 @@ class VehicleDetailScreen extends StatelessWidget {
             labelColor: AppTheme.primary,
             unselectedLabelColor: AppTheme.textSecondary,
             indicatorColor: AppTheme.primary,
-            labelStyle: TextStyle(fontSize: 11.5),
-            unselectedLabelStyle: TextStyle(fontSize: 11.5),
+            labelStyle: const TextStyle(fontSize: 11.5),
+            unselectedLabelStyle: const TextStyle(fontSize: 11.5),
           ),
         ),
         body: TabBarView(
