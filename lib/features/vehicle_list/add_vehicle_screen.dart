@@ -175,7 +175,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Color(0xFF241503)),
+                                strokeWidth: 2, color: Colors.white),
                           )
                         : const Icon(Icons.add),
                     label: Text(_loading ? '등록 중...' : '등록하기',

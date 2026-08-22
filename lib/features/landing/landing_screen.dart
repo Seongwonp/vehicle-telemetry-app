@@ -25,7 +25,6 @@ class _LandingScreenState extends State<LandingScreen>
       duration: const Duration(milliseconds: 1000),
     )..forward();
 
-    // 배경 글로우를 아주 느리게 흔들어 정지된 화면이라는 느낌을 없앤다.
     _bgDrift = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 10),
@@ -69,9 +68,6 @@ class _LandingScreenState extends State<LandingScreen>
                 _bgDrift.value,
               )!,
               radius: 1.3,
-              // 반투명 색 → 불투명 색으로 보간하면 중간 지점의 알파값이 커지면서
-              // 오히려 더 진한 파란 띠가 생긴다. 처음부터 불투명한 두 색 사이를
-              // 보간해야 은은한 톤 변화로 보인다.
               colors: [
                 Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!,
                 AppTheme.bg
@@ -190,12 +186,12 @@ class _MobileLayout extends StatelessWidget {
 const _features = [
   (
     icon: Icons.monitor_heart_outlined,
-    title: '실시간 모니터링',
+    title: '실시간 상태',
     accent: AppTheme.primary
   ),
-  (icon: Icons.warning_amber_rounded, title: '이상 감지', accent: AppTheme.warning),
-  (icon: Icons.psychology_outlined, title: 'AI 진단', accent: AppTheme.success),
-  (icon: Icons.shield_outlined, title: '보안', accent: AppTheme.danger),
+  (icon: Icons.schedule_outlined, title: '데이터 지연', accent: AppTheme.warning),
+  (icon: Icons.warning_amber_rounded, title: '이상 이력', accent: AppTheme.danger),
+  (icon: Icons.route_outlined, title: '주행 기록', accent: AppTheme.success),
 ];
 
 // 아이콘+설명이 딸린 큰 카드 4개 대신, 계기판 하단 인디케이터처럼 얇고

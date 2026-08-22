@@ -120,7 +120,7 @@ class _DiagnosisTabState extends State<DiagnosisTab>
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Color(0xFF241503)),
+                            strokeWidth: 2, color: Colors.white),
                       )
                     : Icon(_diagnosis != null ? Icons.refresh : Icons.search),
                 label: Text(

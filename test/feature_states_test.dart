@@ -86,14 +86,13 @@ void main() {
     expect(find.textContaining('엔진 상태가 정상입니다.'), findsOneWidget);
   });
 
-  testWidgets('FCM 연결 전 알림 토글은 준비 중 상태로 비활성화된다', (tester) async {
+  testWidgets('설정은 저장된 계정과 로그아웃만 표시한다', (tester) async {
     FlutterSecureStorage.setMockInitialValues({'username': 'tester'});
     await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('이상 감지 알림 (준비 중)'), findsOneWidget);
-    final toggle = tester.widget<Switch>(find.byType(Switch));
-    expect(toggle.value, isFalse);
-    expect(toggle.onChanged, isNull);
+    expect(find.text('tester'), findsOneWidget);
+    expect(find.text('로그아웃'), findsOneWidget);
+    expect(find.byType(Switch), findsNothing);
   });
 }

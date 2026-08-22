@@ -1,5 +1,5 @@
 name: telemetrix
-description: TELEMETRIX — 차량 텔레메트리 모니터링 앱 · 실시간 센서 대시보드 · AI 진단
+description: TELEMETRIX — 차량 텔레메트리 상태·이상·주행 기록 모니터링 앱
 
 publish_to: none
 version: 1.0.0+1
@@ -31,7 +31,7 @@ dependencies:
   # 시간 표시
   timeago: ^3.6.1
 
-  # 커스텀 타이포그래피 — 계기판/HUD 톤의 숫자 폰트(Orbitron) + 본문용 Manrope
+  # 본문과 숫자의 일관된 타이포그래피
   google_fonts: ^6.2.1
   flutter_markdown_plus: ^1.0.12
   stomp_dart_client: ^3.0.1

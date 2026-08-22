@@ -158,7 +158,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              '차량 실시간 모니터링 · AI 진단',
+                              '차량 텔레메트리 모니터링',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -269,7 +269,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                           valueColor: AlwaysStoppedAnimation(
-                                              Color(0xFF241503)),
+                                              Colors.white),
                                         ),
                                       )
                                     : const Text(
@@ -277,7 +277,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
-                                          color: Color(0xFF241503),
+                                          color: Colors.white,
                                         ),
                                       ),
                               ),

@@ -29,10 +29,10 @@ class VehicleDetailScreen extends StatelessWidget {
             isScrollable: compactTabs,
             tabAlignment: compactTabs ? TabAlignment.start : TabAlignment.fill,
             tabs: const [
-              Tab(icon: Icon(Icons.speed_outlined), text: '대시보드'),
+              Tab(icon: Icon(Icons.speed_outlined), text: '현재 상태'),
               Tab(icon: Icon(Icons.warning_amber_outlined), text: '이상 이력'),
-              Tab(icon: Icon(Icons.psychology_outlined), text: 'AI 진단'),
               Tab(icon: Icon(Icons.route_outlined), text: '주행 기록'),
+              Tab(icon: Icon(Icons.psychology_outlined), text: '보조 진단'),
             ],
             labelColor: AppTheme.primary,
             unselectedLabelColor: AppTheme.textSecondary,
@@ -45,8 +45,8 @@ class VehicleDetailScreen extends StatelessWidget {
           children: [
             DashboardTab(vehicleId: vehicleId),
             AnomalyListTab(vehicleId: vehicleId),
-            DiagnosisTab(vehicleId: vehicleId),
             TripHistoryTab(vehicleId: vehicleId),
+            DiagnosisTab(vehicleId: vehicleId),
           ],
         ),
       ),

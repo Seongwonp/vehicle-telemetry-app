@@ -11,7 +11,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
-
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String? _username;
   bool _loading = true;
@@ -64,19 +63,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    const _SectionLabel('알림'),
-                    const _SettingsCard(
-                      children: [
-                        _SwitchRow(
-                          icon: Icons.notifications_outlined,
-                          label: '이상 감지 알림 (준비 중)',
-                          subtitle: '푸시 알림 연동 후 사용할 수 있습니다',
-                          value: false,
-                          onChanged: null,
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 32),
                     OutlinedButton.icon(
                       onPressed: _logout,
@@ -96,7 +82,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 }
-
 class _SectionLabel extends StatelessWidget {
   final String text;
   const _SectionLabel(this.text);
@@ -117,7 +102,6 @@ class _SectionLabel extends StatelessWidget {
     );
   }
 }
-
 class _SettingsCard extends StatelessWidget {
   final List<Widget> children;
   const _SettingsCard({required this.children});
@@ -164,50 +148,3 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _SwitchRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String subtitle;
-  final bool value;
-  final ValueChanged<bool>? onChanged;
-
-  const _SwitchRow({
-    required this.icon,
-    required this.label,
-    required this.subtitle,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: AppTheme.textSecondary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                Text(subtitle,
-                    style: const TextStyle(
-                        fontSize: 11.5, color: AppTheme.textTertiary)),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: AppTheme.primary,
-          ),
-        ],
-      ),
-    );
-  }
-}

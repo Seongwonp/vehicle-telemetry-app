@@ -107,7 +107,7 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 3));
     expect(find.byType(VehicleDetailScreen), findsOneWidget);
 
-    // ── 탭 전환: 대시보드(기본) → 이상 이력 → AI 진단 → 주행 기록 ──
+    // ── 탭 전환: 현재 상태(기본) → 이상 이력 → 주행 기록 → 보조 진단 ──
     // TabBarView는 네 탭을 전부 미리 마운트해두므로(스와이프 지연 없이 즉시
     // 전환), 위젯이 "존재"하는지가 아니라 TabController.index로 "지금 보이는
     // 탭이 맞는지"를 확인한다.
@@ -119,15 +119,15 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(tabController.index, 1);
 
-    await tester.tap(find.widgetWithText(Tab, 'AI 진단'));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(tabController.index, 2);
-    expect(find.text('고장진단하기'), findsOneWidget);
-
     await tester.tap(find.widgetWithText(Tab, '주행 기록'));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(tabController.index, 3);
+    expect(tabController.index, 2);
     expect(find.text('1시간'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(Tab, '보조 진단'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(tabController.index, 3);
+    expect(find.text('고장진단하기'), findsOneWidget);
 
     // 차량 목록으로 복귀
     await tester.pageBack();

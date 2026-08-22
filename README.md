@@ -6,8 +6,8 @@
 
 ## 디자인
 
-`lib/core/theme/app_theme.dart`의 "코크핏 다크" 테마를 사용한다. 앰버 포인트 컬러,
-Orbitron 계기판 숫자, Manrope 본문, 커스텀 아크 게이지로 차량 HUD 분위기를 구성했다.
+`lib/core/theme/app_theme.dart`의 밝은 테마를 기본으로 사용한다. 흰 카드와 중립적인 회색
+배경, 블루 포인트, Manrope 서체로 차량 데이터의 판독성을 우선했다.
 반응형(`lib/core/responsive/breakpoints.dart`)도 적용되어 모바일/데스크톱(웹) 폭에서
 레이아웃이 분기된다.
 
@@ -18,11 +18,11 @@ Orbitron 계기판 숫자, Manrope 본문, 커스텀 아크 게이지로 차량 
 | 랜딩 | 첫 진입 화면 — 서비스 소개 + "시작하기" → 로그인 |
 | 로그인 | JWT 인증 |
 | 차량 목록 | 등록된 차량 리스트 |
-| 차량 상세 | 대시보드/이상 이력/AI 진단 TabBar + 스와이프, 탭 상태 유지 |
+| 차량 상세 | 현재 상태/이상 이력/주행 기록/보조 진단 TabBar + 스와이프, 탭 상태 유지 |
 | 대시보드 | STOMP WebSocket 실시간 센서 + 재연결/stale 상태 + 속도 추이 차트 |
 | 이상 이력 | 감지된 이상 이벤트 목록 + 심각도/기간 필터 |
-| AI 진단 | Gemini 진단 마크다운 + A~F 등급/건강 점수 |
-| 설정 | 계정 정보, 알림 준비 상태, 로그아웃 |
+| AI 진단 | 사용자가 요청할 때만 실행하는 Gemini 진단 + A~F 등급/건강 점수 |
+| 설정 | 계정 정보, 로그아웃 |
 
 ## 시작하기
 
@@ -88,8 +88,8 @@ lib/
     ├── diagnosis/                  # AI 진단
     │   ├── diagnosis_screen.dart
     │   └── widgets/                # header_card, result_section, error_section 등
-    ├── settings/                   # 계정/알림 준비 상태/로그아웃
-    └── vehicle_detail/             # 3개 탭 컨테이너
+    ├── settings/                   # 계정/로그아웃
+    └── vehicle_detail/             # 4개 탭 컨테이너
 ```
 
 ## 테스트

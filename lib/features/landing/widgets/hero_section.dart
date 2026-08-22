@@ -37,8 +37,6 @@ class HeroSection extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // 로고 아이콘이 가로로 긴 비율이라 원형으로 잘라내는 대신,
-                // 뒤에 은은한 원형 글로우만 깔고 아이콘은 잘리지 않게 그 위에 얹는다.
                 Container(
                   width: 92,
                   height: 92,
@@ -61,7 +59,7 @@ class HeroSection extends StatelessWidget {
           const _StatusPill(),
           const SizedBox(height: 18),
           Text(
-            '내 차의 상태,\n더 빨리 알아채기',
+            '차량 상태와 데이터 흐름을\n한눈에 확인하기',
             textAlign: textAlign,
             style: const TextStyle(
               fontSize: 32,
@@ -73,7 +71,7 @@ class HeroSection extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'TELEMETRIX가 실시간으로 데이터를 모으고\nAI가 이상 징후를 먼저 알려드려요',
+            '실시간 센서 값과 마지막 수신 시각,\n이상 이력을 한 화면에서 확인하세요',
             textAlign: textAlign,
             style: TextStyle(
               fontSize: 15,
@@ -89,8 +87,6 @@ class HeroSection extends StatelessWidget {
   }
 }
 
-// 계기판이 "켜졌다"는 인상을 주는 작은 상태 배지 — 일반적인 랜딩페이지엔
-// 잘 안 쓰는 HUD 어휘(모노스페이스 + 점멸 점)라 제품 정체성을 바로 드러낸다.
 class _StatusPill extends StatelessWidget {
   const _StatusPill();
 
@@ -116,7 +112,7 @@ class _StatusPill extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            'SYSTEM ONLINE',
+            '텔레메트리 모니터링',
             style: AppTheme.gaugeNumberStyle(
               fontSize: 11,
               color: AppTheme.primary,
@@ -163,12 +159,12 @@ class _GetStartedButton extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF241503),
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(width: 8),
                 Icon(Icons.arrow_forward_rounded,
-                    size: 18, color: Color(0xFF241503)),
+                    size: 18, color: Colors.white),
               ],
             ),
           ),

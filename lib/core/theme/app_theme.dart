@@ -57,24 +57,24 @@ class AppTheme {
   AppTheme._();
 
   // ── 팔레트 ───────────────────────────────────────────────────
-  static const bg = Color(0xFF0A0B0D);
-  static const bgElevated = Color(0xFF101215);
-  static const surface = Color(0xFF16181C);
-  static const surfaceHigh = Color(0xFF1F2226);
-  static const border = Color(0xFF25282D);
-  static const borderStrong = Color(0xFF34383F);
+  static const bg = Color(0xFFF5F7FA);
+  static const bgElevated = Color(0xFFEEF2F6);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceHigh = Color(0xFFE7ECF2);
+  static const border = Color(0xFFDCE2E9);
+  static const borderStrong = Color(0xFFC5CED8);
 
-  static const primary = Color(0xFFF5A83C);
-  static const primaryBright = Color(0xFFFFC670);
-  static const primaryDark = Color(0xFFC77A1E);
+  static const primary = Color(0xFF2457D6);
+  static const primaryBright = Color(0xFF3C6BE2);
+  static const primaryDark = Color(0xFF173FA8);
 
-  static const textPrimary = Color(0xFFF3F2EF);
-  static const textSecondary = Color(0xFFA0A4AB);
-  static const textTertiary = Color(0xFF676B73);
+  static const textPrimary = Color(0xFF18212F);
+  static const textSecondary = Color(0xFF5D6878);
+  static const textTertiary = Color(0xFF8792A2);
 
-  static const success = Color(0xFF34D399);
-  static const warning = Color(0xFFFBBF24);
-  static const danger = Color(0xFFF87171);
+  static const success = Color(0xFF18865B);
+  static const warning = Color(0xFFB56B08);
+  static const danger = Color(0xFFC43D4B);
 
   static const primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -84,9 +84,9 @@ class AppTheme {
 
   static final accentGlow = [
     BoxShadow(
-      color: primary.withOpacity(0.35),
-      blurRadius: 28,
-      spreadRadius: -6,
+      color: primary.withOpacity(0.14),
+      blurRadius: 20,
+      spreadRadius: -8,
     ),
   ];
 
@@ -97,7 +97,7 @@ class AppTheme {
     Color color = textPrimary,
     FontWeight weight = FontWeight.w600,
   }) {
-    return GoogleFonts.orbitron(
+    return GoogleFonts.manrope(
       fontSize: fontSize,
       fontWeight: weight,
       color: color,
@@ -106,15 +106,15 @@ class AppTheme {
     );
   }
 
-  static ThemeData dark() {
-    final base = GoogleFonts.manropeTextTheme(ThemeData.dark().textTheme);
+  static ThemeData light() {
+    final base = GoogleFonts.manropeTextTheme(ThemeData.light().textTheme);
 
     final colorScheme = ColorScheme.fromSeed(
       seedColor: primary,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
     ).copyWith(
       primary: primary,
-      onPrimary: const Color(0xFF241503),
+      onPrimary: Colors.white,
       surface: surface,
       onSurface: textPrimary,
       error: danger,
@@ -199,7 +199,7 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: primary,
-          foregroundColor: const Color(0xFF241503),
+          foregroundColor: Colors.white,
           disabledBackgroundColor: primary.withOpacity(0.3),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape:

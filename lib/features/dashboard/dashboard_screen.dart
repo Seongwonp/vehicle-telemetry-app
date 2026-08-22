@@ -444,37 +444,77 @@ class _ConnectionStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (icon, label, color) = switch (state) {
+    final (icon, title, detail, color, background) = switch (state) {
       DashboardConnectionState.connected => (
           Icons.wifi,
+          '실시간 수신 중',
           lastUpdatedText,
-          AppTheme.textSecondary
+          AppTheme.success,
+          AppTheme.success.withValues(alpha: 0.08),
         ),
       DashboardConnectionState.connecting => (
           Icons.sync,
-          '연결 중 · $lastUpdatedText',
-          AppTheme.warning
+          '연결 확인 중',
+          '마지막 $lastUpdatedText',
+          AppTheme.warning,
+          AppTheme.warning.withValues(alpha: 0.08),
         ),
       DashboardConnectionState.reconnecting => (
           Icons.sync_problem,
-          '재연결 중 · 마지막 $lastUpdatedText',
-          AppTheme.warning
+          '재연결 중',
+          '마지막 $lastUpdatedText',
+          AppTheme.warning,
+          AppTheme.warning.withValues(alpha: 0.08),
         ),
       DashboardConnectionState.stale => (
           Icons.schedule,
-          '데이터 지연 · 마지막 $lastUpdatedText',
-          AppTheme.danger
+          '데이터 지연',
+          '마지막 $lastUpdatedText',
+          AppTheme.danger,
+          AppTheme.danger.withValues(alpha: 0.08),
         ),
     };
+    final semanticLabel = '$title, $detail';
     return Semantics(
       liveRegion: state != DashboardConnectionState.connected,
-      label: label,
-      child: Row(
-        children: [
-          Icon(icon, size: 13, color: color),
-          const SizedBox(width: 5),
-          Text(label, style: TextStyle(fontSize: 11, color: color)),
-        ],
+      label: semanticLabel,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    detail,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

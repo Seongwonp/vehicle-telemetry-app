@@ -25,7 +25,7 @@ class TelemetryApp extends ConsumerWidget {
       navigatorKey: rootNavigatorKey,
       title: 'TELEMETRIX',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark(),
+      theme: AppTheme.light(),
       home: switch (authStatus) {
         AuthStatus.initializing => const _AuthInitializingScreen(),
         AuthStatus.authenticated => const VehicleListScreen(),

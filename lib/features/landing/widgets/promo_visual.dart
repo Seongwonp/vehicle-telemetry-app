@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/arc_gauge.dart';
 
-/// 제품을 아이콘+카드로 "설명"하는 대신, 실제 대시보드에서 쓰는 아크 게이지를
-/// 그대로 히어로 비주얼로 세운다 — 로그인 전이라 실데이터는 없지만, 켜지는
-/// 순간 0에서 목표값까지 스윕하는 연출로 "라이브 계기판"이라는 인상을 준다.
 class PromoVisual extends StatefulWidget {
   const PromoVisual({super.key});
 
@@ -18,8 +15,6 @@ class _PromoVisualState extends State<PromoVisual> {
   @override
   void initState() {
     super.initState();
-    // 카드가 뜨자마자 바로 차면 "이미 정지된 목업"처럼 보여서, 한 박자 쉬었다가
-    // 스윕하도록 살짝 지연을 준다.
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) setState(() => _speed = 87);
     });
@@ -42,7 +37,7 @@ class _PromoVisualState extends State<PromoVisual> {
               _LivePulse(),
               const SizedBox(width: 8),
               const Text(
-                'LIVE PREVIEW',
+                'SAMPLE TELEMETRY',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,

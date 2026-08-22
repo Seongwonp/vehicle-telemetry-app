@@ -127,6 +127,7 @@ void main() {
     await clients.single.connect();
     clients.single.emit(validTelemetry);
     await tester.pump();
+    expect(find.text('실시간 수신 중'), findsOneWidget);
     expect(find.textContaining('방금 업데이트'), findsOneWidget);
 
     clients.single.disconnect();
