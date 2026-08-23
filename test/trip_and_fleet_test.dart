@@ -6,8 +6,10 @@ import 'package:telemetrix/core/models/vehicle.dart';
 import 'package:telemetrix/core/providers/vehicle_providers.dart';
 import 'package:telemetrix/features/vehicle_list/vehicle_list_screen.dart';
 import 'package:telemetrix/features/vehicle_list/widgets/vehicle_card.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 void main() {
+  timeago.setLocaleMessages('ko', timeago.KoMessages());
   test('Trip.fromJson이 백엔드 트립 응답의 숫자 타입을 안전하게 변환한다', () {
     final trip = Trip.fromJson({
       'startTime': '2026-08-05T01:00:00Z',
@@ -54,6 +56,22 @@ void main() {
     expect(fleetSignalState(null, now), FleetSignalState.noData);
   });
 
+  test('fleet 신호 경계값 5분과 15분은 각각 정상과 지연에 포함된다', () {
+    final now = DateTime.utc(2026, 8, 5, 1);
+
+    expect(fleetSignalState(now.subtract(recentSignalThreshold), now),
+        FleetSignalState.recent);
+    expect(fleetSignalState(now.subtract(delayedSignalThreshold), now),
+        FleetSignalState.delayed);
+    expect(
+      fleetSignalState(
+        now.subtract(delayedSignalThreshold + const Duration(seconds: 1)),
+        now,
+      ),
+      FleetSignalState.offline,
+    );
+  });
+
   testWidgets('태블릿 2열 fleet 카드가 큰 글자에서도 overflow하지 않는다', (tester) async {
     tester.view.physicalSize = const Size(700, 1000);
     tester.view.devicePixelRatio = 1;
@@ -87,6 +105,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(VehicleCard), findsOneWidget);
+    expect(find.textContaining('마지막 신호 기준'), findsOneWidget);
+    expect(find.text('지연'), findsOneWidget);
+    expect(find.text('123 km/h'), findsOneWidget);
+    expect(find.text('HIGH 3'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

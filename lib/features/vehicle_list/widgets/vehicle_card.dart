@@ -20,6 +20,7 @@ class VehicleCard extends StatelessWidget {
   });
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final danger = context.appColors.danger;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -33,7 +34,7 @@ class VehicleCard extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('삭제', style: TextStyle(color: AppTheme.danger)),
+            child: Text('삭제', style: TextStyle(color: danger)),
           ),
         ],
       ),
@@ -56,6 +57,8 @@ class VehicleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final colors = context.appColors;
+    final signalState = fleetSignalState(vehicle.lastSeenAt, DateTime.now());
+    final signalColor = signalState.color(colors);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -65,42 +68,21 @@ class VehicleCard extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              // 차량 아이콘 + 활성 상태 표시
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: cs.primary.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      Icons.directions_car,
-                      size: 32,
-                      color: cs.primary,
-                    ),
-                  ),
-                  Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: vehicle.active
-                          ? AppTheme.success
-                          : colors.textTertiary,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ],
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: cs.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  Icons.directions_car_outlined,
+                  size: 28,
+                  color: cs.primary,
+                ),
               ),
               const SizedBox(width: 16),
 
-              // 차량 정보
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,6 +94,15 @@ class VehicleCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    if (!vehicle.active) ...[
+                      const SizedBox(height: 3),
+                      Text('비활성 차량',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: colors.textTertiary,
+                          )),
+                    ],
                     const SizedBox(height: 4),
                     Wrap(
                       spacing: 6,
@@ -136,29 +127,14 @@ class VehicleCard extends StatelessWidget {
                 ),
               ),
 
-              // 상태 배지 + 더보기 메뉴
+              // 마지막 수신 상태 + 관리 메뉴
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: vehicle.active
-                          ? AppTheme.success.withOpacity(0.15)
-                          : colors.textTertiary.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      vehicle.active ? '활성' : '비활성',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: vehicle.active
-                            ? AppTheme.success
-                            : colors.textTertiary,
-                      ),
-                    ),
+                  _SignalStatus(
+                    state: signalState,
+                    lastSeenAt: vehicle.lastSeenAt,
+                    color: signalColor,
                   ),
                   Row(
                     children: [
@@ -170,15 +146,15 @@ class VehicleCard extends StatelessWidget {
                           if (value == 'delete') _confirmDelete(context);
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'delete',
                             child: Row(
                               children: [
                                 Icon(Icons.delete_outline,
-                                    size: 18, color: AppTheme.danger),
-                                SizedBox(width: 8),
+                                    size: 18, color: colors.danger),
+                                const SizedBox(width: 8),
                                 Text('삭제',
-                                    style: TextStyle(color: AppTheme.danger)),
+                                    style: TextStyle(color: colors.danger)),
                               ],
                             ),
                           ),
@@ -204,8 +180,6 @@ class VehicleCard extends StatelessWidget {
   }
 }
 
-// 차량마다 대시보드에 들어가지 않고도 상태를 한눈에 비교할 수 있게
-// (fleet overview) 마지막 신호 시각·최근 속도·HIGH 이상 누적 건수를 보여준다.
 class _FleetSummaryRow extends StatelessWidget {
   final Vehicle vehicle;
   const _FleetSummaryRow({required this.vehicle});
@@ -213,46 +187,95 @@ class _FleetSummaryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final signalState = fleetSignalState(vehicle.lastSeenAt, DateTime.now());
+    final primary = Theme.of(context).colorScheme.primary;
     final hasHighAnomaly = vehicle.highAnomalyCount > 0;
 
     return Wrap(
       spacing: 8,
       runSpacing: 4,
       children: [
-        _Badge(
-          icon: signalState.icon,
-          label: vehicle.lastSeenAt == null
-              ? '데이터 없음'
-              : '${signalState.label} · '
-                  '${timeago.format(vehicle.lastSeenAt!, locale: 'ko')}',
-          color: signalState.color(colors),
-        ),
         if (vehicle.latestSpeed != null)
           _Badge(
             icon: Icons.speed_outlined,
             label: '${vehicle.latestSpeed!.toStringAsFixed(0)} km/h',
-            color: AppTheme.primary,
+            color: primary,
           ),
         if (hasHighAnomaly)
           _Badge(
             icon: Icons.warning_amber_rounded,
             label: 'HIGH ${vehicle.highAnomalyCount}',
-            color: AppTheme.danger,
+            color: colors.danger,
           ),
       ],
     );
   }
 }
 
+class _SignalStatus extends StatelessWidget {
+  final FleetSignalState state;
+  final DateTime? lastSeenAt;
+  final Color color;
+
+  const _SignalStatus({
+    required this.state,
+    required this.lastSeenAt,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final detail = lastSeenAt == null
+        ? '수신 이력 없음'
+        : timeago.format(lastSeenAt!, locale: 'ko');
+    return Semantics(
+      label: '데이터 상태 ${state.label}, 마지막 신호 $detail',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(state.icon, size: 12, color: color),
+                const SizedBox(width: 4),
+                Text(state.label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    )),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(detail,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  color: context.appColors.textSecondary,
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 enum FleetSignalState { recent, delayed, offline, noData }
+
+const recentSignalThreshold = Duration(minutes: 5);
+const delayedSignalThreshold = Duration(minutes: 15);
 
 FleetSignalState fleetSignalState(DateTime? lastSeenAt, DateTime now) {
   if (lastSeenAt == null) return FleetSignalState.noData;
 
   final age = now.toUtc().difference(lastSeenAt.toUtc());
-  if (age <= const Duration(minutes: 5)) return FleetSignalState.recent;
-  if (age <= const Duration(minutes: 15)) return FleetSignalState.delayed;
+  if (age <= recentSignalThreshold) return FleetSignalState.recent;
+  if (age <= delayedSignalThreshold) return FleetSignalState.delayed;
   return FleetSignalState.offline;
 }
 
@@ -271,9 +294,9 @@ extension on FleetSignalState {
       };
 
   Color color(AppSemanticColors colors) => switch (this) {
-        FleetSignalState.recent => AppTheme.success,
-        FleetSignalState.delayed => AppTheme.warning,
-        FleetSignalState.offline => AppTheme.danger,
+        FleetSignalState.recent => colors.success,
+        FleetSignalState.delayed => colors.warning,
+        FleetSignalState.offline => colors.danger,
         FleetSignalState.noData => colors.textTertiary,
       };
 }
