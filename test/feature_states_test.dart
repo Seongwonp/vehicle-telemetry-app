@@ -27,7 +27,7 @@ void main() {
     expect(loginErrorMessage(responseError(400)), contains('입력 내용을 확인'));
   });
 
-  test('AI 진단 오류를 상태 코드별로 구분한다', () {
+  test('보조 진단 오류를 상태 코드별로 구분한다', () {
     expect(diagnosisErrorMessage(responseError(401)), contains('다시 로그인'));
     expect(diagnosisErrorMessage(responseError(422)), contains('데이터가 부족'));
     expect(diagnosisErrorMessage(responseError(429)), contains('요청이 많습니다'));
@@ -71,13 +71,17 @@ void main() {
       ),
     ));
 
-    await tester.tap(find.text('고장진단하기'));
+    await tester.tap(find.text('진단 요청'));
     await tester.pumpAndSettle();
     expect(find.textContaining('엔진 상태가 정상입니다.'), findsOneWidget);
+    expect(find.text('참고 지표'), findsOneWidget);
+    expect(find.text('A 등급'), findsOneWidget);
+    expect(find.text('95/100'), findsOneWidget);
+    expect(find.textContaining('정비사의 점검을 받으세요'), findsOneWidget);
 
-    await tester.tap(find.text('다시 진단하기'));
+    await tester.tap(find.text('다시 확인하기'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('AI 진단 요청이 많습니다'), findsOneWidget);
+    expect(find.textContaining('진단 요청이 많습니다'), findsOneWidget);
     expect(find.textContaining('엔진 상태가 정상입니다.'), findsOneWidget);
 
     await tester.tap(find.text('다른 탭'));

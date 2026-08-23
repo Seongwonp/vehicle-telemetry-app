@@ -10,7 +10,7 @@ class DiagnosisLoadingSection extends StatelessWidget {
     const steps = [
       '센서 데이터 수집 중...',
       '이상 이벤트 조회 중...',
-      'Gemini AI 분석 중...',
+      '진단 결과 생성 중...',
     ];
     return Column(
       children: steps

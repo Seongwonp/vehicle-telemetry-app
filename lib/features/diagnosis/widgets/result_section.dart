@@ -27,7 +27,6 @@ class DiagnosisResultSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 메타 정보 바
         Row(
           children: [
             const Icon(Icons.check_circle, size: 15, color: AppTheme.success),
@@ -43,16 +42,37 @@ class DiagnosisResultSection extends StatelessWidget {
                     fontSize: 11, color: colors.textSecondary)),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
 
-        // 등급/점수 카드
-        _GradeScoreCard(grade: grade, score: score),
-        const SizedBox(height: 10),
+        _ReferenceSummary(grade: grade, score: score),
+        const SizedBox(height: 12),
 
-        // AI 응답 본문
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: colors.backgroundElevated,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline, size: 16, color: colors.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '이 결과는 참고용입니다. 이상 징후나 DTC가 확인되면 정비사의 점검을 받으세요.',
+                  style: TextStyle(
+                      fontSize: 12, height: 1.45, color: colors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: BorderRadius.circular(18),
@@ -80,28 +100,16 @@ class DiagnosisResultSection extends StatelessWidget {
             ),
           ),
         ),
-
-        // 하단 안내
-        const SizedBox(height: 10),
-        Text(
-          '* AI 진단은 참고용입니다. 정확한 진단은 정비사에게 문의하세요.',
-          style: TextStyle(
-              fontSize: 11,
-              color: colors.textTertiary,
-              fontStyle: FontStyle.italic),
-        ),
       ],
     );
   }
 }
 
-// A~F 등급을 3단계 색상(양호/주의/위험)으로 매핑해 점수 막대와 함께 보여준다.
-// 텍스트 진단을 다 읽지 않아도 한눈에 상태를 파악할 수 있게 하는 목적.
-class _GradeScoreCard extends StatelessWidget {
+class _ReferenceSummary extends StatelessWidget {
   final String grade;
   final int score;
 
-  const _GradeScoreCard({required this.grade, required this.score});
+  const _ReferenceSummary({required this.grade, required this.score});
 
   Color get _gradeColor {
     switch (grade.toUpperCase()) {
@@ -123,63 +131,39 @@ class _GradeScoreCard extends StatelessWidget {
     final clampedScore = score.clamp(0, 100);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withOpacity(0.35)),
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.border),
       ),
       child: Row(
         children: [
-          Container(
-            width: 52,
-            height: 52,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              shape: BoxShape.circle,
-              border: Border.all(color: color, width: 2),
-            ),
-            child: Text(
-              grade.toUpperCase(),
-              style: AppTheme.gaugeNumberStyle(fontSize: 24, color: color),
-            ),
+          Text(
+            '참고 지표',
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: colors.textSecondary),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text('차량 건강 점수',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: colors.textSecondary.withOpacity(0.9))),
-                    const Spacer(),
-                    Text('$clampedScore',
-                        style: AppTheme.gaugeNumberStyle(
-                            fontSize: 18, color: color)),
-                    Text('/100',
-                        style: TextStyle(
-                            fontSize: 11,
-                            color: colors.textSecondary.withOpacity(0.7))),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: clampedScore / 100,
-                    minHeight: 6,
-                    backgroundColor: colors.backgroundElevated,
-                    valueColor: AlwaysStoppedAnimation(color),
-                  ),
-                ),
-              ],
-            ),
+          const Spacer(),
+          Text(
+            '${grade.toUpperCase()} 등급',
+            style: TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w700, color: color),
+          ),
+          Container(
+            width: 1,
+            height: 14,
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            color: colors.border,
+          ),
+          Text(
+            '$clampedScore/100',
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: colors.textPrimary),
           ),
         ],
       ),

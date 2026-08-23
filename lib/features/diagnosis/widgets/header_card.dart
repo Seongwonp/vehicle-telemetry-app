@@ -8,39 +8,42 @@ class DiagnosisHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(20),
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: cs.primary.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(14),
+              color: cs.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.psychology, size: 30, color: cs.primary),
+            child: Icon(Icons.fact_check_outlined,
+                size: 22, color: cs.onPrimaryContainer),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Gemini AI 차량 진단',
+                Text('센서 기반 보조 진단',
                     style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         fontSize: 15,
-                        color: cs.primary)),
+                        color: cs.onSurface)),
                 const SizedBox(height: 4),
                 Text(
-                  '최근 센서 데이터 · DTC 코드 · 이상 이벤트를\n종합 분석하여 진단 결과를 제공합니다.',
+                  '최근 센서 데이터와 DTC·이상 이력을 바탕으로 참고용 결과를 생성합니다.',
                   style: TextStyle(
-                      fontSize: 12,
-                      color: cs.onSurface.withOpacity(0.55),
-                      height: 1.5),
+                      fontSize: 13,
+                      color: cs.onSurfaceVariant,
+                      height: 1.45),
                 ),
               ],
             ),

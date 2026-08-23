@@ -24,7 +24,7 @@
 | 차량 상세 | 현재 상태/이상 이력/주행 기록/보조 진단 TabBar + 스와이프, 탭 상태 유지 |
 | 대시보드 | STOMP WebSocket 실시간 센서 + 재연결/stale 상태 + 속도 추이 차트 |
 | 이상 이력 | 감지된 이상 이벤트 목록 + 심각도/기간 필터 |
-| AI 진단 | 사용자가 요청할 때만 실행하는 Gemini 진단 + A~F 등급/건강 점수 |
+| 보조 진단 | 센서·DTC·이상 이력을 바탕으로 사용자가 요청할 때 생성하는 참고 결과 |
 | 설정 | 계정 정보, 시스템·라이트·다크 테마, 로그아웃 |
 
 ## 시작하기
@@ -88,7 +88,7 @@ lib/
     ├── anomalies/
     │   ├── anomaly_list_screen.dart
     │   └── widgets/                # anomaly_card, empty_view
-    ├── diagnosis/                  # AI 진단
+    ├── diagnosis/                  # 센서 기반 보조 진단
     │   ├── diagnosis_screen.dart
     │   └── widgets/                # header_card, result_section, error_section 등
     ├── settings/                   # 계정/로그아웃

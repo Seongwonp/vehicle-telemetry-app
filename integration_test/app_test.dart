@@ -127,7 +127,7 @@ void main() {
     await tester.tap(find.widgetWithText(Tab, '보조 진단'));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(tabController.index, 3);
-    expect(find.text('고장진단하기'), findsOneWidget);
+    expect(find.text('진단 요청'), findsOneWidget);
 
     // 차량 목록으로 복귀
     await tester.pageBack();
