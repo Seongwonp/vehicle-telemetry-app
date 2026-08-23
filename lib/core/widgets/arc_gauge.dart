@@ -2,9 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// 270도 스윕 아크 게이지 — 실물 차량 계기판을 흉내낸 커스텀 페인터.
-/// 값이 바뀔 때마다 새로 그리지 않고 TweenAnimationBuilder로 부드럽게
-/// 보간해서, 폴링(2초)마다 바늘이 뚝뚝 끊기지 않고 스윽 움직이게 한다.
 class ArcGauge extends StatelessWidget {
   final double value;
   final double maxValue;
@@ -70,15 +67,17 @@ class ArcGauge extends StatelessWidget {
                       letterSpacing: 0.4,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colors.textSecondary,
-                      fontWeight: FontWeight.w600,
+                  if (label.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -120,24 +119,8 @@ class _ArcGaugePainter extends CustomPainter {
     if (ratio <= 0) return;
     final sweep = _sweepTotal * ratio;
 
-    // 은은한 글로우 — 크리스프한 아크 뒤에 블러 처리된 같은 색을 한 번 더 깔아
-    // 계기판이 빛나는 느낌을 낸다.
-    final glowPaint = Paint()
-      ..color = activeColor.withOpacity(0.55)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth + 6
-      ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
-    canvas.drawArc(rect, _startAngle, sweep, false, glowPaint);
-
     final activePaint = Paint()
-      ..shader = SweepGradient(
-        startAngle: _startAngle,
-        endAngle: _startAngle + _sweepTotal,
-        colors: [activeColor.withOpacity(0.7), activeColor],
-        stops: const [0, 1],
-        transform: GradientRotation(_startAngle),
-      ).createShader(rect)
+      ..color = activeColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;

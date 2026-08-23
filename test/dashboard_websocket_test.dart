@@ -54,6 +54,18 @@ void main() {
     "dtcCodes":[]
   }''';
 
+  const anomalousTelemetry = '''{
+    "vehicleId":"SIM-001",
+    "timestamp":"2026-08-04T10:00:01Z",
+    "speed":201.0,
+    "rpm":6001,
+    "engineTemp":106.0,
+    "throttlePosition":20.0,
+    "fuelLevel":5.0,
+    "batteryVoltage":15.1,
+    "dtcCodes":[]
+  }''';
+
   late List<FakeStompClient> clients;
   late String token;
   late DateTime now;
@@ -151,6 +163,17 @@ void main() {
     clients.single.emit(validTelemetry);
     await tester.pump();
     expect(find.text('42'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('백엔드 규칙을 넘는 지표만 이상 기준 초과로 표시한다', (tester) async {
+    await pumpDashboard(tester);
+    await clients.single.connect();
+    clients.single.emit(anomalousTelemetry);
+    await tester.pump();
+
+    expect(find.text('이상 기준 초과'), findsNWidgets(2));
+    expect(find.text('5.0%'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 }

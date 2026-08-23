@@ -352,7 +352,6 @@ class _DashboardBody extends StatelessWidget {
                       unit: 'km/h',
                       icon: Icons.speed_outlined,
                       danger: latest.speed > 200,
-                      warning: latest.speed > 120,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -364,7 +363,6 @@ class _DashboardBody extends StatelessWidget {
                       unit: 'rpm',
                       icon: Icons.rotate_right,
                       danger: latest.rpm > 6000,
-                      warning: latest.rpm > 4500,
                     ),
                   ),
                 ],
@@ -385,14 +383,12 @@ class _DashboardBody extends StatelessWidget {
                     value: '${latest.engineTemp.toStringAsFixed(1)}°C',
                     icon: Icons.thermostat_outlined,
                     danger: latest.engineTemp > 105,
-                    warning: latest.engineTemp > 95,
                   ),
                   SecondaryMetricCard(
                     label: '연료',
                     value: '${latest.fuelLevel.toStringAsFixed(1)}%',
                     icon: Icons.local_gas_station_outlined,
-                    danger: latest.fuelLevel < 10,
-                    warning: latest.fuelLevel < 20,
+                    danger: false,
                   ),
                   SecondaryMetricCard(
                     label: '배터리',
@@ -400,15 +396,12 @@ class _DashboardBody extends StatelessWidget {
                     icon: Icons.battery_charging_full_outlined,
                     danger: latest.batteryVoltage < 11.5 ||
                         latest.batteryVoltage > 15.0,
-                    warning: latest.batteryVoltage < 12.2 ||
-                        latest.batteryVoltage > 14.8,
                   ),
                   SecondaryMetricCard(
                     label: '스로틀',
                     value: '${latest.throttlePosition.toStringAsFixed(1)}%',
                     icon: Icons.tune,
                     danger: false,
-                    warning: false,
                   ),
                 ],
               ),
