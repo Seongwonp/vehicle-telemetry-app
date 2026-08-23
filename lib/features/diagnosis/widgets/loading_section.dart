@@ -6,6 +6,7 @@ class DiagnosisLoadingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     const steps = [
       '센서 데이터 수집 중...',
       '이상 이벤트 조회 중...',
@@ -24,8 +25,8 @@ class DiagnosisLoadingSection extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(step,
-                        style: const TextStyle(
-                            color: AppTheme.textSecondary, fontSize: 13)),
+                        style: TextStyle(
+                            color: colors.textSecondary, fontSize: 13)),
                   ],
                 ),
               ))

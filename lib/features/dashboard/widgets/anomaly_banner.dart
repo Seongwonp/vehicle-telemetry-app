@@ -7,29 +7,29 @@ class AnomalyBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final danger = context.appColors.danger;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppTheme.danger.withOpacity(0.1),
+        color: danger.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.danger.withOpacity(0.35)),
+        border: Border.all(color: danger.withOpacity(0.35)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_rounded, color: AppTheme.danger, size: 20),
+          Icon(Icons.warning_rounded, color: danger, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('이상 값 감지됨',
+                Text('이상 값 감지됨',
                     style: TextStyle(
-                        color: AppTheme.danger, fontWeight: FontWeight.bold)),
+                        color: danger, fontWeight: FontWeight.bold)),
                 if (dtcCodes.isNotEmpty)
                   Text('DTC: ${dtcCodes.join(', ')}',
-                      style: const TextStyle(
-                          color: AppTheme.danger, fontSize: 12)),
+                      style: TextStyle(color: danger, fontSize: 12)),
               ],
             ),
           ),

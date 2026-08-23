@@ -15,6 +15,7 @@ class VehicleDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final compactTabs = MediaQuery.sizeOf(context).width < 400 ||
         MediaQuery.textScalerOf(context).scale(11.5) > 14;
 
@@ -34,9 +35,9 @@ class VehicleDetailScreen extends StatelessWidget {
               Tab(icon: Icon(Icons.route_outlined), text: '주행 기록'),
               Tab(icon: Icon(Icons.psychology_outlined), text: '보조 진단'),
             ],
-            labelColor: AppTheme.primary,
-            unselectedLabelColor: AppTheme.textSecondary,
-            indicatorColor: AppTheme.primary,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: colors.textSecondary,
+            indicatorColor: Theme.of(context).colorScheme.primary,
             labelStyle: const TextStyle(fontSize: 11.5),
             unselectedLabelStyle: const TextStyle(fontSize: 11.5),
           ),

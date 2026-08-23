@@ -7,26 +7,27 @@ class DtcSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final warning = context.appColors.warning;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.08),
+        color: warning.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.warning.withOpacity(0.3)),
+        border: Border.all(color: warning.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.build_circle_outlined,
-                  size: 16, color: AppTheme.warning),
-              SizedBox(width: 6),
+                  size: 16, color: warning),
+              const SizedBox(width: 6),
               Text('DTC 진단 코드',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.warning,
+                      color: warning,
                       fontSize: 13)),
             ],
           ),
@@ -39,12 +40,12 @@ class DtcSection extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.15),
+                        color: warning.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(code,
-                          style: const TextStyle(
-                              color: AppTheme.warning,
+                          style: TextStyle(
+                              color: warning,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.5)),

@@ -8,19 +8,20 @@ class EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.directions_car_outlined,
-              size: 72, color: AppTheme.textTertiary),
+          Icon(Icons.directions_car_outlined,
+              size: 72, color: colors.textTertiary),
           const SizedBox(height: 16),
           const Text('등록된 차량이 없습니다',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
-          const Text('차량을 추가하고 OBD-II 동글/시뮬레이터를 연결해 보세요.',
+          Text('차량을 추가하고 OBD-II 동글/시뮬레이터를 연결해 보세요.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textSecondary)),
+              style: TextStyle(color: colors.textSecondary)),
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () async {

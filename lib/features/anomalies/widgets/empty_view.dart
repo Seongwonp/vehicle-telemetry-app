@@ -10,6 +10,7 @@ class AnomalyEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -18,14 +19,14 @@ class AnomalyEmptyView extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: (filtered ? AppTheme.textSecondary : AppTheme.success)
+              color: (filtered ? colors.textSecondary : colors.success)
                   .withOpacity(0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
               filtered ? Icons.filter_alt_off_outlined : Icons.check_circle_outline,
               size: 40,
-              color: filtered ? AppTheme.textSecondary : AppTheme.success,
+              color: filtered ? colors.textSecondary : colors.success,
             ),
           ),
           const SizedBox(height: 16),
@@ -35,7 +36,7 @@ class AnomalyEmptyView extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             filtered ? '필터를 조정해보세요.' : '차량이 정상 범위로 주행 중입니다.',
-            style: const TextStyle(color: AppTheme.textSecondary),
+            style: TextStyle(color: colors.textSecondary),
           ),
         ],
       ),

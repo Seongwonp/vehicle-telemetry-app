@@ -15,6 +15,8 @@ class HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
     final crossAlign =
         alignLeft ? CrossAxisAlignment.start : CrossAxisAlignment.center;
     final textAlign = alignLeft ? TextAlign.left : TextAlign.center;
@@ -44,7 +46,7 @@ class HeroSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primary.withOpacity(0.18),
+                        color: primary.withOpacity(0.18),
                         blurRadius: 24,
                       ),
                     ],
@@ -61,12 +63,12 @@ class HeroSection extends StatelessWidget {
           Text(
             '차량 상태와 데이터 흐름을\n한눈에 확인하기',
             textAlign: textAlign,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
               height: 1.3,
               letterSpacing: -0.8,
-              color: AppTheme.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           const SizedBox(height: 14),
@@ -76,7 +78,7 @@ class HeroSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               height: 1.6,
-              color: AppTheme.textSecondary.withOpacity(0.9),
+              color: colors.textSecondary.withOpacity(0.9),
             ),
           ),
           const SizedBox(height: 36),
@@ -92,12 +94,13 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withOpacity(0.1),
+        color: primary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: AppTheme.primary.withOpacity(0.3)),
+        border: Border.all(color: primary.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -106,7 +109,7 @@ class _StatusPill extends StatelessWidget {
             width: 6,
             height: 6,
             decoration: const BoxDecoration(
-              color: AppTheme.primary,
+              color: primary,
               shape: BoxShape.circle,
             ),
           ),
@@ -115,7 +118,7 @@ class _StatusPill extends StatelessWidget {
             '텔레메트리 모니터링',
             style: AppTheme.gaugeNumberStyle(
               fontSize: 11,
-              color: AppTheme.primary,
+              color: primary,
               weight: FontWeight.w500,
             ),
           ),
@@ -132,13 +135,15 @@ class _GetStartedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
     final button = DecoratedBox(
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
+        gradient: colors.primaryGradient,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withOpacity(0.28),
+            color: primary.withOpacity(0.2),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:telemetrix/core/api/api_client.dart';
 import 'package:telemetrix/features/diagnosis/diagnosis_screen.dart';
 import 'package:telemetrix/features/login/login_screen.dart';
@@ -88,11 +89,16 @@ void main() {
 
   testWidgets('설정은 저장된 계정과 로그아웃만 표시한다', (tester) async {
     FlutterSecureStorage.setMockInitialValues({'username': 'tester'});
-    await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: SettingsScreen())),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('tester'), findsOneWidget);
     expect(find.text('로그아웃'), findsOneWidget);
+    expect(find.text('시스템'), findsOneWidget);
+    expect(find.text('라이트'), findsOneWidget);
+    expect(find.text('다크'), findsOneWidget);
     expect(find.byType(Switch), findsNothing);
   });
 }

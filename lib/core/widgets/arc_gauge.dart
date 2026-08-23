@@ -11,7 +11,7 @@ class ArcGauge extends StatelessWidget {
   final String label;
   final String unit;
   final double size;
-  final Color color;
+  final Color? color;
   final bool danger;
   final bool warning;
 
@@ -21,7 +21,7 @@ class ArcGauge extends StatelessWidget {
     required this.label,
     required this.unit,
     this.size = 168,
-    this.color = AppTheme.primary,
+    this.color,
     this.danger = false,
     this.warning = false,
     super.key,
@@ -29,8 +29,10 @@ class ArcGauge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor =
-        danger ? AppTheme.danger : (warning ? AppTheme.warning : color);
+    final colors = context.appColors;
+    final activeColor = danger
+        ? colors.danger
+        : (warning ? colors.warning : color ?? Theme.of(context).colorScheme.primary);
     final ratio = (value / maxValue).clamp(0.0, 1.0);
 
     return SizedBox(
@@ -44,7 +46,7 @@ class ArcGauge extends StatelessWidget {
           return CustomPaint(
             painter: _ArcGaugePainter(
               ratio: animatedRatio,
-              trackColor: AppTheme.border,
+              trackColor: colors.border,
               activeColor: activeColor,
             ),
             child: Center(
@@ -62,18 +64,18 @@ class ArcGauge extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     unit,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppTheme.textTertiary,
+                      color: colors.textTertiary,
                       letterSpacing: 0.4,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppTheme.textSecondary,
+                      color: colors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/token_storage.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/theme_provider.dart';
 import '../landing/landing_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -43,6 +44,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final themePreference = ref.watch(themePreferenceProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('설정')),
       body: _loading
@@ -63,16 +66,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 24),
+                    const _SectionLabel('화면'),
+                    _SettingsCard(
+                      children: [
+                        _ThemeSelector(
+                          selected: themePreference,
+                          onChanged: (preference) => ref
+                              .read(themePreferenceProvider.notifier)
+                              .setPreference(preference),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 32),
                     OutlinedButton.icon(
                       onPressed: _logout,
-                      icon: const Icon(Icons.logout, color: AppTheme.danger),
-                      label: const Text('로그아웃',
-                          style: TextStyle(color: AppTheme.danger)),
+                      icon: Icon(Icons.logout, color: colors.danger),
+                      label: Text('로그아웃',
+                          style: TextStyle(color: colors.danger)),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(
-                            color: AppTheme.danger, width: 1.2),
+                        side: BorderSide(color: colors.danger, width: 1.2),
                       ),
                     ),
                   ],
@@ -88,14 +102,15 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 0, 8),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12.5,
           fontWeight: FontWeight.w700,
-          color: AppTheme.textSecondary,
+          color: colors.textSecondary,
           letterSpacing: 0.4,
         ),
       ),
@@ -108,11 +123,12 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(children: children),
     );
@@ -129,20 +145,59 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppTheme.textSecondary),
+          Icon(icon, size: 20, color: colors.textSecondary),
           const SizedBox(width: 12),
           Text(label,
-              style:
-                  const TextStyle(fontSize: 14, color: AppTheme.textSecondary)),
+              style: TextStyle(fontSize: 14, color: colors.textSecondary)),
           const Spacer(),
           Text(value,
               style:
                   const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         ],
+      ),
+    );
+  }
+}
+
+class _ThemeSelector extends StatelessWidget {
+  final AppThemePreference selected;
+  final ValueChanged<AppThemePreference> onChanged;
+
+  const _ThemeSelector({required this.selected, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: SizedBox(
+        width: double.infinity,
+        child: SegmentedButton<AppThemePreference>(
+          segments: const [
+            ButtonSegment(
+              value: AppThemePreference.system,
+              icon: Icon(Icons.brightness_auto_outlined),
+              label: Text('시스템'),
+            ),
+            ButtonSegment(
+              value: AppThemePreference.light,
+              icon: Icon(Icons.light_mode_outlined),
+              label: Text('라이트'),
+            ),
+            ButtonSegment(
+              value: AppThemePreference.dark,
+              icon: Icon(Icons.dark_mode_outlined),
+              label: Text('다크'),
+            ),
+          ],
+          selected: {selected},
+          showSelectedIcon: false,
+          onSelectionChanged: (selection) => onChanged(selection.single),
+        ),
       ),
     );
   }

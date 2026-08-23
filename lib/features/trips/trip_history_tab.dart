@@ -161,6 +161,7 @@ class _TripError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     if (compact) {
       return Material(
         color: AppTheme.danger.withValues(alpha: 0.1),
@@ -185,7 +186,7 @@ class _TripError extends StatelessWidget {
           const SizedBox(height: 12),
           Text(message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.textSecondary)),
+              style: TextStyle(color: colors.textSecondary)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: onRetry,
@@ -203,6 +204,7 @@ class _EmptyTrips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 56),
       child: Column(
@@ -211,18 +213,18 @@ class _EmptyTrips extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: AppTheme.textSecondary.withValues(alpha: 0.12),
+              color: colors.textSecondary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.route_outlined,
-                size: 36, color: AppTheme.textSecondary),
+            child: Icon(Icons.route_outlined,
+                size: 36, color: colors.textSecondary),
           ),
           const SizedBox(height: 16),
           const Text('이 기간엔 주행 기록이 없어요',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
-          const Text('조회 기간을 늘려보세요.',
-              style: TextStyle(color: AppTheme.textSecondary)),
+          Text('조회 기간을 늘려보세요.',
+              style: TextStyle(color: colors.textSecondary)),
         ],
       ),
     );
@@ -238,25 +240,25 @@ class _PeriodChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: selected
-              ? AppTheme.primary.withValues(alpha: 0.15)
-              : AppTheme.surface,
+          color: selected ? primary.withValues(alpha: 0.15) : colors.surface,
           borderRadius: BorderRadius.circular(100),
           border:
-              Border.all(color: selected ? AppTheme.primary : AppTheme.border),
+              Border.all(color: selected ? primary : colors.border),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? AppTheme.primary : AppTheme.textSecondary,
+            color: selected ? primary : colors.textSecondary,
           ),
         ),
       ),
@@ -284,12 +286,13 @@ class _TripCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,8 +308,8 @@ class _TripCard extends StatelessWidget {
                         fontSize: 12.5, fontWeight: FontWeight.w600)),
               ),
               Text('${trip.durationMinutes}분',
-                  style: const TextStyle(
-                      fontSize: 12, color: AppTheme.textSecondary)),
+                  style:
+                      TextStyle(fontSize: 12, color: colors.textSecondary)),
             ],
           ),
           const SizedBox(height: 12),
@@ -336,15 +339,18 @@ class _Stat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(
-                  fontSize: 10.5, color: AppTheme.textTertiary)),
+              style:
+                  TextStyle(fontSize: 10.5, color: colors.textTertiary)),
           const SizedBox(height: 2),
-          Text(value, style: AppTheme.gaugeNumberStyle(fontSize: 15)),
+          Text(value,
+              style: AppTheme.gaugeNumberStyle(
+                  fontSize: 15, color: colors.textPrimary)),
         ],
       ),
     );

@@ -175,6 +175,7 @@ class _FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: SingleChildScrollView(
@@ -193,7 +194,7 @@ class _FilterBar extends StatelessWidget {
               width: 1,
               height: 20,
               margin: const EdgeInsets.symmetric(horizontal: 6),
-              color: AppTheme.border,
+              color: colors.border,
             ),
             for (final entry in _periodLabels.entries) ...[
               _FilterChip(
@@ -223,24 +224,25 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color:
-              selected ? AppTheme.primary.withOpacity(0.15) : AppTheme.surface,
+          color: selected ? primary.withOpacity(0.15) : colors.surface,
           borderRadius: BorderRadius.circular(100),
           border:
-              Border.all(color: selected ? AppTheme.primary : AppTheme.border),
+              Border.all(color: selected ? primary : colors.border),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? AppTheme.primary : AppTheme.textSecondary,
+            color: selected ? primary : colors.textSecondary,
           ),
         ),
       ),

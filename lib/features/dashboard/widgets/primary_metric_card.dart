@@ -24,21 +24,18 @@ class PrimaryMetricCard extends StatelessWidget {
     super.key,
   });
 
-  Color get _accentColor {
-    if (danger) return AppTheme.danger;
-    if (warning) return AppTheme.warning;
-    return AppTheme.primary;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _accentColor;
+    final colors = context.appColors;
+    final color = danger
+        ? colors.danger
+        : (warning ? colors.warning : Theme.of(context).colorScheme.primary);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

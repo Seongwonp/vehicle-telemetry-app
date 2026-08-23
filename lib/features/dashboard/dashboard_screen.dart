@@ -444,34 +444,35 @@ class _ConnectionStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final (icon, title, detail, color, background) = switch (state) {
       DashboardConnectionState.connected => (
           Icons.wifi,
           '실시간 수신 중',
           lastUpdatedText,
-          AppTheme.success,
-          AppTheme.success.withValues(alpha: 0.08),
+          colors.success,
+          colors.success.withValues(alpha: 0.08),
         ),
       DashboardConnectionState.connecting => (
           Icons.sync,
           '연결 확인 중',
           '마지막 $lastUpdatedText',
-          AppTheme.warning,
-          AppTheme.warning.withValues(alpha: 0.08),
+          colors.warning,
+          colors.warning.withValues(alpha: 0.08),
         ),
       DashboardConnectionState.reconnecting => (
           Icons.sync_problem,
           '재연결 중',
           '마지막 $lastUpdatedText',
-          AppTheme.warning,
-          AppTheme.warning.withValues(alpha: 0.08),
+          colors.warning,
+          colors.warning.withValues(alpha: 0.08),
         ),
       DashboardConnectionState.stale => (
           Icons.schedule,
           '데이터 지연',
           '마지막 $lastUpdatedText',
-          AppTheme.danger,
-          AppTheme.danger.withValues(alpha: 0.08),
+          colors.danger,
+          colors.danger.withValues(alpha: 0.08),
         ),
     };
     final semanticLabel = '$title, $detail';
@@ -505,9 +506,9 @@ class _ConnectionStatus extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     detail,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppTheme.textSecondary,
+                      color: colors.textSecondary,
                     ),
                   ),
                 ],

@@ -17,19 +17,16 @@ class SecondaryMetricCard extends StatelessWidget {
     super.key,
   });
 
-  Color get _color {
-    if (danger) return AppTheme.danger;
-    if (warning) return AppTheme.warning;
-    return AppTheme.primary;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _color;
+    final colors = context.appColors;
+    final color = danger
+        ? colors.danger
+        : (warning ? colors.warning : Theme.of(context).colorScheme.primary);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: color.withOpacity(0.3)),
       ),

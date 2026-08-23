@@ -26,6 +26,7 @@ class AnomalyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final color = _severityColor;
 
     return Container(
@@ -81,21 +82,21 @@ class AnomalyCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       anomaly.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppTheme.textSecondary,
+                        color: colors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.access_time,
-                            size: 11, color: AppTheme.textTertiary),
+                        Icon(Icons.access_time,
+                            size: 11, color: colors.textTertiary),
                         const SizedBox(width: 3),
                         Text(
                           timeago.format(anomaly.detectedAt, locale: 'ko'),
-                          style: const TextStyle(
-                              fontSize: 11, color: AppTheme.textSecondary),
+                          style: TextStyle(
+                              fontSize: 11, color: colors.textSecondary),
                         ),
                       ],
                     ),

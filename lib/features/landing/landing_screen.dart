@@ -53,6 +53,8 @@ class _LandingScreenState extends State<LandingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
     final heroReveal = _interval(0.0, 0.6);
     final previewReveal = _interval(0.15, 0.75);
 
@@ -69,8 +71,8 @@ class _LandingScreenState extends State<LandingScreen>
               )!,
               radius: 1.3,
               colors: [
-                Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!,
-                AppTheme.bg
+                Color.lerp(colors.background, primary, 0.06)!,
+                colors.background
               ],
               stops: const [0.0, 0.8],
             ),
@@ -205,6 +207,7 @@ class _FeatureGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final reveal = revealBuilder(0.3, 0.8);
     return AnimatedBuilder(
       animation: reveal,
@@ -218,9 +221,9 @@ class _FeatureGrid extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.border),
+          border: Border.all(color: colors.border),
         ),
         child: Wrap(
           alignment: WrapAlignment.spaceEvenly,
@@ -251,6 +254,7 @@ class _CapabilityItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return SizedBox(
       width: 128,
       child: Column(
@@ -268,10 +272,10 @@ class _CapabilityItem extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
         ],

@@ -9,6 +9,8 @@ class SpeedChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
     final spots = history.reversed
         .toList()
         .asMap()
@@ -25,14 +27,13 @@ class SpeedChart extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.show_chart, size: 16, color: AppTheme.primary),
+            Icon(Icons.show_chart, size: 16, color: primary),
             const SizedBox(width: 6),
             const Text('속도 추이',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             const Spacer(),
             Text('최근 ${history.length}개',
-                style: const TextStyle(
-                    fontSize: 11, color: AppTheme.textSecondary)),
+                style: TextStyle(fontSize: 11, color: colors.textSecondary)),
           ],
         ),
         const SizedBox(height: 12),
@@ -48,7 +49,7 @@ class SpeedChart extends StatelessWidget {
                 drawVerticalLine: false,
                 horizontalInterval: maxY / 3,
                 getDrawingHorizontalLine: (v) => FlLine(
-                  color: AppTheme.border,
+                  color: colors.border,
                   strokeWidth: 1,
                 ),
               ),
@@ -60,8 +61,8 @@ class SpeedChart extends StatelessWidget {
                     interval: maxY / 3,
                     getTitlesWidget: (value, _) => Text(
                       '${value.toInt()}',
-                      style: const TextStyle(
-                          fontSize: 10, color: AppTheme.textTertiary),
+                      style: TextStyle(
+                          fontSize: 10, color: colors.textTertiary),
                     ),
                   ),
                 ),
@@ -78,7 +79,7 @@ class SpeedChart extends StatelessWidget {
                   spots: spots,
                   isCurved: true,
                   curveSmoothness: 0.3,
-                  color: AppTheme.primary,
+                  color: primary,
                   barWidth: 2.5,
                   dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(
@@ -87,8 +88,8 @@ class SpeedChart extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        AppTheme.primary.withOpacity(0.25),
-                        AppTheme.primary.withOpacity(0.0),
+                        primary.withOpacity(0.25),
+                        primary.withOpacity(0.0),
                       ],
                     ),
                   ),

@@ -20,6 +20,7 @@ class DiagnosisResultSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final timeStr =
         '${diagnosedAt.hour.toString().padLeft(2, '0')}:${diagnosedAt.minute.toString().padLeft(2, '0')}';
 
@@ -38,8 +39,8 @@ class DiagnosisResultSection extends StatelessWidget {
                     fontWeight: FontWeight.w600)),
             const Spacer(),
             Text('데이터 $dataPoints개 · $timeStr',
-                style: const TextStyle(
-                    fontSize: 11, color: AppTheme.textSecondary)),
+                style: TextStyle(
+                    fontSize: 11, color: colors.textSecondary)),
           ],
         ),
         const SizedBox(height: 10),
@@ -53,26 +54,28 @@ class DiagnosisResultSection extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: AppTheme.surface,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppTheme.border),
+            border: Border.all(color: colors.border),
           ),
           child: MarkdownBody(
             data: diagnosis,
             selectable: true,
             styleSheet: MarkdownStyleSheet(
-              p: const TextStyle(
-                  fontSize: 14, height: 1.7, color: AppTheme.textPrimary),
+              p: TextStyle(
+                  fontSize: 14, height: 1.7, color: colors.textPrimary),
               strong: const TextStyle(
                   fontWeight: FontWeight.w700, color: AppTheme.primaryBright),
-              h1: AppTheme.gaugeNumberStyle(fontSize: 20),
-              h2: AppTheme.gaugeNumberStyle(fontSize: 18),
+              h1: AppTheme.gaugeNumberStyle(
+                  fontSize: 20, color: colors.textPrimary),
+              h2: AppTheme.gaugeNumberStyle(
+                  fontSize: 18, color: colors.textPrimary),
               h3: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.primary),
-              listBullet: const TextStyle(
-                  fontSize: 14, color: AppTheme.textSecondary),
+              listBullet: TextStyle(
+                  fontSize: 14, color: colors.textSecondary),
               blockSpacing: 12,
             ),
           ),
@@ -80,11 +83,11 @@ class DiagnosisResultSection extends StatelessWidget {
 
         // 하단 안내
         const SizedBox(height: 10),
-        const Text(
+        Text(
           '* AI 진단은 참고용입니다. 정확한 진단은 정비사에게 문의하세요.',
           style: TextStyle(
               fontSize: 11,
-              color: AppTheme.textTertiary,
+              color: colors.textTertiary,
               fontStyle: FontStyle.italic),
         ),
       ],
@@ -115,6 +118,7 @@ class _GradeScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final color = _gradeColor;
     final clampedScore = score.clamp(0, 100);
 
@@ -153,7 +157,7 @@ class _GradeScoreCard extends StatelessWidget {
                     Text('차량 건강 점수',
                         style: TextStyle(
                             fontSize: 12,
-                            color: AppTheme.textSecondary.withOpacity(0.9))),
+                            color: colors.textSecondary.withOpacity(0.9))),
                     const Spacer(),
                     Text('$clampedScore',
                         style: AppTheme.gaugeNumberStyle(
@@ -161,7 +165,7 @@ class _GradeScoreCard extends StatelessWidget {
                     Text('/100',
                         style: TextStyle(
                             fontSize: 11,
-                            color: AppTheme.textSecondary.withOpacity(0.7))),
+                            color: colors.textSecondary.withOpacity(0.7))),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -170,7 +174,7 @@ class _GradeScoreCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: clampedScore / 100,
                     minHeight: 6,
-                    backgroundColor: AppTheme.bgElevated,
+                    backgroundColor: colors.backgroundElevated,
                     valueColor: AlwaysStoppedAnimation(color),
                   ),
                 ),

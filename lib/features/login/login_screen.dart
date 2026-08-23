@@ -94,6 +94,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final colors = context.appColors;
 
     return Scaffold(
       body: DecoratedBox(
@@ -103,8 +104,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             center: const Alignment(0, -0.7),
             radius: 1.2,
             colors: [
-              Color.lerp(AppTheme.bg, AppTheme.primary, 0.06)!,
-              AppTheme.bg
+              Color.lerp(colors.background, cs.primary, 0.06)!,
+              colors.background
             ],
             stops: const [0.0, 0.75],
           ),
@@ -163,7 +164,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   .textTheme
                                   .bodyMedium
                                   ?.copyWith(
-                                    color: AppTheme.textSecondary,
+                                    color: colors.textSecondary,
                                     letterSpacing: 0.3,
                                   ),
                             ),
@@ -243,11 +244,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       // ── 로그인 버튼 ──────────────────────────────
                       DecoratedBox(
                         decoration: BoxDecoration(
-                          gradient: AppTheme.primaryGradient,
+                          gradient: colors.primaryGradient,
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primary.withOpacity(0.28),
+                              color: cs.primary.withOpacity(0.2),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),

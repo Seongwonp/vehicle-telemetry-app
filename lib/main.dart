@@ -4,6 +4,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'core/auth/auth_provider.dart';
 import 'core/navigation/navigator_key.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/landing/landing_screen.dart';
 import 'features/vehicle_list/vehicle_list_screen.dart';
 import 'core/api/api_client.dart';
@@ -20,12 +21,15 @@ class TelemetryApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authStatus = ref.watch(authProvider);
+    final themePreference = ref.watch(themePreferenceProvider);
 
     return MaterialApp(
       navigatorKey: rootNavigatorKey,
       title: 'TELEMETRIX',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: themePreference.themeMode,
       home: switch (authStatus) {
         AuthStatus.initializing => const _AuthInitializingScreen(),
         AuthStatus.authenticated => const VehicleListScreen(),

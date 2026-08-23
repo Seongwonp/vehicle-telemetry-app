@@ -65,6 +65,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
       appBar: AppBar(title: const Text('차량 추가')),
       body: Center(
@@ -80,21 +81,21 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
+                      color: colors.surface,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppTheme.border),
+                      border: Border.all(color: colors.border),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline,
-                            size: 18, color: AppTheme.textSecondary),
+                        Icon(Icons.info_outline,
+                            size: 18, color: colors.textSecondary),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             '차량 ID는 OBD-II 동글/시뮬레이터가 전송하는 vehicle_id와 '
                             '정확히 일치해야 실시간 데이터가 연결됩니다.',
-                            style: const TextStyle(
-                                fontSize: 12, color: AppTheme.textSecondary),
+                            style: TextStyle(
+                                fontSize: 12, color: colors.textSecondary),
                           ),
                         ),
                       ],

@@ -6,6 +6,15 @@ import 'package:google_fonts/google_fonts.dart';
 /// 제각각 하드코딩돼 있어서 톤이 서로 미묘하게 어긋났다.
 @immutable
 class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
+  final Color background;
+  final Color backgroundElevated;
+  final Color surface;
+  final Color surfaceHigh;
+  final Color border;
+  final Color borderStrong;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color textTertiary;
   final Color success;
   final Color warning;
   final Color danger;
@@ -13,6 +22,15 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   final List<BoxShadow> accentGlow;
 
   const AppSemanticColors({
+    required this.background,
+    required this.backgroundElevated,
+    required this.surface,
+    required this.surfaceHigh,
+    required this.border,
+    required this.borderStrong,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.textTertiary,
     required this.success,
     required this.warning,
     required this.danger,
@@ -22,6 +40,15 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
 
   @override
   AppSemanticColors copyWith({
+    Color? background,
+    Color? backgroundElevated,
+    Color? surface,
+    Color? surfaceHigh,
+    Color? border,
+    Color? borderStrong,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? textTertiary,
     Color? success,
     Color? warning,
     Color? danger,
@@ -29,6 +56,15 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     List<BoxShadow>? accentGlow,
   }) {
     return AppSemanticColors(
+      background: background ?? this.background,
+      backgroundElevated: backgroundElevated ?? this.backgroundElevated,
+      surface: surface ?? this.surface,
+      surfaceHigh: surfaceHigh ?? this.surfaceHigh,
+      border: border ?? this.border,
+      borderStrong: borderStrong ?? this.borderStrong,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      textTertiary: textTertiary ?? this.textTertiary,
       success: success ?? this.success,
       warning: warning ?? this.warning,
       danger: danger ?? this.danger,
@@ -41,6 +77,16 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   AppSemanticColors lerp(ThemeExtension<AppSemanticColors>? other, double t) {
     if (other is! AppSemanticColors) return this;
     return AppSemanticColors(
+      background: Color.lerp(background, other.background, t)!,
+      backgroundElevated:
+          Color.lerp(backgroundElevated, other.backgroundElevated, t)!,
+      surface: Color.lerp(surface, other.surface, t)!,
+      surfaceHigh: Color.lerp(surfaceHigh, other.surfaceHigh, t)!,
+      border: Color.lerp(border, other.border, t)!,
+      borderStrong: Color.lerp(borderStrong, other.borderStrong, t)!,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      textTertiary: Color.lerp(textTertiary, other.textTertiary, t)!,
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
       danger: Color.lerp(danger, other.danger, t)!,
@@ -48,6 +94,12 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       accentGlow: t < 0.5 ? accentGlow : other.accentGlow,
     );
   }
+}
+
+extension AppThemeContext on BuildContext {
+  AppSemanticColors get appColors =>
+      Theme.of(this).extension<AppSemanticColors>() ??
+      AppTheme.light().extension<AppSemanticColors>()!;
 }
 
 /// "코크핏 다크" — 야간 차량 계기판 무드. 앰버 포인트 컬러 하나만 쓰고
@@ -94,7 +146,7 @@ class AppTheme {
   // "숫자만 다른 서체"인 HUD 느낌을 낸다. tabular figures로 자릿수 흔들림 방지.
   static TextStyle gaugeNumberStyle({
     double fontSize = 36,
-    Color color = textPrimary,
+    required Color color,
     FontWeight weight = FontWeight.w600,
   }) {
     return GoogleFonts.manrope(
@@ -230,11 +282,188 @@ class AppTheme {
       ),
       extensions: [
         AppSemanticColors(
+          background: bg,
+          backgroundElevated: bgElevated,
+          surface: surface,
+          surfaceHigh: surfaceHigh,
+          border: border,
+          borderStrong: borderStrong,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          textTertiary: textTertiary,
           success: success,
           warning: warning,
           danger: danger,
           primaryGradient: primaryGradient,
           accentGlow: accentGlow,
+        ),
+      ],
+    );
+  }
+
+  static ThemeData dark() {
+    const darkBg = Color(0xFF111318);
+    const darkBgElevated = Color(0xFF171A21);
+    const darkSurface = Color(0xFF1D2129);
+    const darkSurfaceHigh = Color(0xFF272C36);
+    const darkBorder = Color(0xFF323844);
+    const darkBorderStrong = Color(0xFF46505F);
+    const darkTextPrimary = Color(0xFFF3F5F7);
+    const darkTextSecondary = Color(0xFFAAB2BF);
+    const darkTextTertiary = Color(0xFF7B8493);
+    const darkPrimary = Color(0xFF7CA2FF);
+    const darkSuccess = Color(0xFF4DBA8B);
+    const darkWarning = Color(0xFFE0A33A);
+    const darkDanger = Color(0xFFE16B75);
+
+    final base = GoogleFonts.manropeTextTheme(ThemeData.dark().textTheme);
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: darkPrimary,
+      brightness: Brightness.dark,
+    ).copyWith(
+      primary: darkPrimary,
+      onPrimary: const Color(0xFF0C1B3E),
+      surface: darkSurface,
+      onSurface: darkTextPrimary,
+      error: darkDanger,
+      outline: darkBorder,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: darkBg,
+      splashFactory: InkSparkle.splashFactory,
+      textTheme: base.copyWith(
+        headlineSmall: base.headlineSmall?.copyWith(
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.3,
+          color: darkTextPrimary,
+        ),
+        titleLarge: base.titleLarge
+            ?.copyWith(fontWeight: FontWeight.w700, color: darkTextPrimary),
+        titleMedium: base.titleMedium
+            ?.copyWith(fontWeight: FontWeight.w600, color: darkTextPrimary),
+        bodyLarge:
+            base.bodyLarge?.copyWith(color: darkTextPrimary, height: 1.4),
+        bodyMedium:
+            base.bodyMedium?.copyWith(color: darkTextPrimary, height: 1.4),
+        bodySmall:
+            base.bodySmall?.copyWith(color: darkTextSecondary, height: 1.4),
+        labelLarge: base.labelLarge
+            ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.2),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: darkBg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        foregroundColor: darkTextPrimary,
+        titleTextStyle: TextStyle(
+          color: darkTextPrimary,
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: darkSurface,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: darkBorder),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkBgElevated,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: darkBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: darkBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: darkPrimary, width: 1.6),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: darkDanger),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: darkDanger, width: 1.6),
+        ),
+        labelStyle: const TextStyle(color: darkTextSecondary),
+        hintStyle: const TextStyle(color: darkTextTertiary),
+        prefixIconColor: darkTextSecondary,
+        suffixIconColor: darkTextSecondary,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: darkPrimary,
+          foregroundColor: const Color(0xFF0C1B3E),
+          disabledBackgroundColor: darkPrimary.withOpacity(0.3),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: darkTextPrimary,
+          side: const BorderSide(color: darkBorderStrong),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: darkPrimary),
+      ),
+      iconTheme: const IconThemeData(color: darkTextSecondary),
+      dividerTheme: const DividerThemeData(color: darkBorder, space: 1),
+      progressIndicatorTheme:
+          const ProgressIndicatorThemeData(color: darkPrimary),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: darkSurfaceHigh,
+        contentTextStyle: const TextStyle(color: darkTextPrimary),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      extensions: [
+        AppSemanticColors(
+          background: darkBg,
+          backgroundElevated: darkBgElevated,
+          surface: darkSurface,
+          surfaceHigh: darkSurfaceHigh,
+          border: darkBorder,
+          borderStrong: darkBorderStrong,
+          textPrimary: darkTextPrimary,
+          textSecondary: darkTextSecondary,
+          textTertiary: darkTextTertiary,
+          success: darkSuccess,
+          warning: darkWarning,
+          danger: darkDanger,
+          primaryGradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF9AB8FF), darkPrimary],
+          ),
+          accentGlow: [
+            BoxShadow(
+              color: darkPrimary.withOpacity(0.18),
+              blurRadius: 20,
+              spreadRadius: -8,
+            ),
+          ],
         ),
       ],
     );

@@ -84,6 +84,8 @@ class _RouteMapState extends State<RouteMap> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
     // history는 최신순(내림차순)이라 지도에 그릴 땐 오래된 순으로 뒤집는다.
     final points = validRoutePoints(widget.history);
     final coordinateCount = widget.history
@@ -102,11 +104,11 @@ class _RouteMapState extends State<RouteMap> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.map_outlined, size: 16, color: AppTheme.primary),
-            SizedBox(width: 6),
-            Text('주행 경로',
+            Icon(Icons.map_outlined, size: 16, color: primary),
+            const SizedBox(width: 6),
+            const Text('주행 경로',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
           ],
         ),
@@ -116,7 +118,7 @@ class _RouteMapState extends State<RouteMap> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.border),
+              border: Border.all(color: colors.border),
             ),
             child: Stack(
               children: [
@@ -151,7 +153,7 @@ class _RouteMapState extends State<RouteMap> {
                         Polyline(
                           points: points,
                           strokeWidth: 4,
-                          color: AppTheme.primary,
+                          color: primary,
                         ),
                       ],
                     ),
@@ -164,12 +166,12 @@ class _RouteMapState extends State<RouteMap> {
                           child: Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppTheme.primary,
-                              border: Border.all(color: AppTheme.bg, width: 3),
+                              color: primary,
+                              border:
+                                  Border.all(color: colors.background, width: 3),
                               boxShadow: [
                                 BoxShadow(
-                                  color:
-                                      AppTheme.primary.withValues(alpha: 0.5),
+                                  color: primary.withValues(alpha: 0.5),
                                   blurRadius: 8,
                                 ),
                               ],
@@ -195,7 +197,7 @@ class _RouteMapState extends State<RouteMap> {
                     left: 10,
                     right: 10,
                     child: Material(
-                      color: AppTheme.danger.withValues(alpha: 0.9),
+                      color: colors.danger.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(8),
                       child: const Padding(
                         padding:
@@ -231,18 +233,20 @@ class _InvalidRouteNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final warning = context.appColors.warning;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withValues(alpha: 0.1),
-        border: Border.all(color: AppTheme.warning),
+        color: warning.withValues(alpha: 0.1),
+        border: Border.all(color: warning),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.location_off_outlined, color: AppTheme.warning),
-          SizedBox(width: 10),
-          Expanded(child: Text('유효하지 않은 GPS 좌표로 경로를 표시할 수 없습니다.')),
+          Icon(Icons.location_off_outlined, color: warning),
+          const SizedBox(width: 10),
+          const Expanded(
+              child: Text('유효하지 않은 GPS 좌표로 경로를 표시할 수 없습니다.')),
         ],
       ),
     );

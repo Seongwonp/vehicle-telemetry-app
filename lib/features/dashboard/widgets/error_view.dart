@@ -7,17 +7,18 @@ class DashboardErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.wifi_off, size: 64, color: AppTheme.textTertiary),
+          Icon(Icons.wifi_off, size: 64, color: colors.textTertiary),
           const SizedBox(height: 16),
           const Text('센서 데이터를 불러오지 못했습니다',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
-          const Text('네트워크 연결 또는 로그인 상태를 확인하세요.',
-              style: TextStyle(color: AppTheme.textSecondary)),
+          Text('네트워크 연결 또는 로그인 상태를 확인하세요.',
+              style: TextStyle(color: colors.textSecondary)),
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: onRetry,

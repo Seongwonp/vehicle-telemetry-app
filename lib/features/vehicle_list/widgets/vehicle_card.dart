@@ -55,6 +55,7 @@ class VehicleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final colors = context.appColors;
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -87,7 +88,7 @@ class VehicleCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: vehicle.active
                           ? AppTheme.success
-                          : AppTheme.textTertiary,
+                          : colors.textTertiary,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: Theme.of(context).scaffoldBackgroundColor,
@@ -145,7 +146,7 @@ class VehicleCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: vehicle.active
                           ? AppTheme.success.withOpacity(0.15)
-                          : AppTheme.textTertiary.withOpacity(0.15),
+                          : colors.textTertiary.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -155,7 +156,7 @@ class VehicleCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: vehicle.active
                             ? AppTheme.success
-                            : AppTheme.textTertiary,
+                            : colors.textTertiary,
                       ),
                     ),
                   ),
@@ -211,6 +212,7 @@ class _FleetSummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final signalState = fleetSignalState(vehicle.lastSeenAt, DateTime.now());
     final hasHighAnomaly = vehicle.highAnomalyCount > 0;
 
@@ -224,7 +226,7 @@ class _FleetSummaryRow extends StatelessWidget {
               ? '데이터 없음'
               : '${signalState.label} · '
                   '${timeago.format(vehicle.lastSeenAt!, locale: 'ko')}',
-          color: signalState.color,
+          color: signalState.color(colors),
         ),
         if (vehicle.latestSpeed != null)
           _Badge(
@@ -268,11 +270,11 @@ extension on FleetSignalState {
         FleetSignalState.offline || FleetSignalState.noData => Icons.wifi_off,
       };
 
-  Color get color => switch (this) {
+  Color color(AppSemanticColors colors) => switch (this) {
         FleetSignalState.recent => AppTheme.success,
         FleetSignalState.delayed => AppTheme.warning,
         FleetSignalState.offline => AppTheme.danger,
-        FleetSignalState.noData => AppTheme.textTertiary,
+        FleetSignalState.noData => colors.textTertiary,
       };
 }
 

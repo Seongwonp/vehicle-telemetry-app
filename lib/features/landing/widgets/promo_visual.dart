@@ -22,12 +22,13 @@ class _PromoVisualState extends State<PromoVisual> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppTheme.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -36,13 +37,13 @@ class _PromoVisualState extends State<PromoVisual> {
             children: [
               _LivePulse(),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'SAMPLE TELEMETRY',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.4,
-                  color: AppTheme.textTertiary,
+                  color: colors.textTertiary,
                 ),
               ),
             ],
@@ -59,9 +60,9 @@ class _PromoVisualState extends State<PromoVisual> {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: AppTheme.bgElevated,
+              color: colors.backgroundElevated,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppTheme.border),
+              border: Border.all(color: colors.border),
             ),
             child: const Row(
               children: [
@@ -120,13 +121,15 @@ class _MiniReadout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Column(
       children: [
-        Text(value, style: AppTheme.gaugeNumberStyle(fontSize: 15)),
+        Text(value,
+            style: AppTheme.gaugeNumberStyle(
+                fontSize: 15, color: colors.textPrimary)),
         const SizedBox(height: 2),
         Text(label,
-            style:
-                const TextStyle(fontSize: 10.5, color: AppTheme.textTertiary)),
+            style: TextStyle(fontSize: 10.5, color: colors.textTertiary)),
       ],
     );
   }
@@ -137,6 +140,6 @@ class _VDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(width: 1, height: 28, color: AppTheme.border);
+    return Container(width: 1, height: 28, color: context.appColors.border);
   }
 }
