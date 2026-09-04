@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/arc_gauge.dart';
+import '../../../core/theme/design_tokens.dart';
 
 class PromoVisual extends StatefulWidget {
   const PromoVisual({super.key});
@@ -24,10 +25,11 @@ class _PromoVisualState extends State<PromoVisual> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Container(
-      padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
+      padding: const EdgeInsets.fromLTRB(
+          Spacing.xl, Spacing.lg, Spacing.xl, Spacing.xl),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(Radii.lg),
         border: Border.all(color: colors.border),
       ),
       child: Column(
@@ -36,11 +38,11 @@ class _PromoVisualState extends State<PromoVisual> {
           Row(
             children: [
               _LivePulse(),
-              const SizedBox(width: 8),
+              const SizedBox(width: Spacing.xs),
               Text(
                 'SAMPLE TELEMETRY',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: FontSizes.badge,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.4,
                   color: colors.textTertiary,
@@ -48,7 +50,7 @@ class _PromoVisualState extends State<PromoVisual> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: Spacing.xs),
           ArcGauge(
             value: _speed,
             maxValue: 220,
@@ -56,12 +58,12 @@ class _PromoVisualState extends State<PromoVisual> {
             unit: 'km/h',
             size: 200,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: Spacing.lg),
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
             decoration: BoxDecoration(
               color: colors.backgroundElevated,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(Radii.md),
               border: Border.all(color: colors.border),
             ),
             child: const Row(
@@ -126,10 +128,11 @@ class _MiniReadout extends StatelessWidget {
       children: [
         Text(value,
             style: AppTheme.gaugeNumberStyle(
-                fontSize: 15, color: colors.textPrimary)),
-        const SizedBox(height: 2),
+                fontSize: FontSizes.body, color: colors.textPrimary)),
+        const SizedBox(height: Spacing.xxs),
         Text(label,
-            style: TextStyle(fontSize: 10.5, color: colors.textTertiary)),
+            style: TextStyle(
+                fontSize: FontSizes.badge, color: colors.textTertiary)),
       ],
     );
   }

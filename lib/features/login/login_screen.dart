@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../vehicle_list/vehicle_list_screen.dart';
+import '../../core/theme/design_tokens.dart';
 
 String loginErrorMessage(DioException e) {
   final statusCode = e.response?.statusCode;
@@ -113,7 +114,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.xl, vertical: Spacing.lg),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 420),
                 child: Form(
@@ -124,7 +126,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     children: [
                       // ── 헤더 ───────────────────────────────────
                       Container(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: Spacing.lg),
                         child: Column(
                           children: [
                             SizedBox(
@@ -143,7 +146,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       boxShadow: [
                                         BoxShadow(
                                           color: AppTheme.primary
-                                              .withOpacity(0.18),
+                                              .withValues(alpha: 0.18),
                                           blurRadius: 20,
                                         ),
                                       ],
@@ -157,7 +160,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: Spacing.lg),
                             Text(
                               '차량 텔레메트리 모니터링',
                               style: Theme.of(context)
@@ -172,7 +175,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(height: Spacing.sm),
 
                       // ── 입력 폼 ─────────────────────────────────
                       // Key는 integration_test가 라벨 텍스트가 아니라 안정적인
@@ -189,7 +192,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ? '아이디를 입력하세요'
                             : null,
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: Spacing.md),
                       TextFormField(
                         key: const Key('login_password_field'),
                         controller: _passwordController,
@@ -215,40 +218,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       // ── 에러 메시지 ──────────────────────────────
                       if (_error != null) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: Spacing.sm),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
+                              horizontal: Spacing.sm, vertical: Spacing.sm),
                           decoration: BoxDecoration(
-                            color: cs.error.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(14),
+                            color: cs.error.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(Radii.md),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(Icons.error_outline,
                                   size: 16, color: cs.error),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: Spacing.xs),
                               Expanded(
                                 child: Text(_error!,
                                     style: TextStyle(
-                                        color: cs.error, fontSize: 13)),
+                                        color: cs.error,
+                                        fontSize: FontSizes.caption)),
                               ),
                             ],
                           ),
                         ),
                       ],
 
-                      const SizedBox(height: 28),
+                      const SizedBox(height: Spacing.xl),
 
                       // ── 로그인 버튼 ──────────────────────────────
                       DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: colors.primaryGradient,
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(Radii.md),
                           boxShadow: [
                             BoxShadow(
-                              color: cs.primary.withOpacity(0.2),
+                              color: cs.primary.withValues(alpha: 0.2),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
@@ -258,10 +262,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           color: Colors.transparent,
                           child: InkWell(
                             key: const Key('login_submit_button'),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(Radii.md),
                             onTap: _loading ? null : _login,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: Spacing.md),
                               child: Center(
                                 child: _loading
                                     ? const SizedBox(
@@ -276,7 +281,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     : const Text(
                                         '로그인',
                                         style: TextStyle(
-                                          fontSize: 15,
+                                          fontSize: FontSizes.body,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),

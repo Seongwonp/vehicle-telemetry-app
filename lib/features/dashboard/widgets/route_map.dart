@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/models/telemetry.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/design_tokens.dart';
 
 // 텔레메트리 스펙에 원래부터 lat/lng가 있었는데 화면 어디에서도 안 쓰고
 // 있었다 — 대시보드 히스토리(최근 20건)를 그대로 경로 선으로 그려서
@@ -63,7 +64,7 @@ class _RouteMapState extends State<RouteMap> {
       _mapController.fitCamera(
         CameraFit.bounds(
           bounds: LatLngBounds.fromPoints(points),
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.all(Spacing.xl),
           maxZoom: 16,
         ),
       );
@@ -107,14 +108,15 @@ class _RouteMapState extends State<RouteMap> {
         Row(
           children: [
             Icon(Icons.map_outlined, size: 16, color: primary),
-            const SizedBox(width: 6),
+            const SizedBox(width: Spacing.xs),
             const Text('주행 경로',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: FontSizes.caption)),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: Spacing.sm),
         ClipRRect(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(Radii.md),
           child: Container(
             height: 220,
             decoration: BoxDecoration(
@@ -167,8 +169,8 @@ class _RouteMapState extends State<RouteMap> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: primary,
-                              border:
-                                  Border.all(color: colors.background, width: 3),
+                              border: Border.all(
+                                  color: colors.background, width: 3),
                               boxShadow: [
                                 BoxShadow(
                                   color: primary.withValues(alpha: 0.5),
@@ -198,20 +200,21 @@ class _RouteMapState extends State<RouteMap> {
                     right: 10,
                     child: Material(
                       color: colors.danger.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(Radii.sm),
                       child: const Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: Spacing.sm, vertical: Spacing.xs),
                         child: Row(
                           children: [
                             Icon(Icons.map_outlined,
                                 size: 16, color: Colors.white),
-                            SizedBox(width: 6),
+                            SizedBox(width: Spacing.xs),
                             Expanded(
                               child: Text(
                                 '지도 타일을 불러오지 못했습니다.',
                                 style: TextStyle(
-                                    fontSize: 12, color: Colors.white),
+                                    fontSize: FontSizes.caption,
+                                    color: Colors.white),
                               ),
                             ),
                           ],
@@ -235,18 +238,17 @@ class _InvalidRouteNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     final warning = context.appColors.warning;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
         color: warning.withValues(alpha: 0.1),
         border: Border.all(color: warning),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(
         children: [
           Icon(Icons.location_off_outlined, color: warning),
-          const SizedBox(width: 10),
-          const Expanded(
-              child: Text('유효하지 않은 GPS 좌표로 경로를 표시할 수 없습니다.')),
+          const SizedBox(width: Spacing.sm),
+          const Expanded(child: Text('유효하지 않은 GPS 좌표로 경로를 표시할 수 없습니다.')),
         ],
       ),
     );

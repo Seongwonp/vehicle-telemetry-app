@@ -104,7 +104,6 @@ class _DiagnosisTabState extends State<DiagnosisTab>
             children: [
               DiagnosisHeaderCard(vehicleId: widget.vehicleId),
               const SizedBox(height: 16),
-
               FilledButton.icon(
                 onPressed: _loading ? null : _requestDiagnosis,
                 icon: _loading
@@ -126,17 +125,14 @@ class _DiagnosisTabState extends State<DiagnosisTab>
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
-
               if (_loading) ...[
                 const SizedBox(height: 24),
                 const DiagnosisLoadingSection(),
               ],
-
               if (_error != null) ...[
                 const SizedBox(height: 16),
                 DiagnosisErrorSection(message: _error!),
               ],
-
               if (_diagnosis != null) ...[
                 const SizedBox(height: 16),
                 DiagnosisResultSection(

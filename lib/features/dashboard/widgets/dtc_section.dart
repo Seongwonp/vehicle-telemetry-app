@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/design_tokens.dart';
 
 class DtcSection extends StatelessWidget {
   final List<String> codes;
@@ -10,43 +11,46 @@ class DtcSection extends StatelessWidget {
     final warning = context.appColors.warning;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
-        color: warning.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: warning.withOpacity(0.3)),
+        color: warning.withValues(alpha: 0.08),
+        borderRadius: Radii.mdAll,
+        border: Border.all(color: warning.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.build_circle_outlined,
-                  size: 16, color: warning),
-              const SizedBox(width: 6),
+              Icon(Icons.build_circle_outlined, size: 16, color: warning),
+              const SizedBox(width: Spacing.xs),
               Text('DTC 진단 코드',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: warning,
-                      fontSize: 13)),
+                      fontSize: FontSizes.caption)),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: Spacing.sm),
           Wrap(
-            spacing: 8,
-            runSpacing: 6,
+            spacing: Spacing.xs,
+            runSpacing: Spacing.xxs,
             children: codes
                 .map((code) => Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
+                          horizontal: Spacing.xs, vertical: 2),
                       decoration: BoxDecoration(
-                        color: warning.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(10),
+                        // 채움 대신 테두리를 쓴다. DTC 코드는 보조 정보인데
+                        // 진한 배경으로 칠하면 화면에서 가장 무거운 요소가 돼
+                        // 위계가 뒤집힌다.
+                        borderRadius: Radii.pillAll,
+                        border:
+                            Border.all(color: warning.withValues(alpha: 0.45)),
                       ),
                       child: Text(code,
                           style: TextStyle(
                               color: warning,
-                              fontSize: 13,
+                              fontSize: FontSizes.badge,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.5)),
                     ))

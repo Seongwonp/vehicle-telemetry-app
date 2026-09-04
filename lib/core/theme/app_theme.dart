@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'design_tokens.dart';
+
 /// 심각도/상태 색상을 화면마다 다시 정의하지 않고 테마 한 곳에서 관리한다.
 /// 전엔 Colors.redAccent / Colors.orange / Colors.greenAccent가 화면마다
 /// 제각각 하드코딩돼 있어서 톤이 서로 미묘하게 어긋났다.
@@ -136,7 +138,7 @@ class AppTheme {
 
   static final accentGlow = [
     BoxShadow(
-      color: primary.withOpacity(0.14),
+      color: primary.withValues(alpha: 0.14),
       blurRadius: 20,
       spreadRadius: -8,
     ),
@@ -203,48 +205,48 @@ class AppTheme {
         foregroundColor: textPrimary,
         titleTextStyle: TextStyle(
           color: textPrimary,
-          fontSize: 17,
+          fontSize: FontSizes.subtitle,
           fontWeight: FontWeight.w700,
         ),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: const CardThemeData(
         color: surface,
         elevation: 0,
         margin: EdgeInsets.zero,
         // 다크 배경에서는 순수 배경색 대비만으로 경계가 잘 안 보여서, 라이트
         // 테마 때와 달리 얇은 테두리를 같이 준다.
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: border),
+          borderRadius: Radii.mdAll,
+          side: BorderSide(color: border),
         ),
       ),
-      inputDecorationTheme: InputDecorationTheme(
+      inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: bgElevated,
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.md),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: border),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: border),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: primary, width: 1.6),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: primary, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: danger),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: danger, width: 1.6),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: danger, width: 1.6),
         ),
-        labelStyle: const TextStyle(color: textSecondary),
-        hintStyle: const TextStyle(color: textTertiary),
+        labelStyle: TextStyle(color: textSecondary),
+        hintStyle: TextStyle(color: textTertiary),
         prefixIconColor: textSecondary,
         suffixIconColor: textSecondary,
       ),
@@ -252,20 +254,20 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: primary.withOpacity(0.3),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          disabledBackgroundColor: primary.withValues(alpha: 0.3),
+          padding: const EdgeInsets.symmetric(vertical: Spacing.md),
+          shape: const RoundedRectangleBorder(borderRadius: Radii.smAll),
+          textStyle: const TextStyle(
+              fontWeight: FontWeight.w700, fontSize: FontSizes.subtitle),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: textPrimary,
           side: const BorderSide(color: borderStrong),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          padding: const EdgeInsets.symmetric(
+              vertical: Spacing.md, horizontal: Spacing.lg),
+          shape: const RoundedRectangleBorder(borderRadius: Radii.smAll),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -274,11 +276,11 @@ class AppTheme {
       iconTheme: const IconThemeData(color: textSecondary),
       dividerTheme: const DividerThemeData(color: border, space: 1),
       progressIndicatorTheme: const ProgressIndicatorThemeData(color: primary),
-      snackBarTheme: SnackBarThemeData(
+      snackBarTheme: const SnackBarThemeData(
         backgroundColor: surfaceHigh,
-        contentTextStyle: const TextStyle(color: textPrimary),
+        contentTextStyle: TextStyle(color: textPrimary),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: Radii.smAll),
       ),
       extensions: [
         AppSemanticColors(
@@ -362,46 +364,46 @@ class AppTheme {
         foregroundColor: darkTextPrimary,
         titleTextStyle: TextStyle(
           color: darkTextPrimary,
-          fontSize: 17,
+          fontSize: FontSizes.subtitle,
           fontWeight: FontWeight.w700,
         ),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: const CardThemeData(
         color: darkSurface,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: darkBorder),
+          borderRadius: Radii.mdAll,
+          side: BorderSide(color: darkBorder),
         ),
       ),
-      inputDecorationTheme: InputDecorationTheme(
+      inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: darkBgElevated,
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.md),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: darkBorder),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: darkBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: darkBorder),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: darkBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: darkPrimary, width: 1.6),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: darkPrimary, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: darkDanger),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: darkDanger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: darkDanger, width: 1.6),
+          borderRadius: Radii.smAll,
+          borderSide: BorderSide(color: darkDanger, width: 1.6),
         ),
-        labelStyle: const TextStyle(color: darkTextSecondary),
-        hintStyle: const TextStyle(color: darkTextTertiary),
+        labelStyle: TextStyle(color: darkTextSecondary),
+        hintStyle: TextStyle(color: darkTextTertiary),
         prefixIconColor: darkTextSecondary,
         suffixIconColor: darkTextSecondary,
       ),
@@ -409,20 +411,20 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: darkPrimary,
           foregroundColor: const Color(0xFF0C1B3E),
-          disabledBackgroundColor: darkPrimary.withOpacity(0.3),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          disabledBackgroundColor: darkPrimary.withValues(alpha: 0.3),
+          padding: const EdgeInsets.symmetric(vertical: Spacing.md),
+          shape: const RoundedRectangleBorder(borderRadius: Radii.smAll),
+          textStyle: const TextStyle(
+              fontWeight: FontWeight.w700, fontSize: FontSizes.subtitle),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: darkTextPrimary,
           side: const BorderSide(color: darkBorderStrong),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          padding: const EdgeInsets.symmetric(
+              vertical: Spacing.md, horizontal: Spacing.lg),
+          shape: const RoundedRectangleBorder(borderRadius: Radii.smAll),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -432,11 +434,11 @@ class AppTheme {
       dividerTheme: const DividerThemeData(color: darkBorder, space: 1),
       progressIndicatorTheme:
           const ProgressIndicatorThemeData(color: darkPrimary),
-      snackBarTheme: SnackBarThemeData(
+      snackBarTheme: const SnackBarThemeData(
         backgroundColor: darkSurfaceHigh,
-        contentTextStyle: const TextStyle(color: darkTextPrimary),
+        contentTextStyle: TextStyle(color: darkTextPrimary),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: Radii.smAll),
       ),
       extensions: [
         AppSemanticColors(
@@ -459,7 +461,7 @@ class AppTheme {
           ),
           accentGlow: [
             BoxShadow(
-              color: darkPrimary.withOpacity(0.18),
+              color: darkPrimary.withValues(alpha: 0.18),
               blurRadius: 20,
               spreadRadius: -8,
             ),

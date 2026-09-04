@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/design_tokens.dart';
 
 class DiagnosisResultSection extends StatelessWidget {
   final String diagnosis;
@@ -30,52 +31,52 @@ class DiagnosisResultSection extends StatelessWidget {
         Row(
           children: [
             const Icon(Icons.check_circle, size: 15, color: AppTheme.success),
-            const SizedBox(width: 6),
+            const SizedBox(width: Spacing.xs),
             const Text('진단 완료',
                 style: TextStyle(
                     color: AppTheme.success,
-                    fontSize: 13,
+                    fontSize: FontSizes.caption,
                     fontWeight: FontWeight.w600)),
             const Spacer(),
             Text('데이터 $dataPoints개 · $timeStr',
                 style: TextStyle(
-                    fontSize: 11, color: colors.textSecondary)),
+                    fontSize: FontSizes.badge, color: colors.textSecondary)),
           ],
         ),
-        const SizedBox(height: 12),
-
+        const SizedBox(height: Spacing.sm),
         _ReferenceSummary(grade: grade, score: score),
-        const SizedBox(height: 12),
-
+        const SizedBox(height: Spacing.sm),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(
+              horizontal: Spacing.sm, vertical: Spacing.sm),
           decoration: BoxDecoration(
             color: colors.backgroundElevated,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(Radii.sm),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(Icons.info_outline, size: 16, color: colors.textSecondary),
-              const SizedBox(width: 8),
+              const SizedBox(width: Spacing.xs),
               Expanded(
                 child: Text(
                   '이 결과는 참고용입니다. 이상 징후나 DTC가 확인되면 정비사의 점검을 받으세요.',
                   style: TextStyle(
-                      fontSize: 12, height: 1.45, color: colors.textSecondary),
+                      fontSize: FontSizes.caption,
+                      height: 1.45,
+                      color: colors.textSecondary),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
-
+        const SizedBox(height: Spacing.sm),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
             color: colors.surface,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(Radii.md),
             border: Border.all(color: colors.border),
           ),
           child: MarkdownBody(
@@ -83,19 +84,21 @@ class DiagnosisResultSection extends StatelessWidget {
             selectable: true,
             styleSheet: MarkdownStyleSheet(
               p: TextStyle(
-                  fontSize: 14, height: 1.7, color: colors.textPrimary),
+                  fontSize: FontSizes.body,
+                  height: 1.7,
+                  color: colors.textPrimary),
               strong: const TextStyle(
                   fontWeight: FontWeight.w700, color: AppTheme.primaryBright),
               h1: AppTheme.gaugeNumberStyle(
-                  fontSize: 20, color: colors.textPrimary),
+                  fontSize: FontSizes.title, color: colors.textPrimary),
               h2: AppTheme.gaugeNumberStyle(
-                  fontSize: 18, color: colors.textPrimary),
+                  fontSize: FontSizes.subtitle, color: colors.textPrimary),
               h3: const TextStyle(
-                  fontSize: 15,
+                  fontSize: FontSizes.body,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.primary),
               listBullet: TextStyle(
-                  fontSize: 14, color: colors.textSecondary),
+                  fontSize: FontSizes.body, color: colors.textSecondary),
               blockSpacing: 12,
             ),
           ),
@@ -131,10 +134,11 @@ class _ReferenceSummary extends StatelessWidget {
     final clampedScore = score.clamp(0, 100);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+          horizontal: Spacing.md, vertical: Spacing.sm),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(color: colors.border),
       ),
       child: Row(
@@ -142,7 +146,7 @@ class _ReferenceSummary extends StatelessWidget {
           Text(
             '참고 지표',
             style: TextStyle(
-                fontSize: 12,
+                fontSize: FontSizes.caption,
                 fontWeight: FontWeight.w600,
                 color: colors.textSecondary),
           ),
@@ -150,18 +154,20 @@ class _ReferenceSummary extends StatelessWidget {
           Text(
             '${grade.toUpperCase()} 등급',
             style: TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w700, color: color),
+                fontSize: FontSizes.caption,
+                fontWeight: FontWeight.w700,
+                color: color),
           ),
           Container(
             width: 1,
             height: 14,
-            margin: const EdgeInsets.symmetric(horizontal: 10),
+            margin: const EdgeInsets.symmetric(horizontal: Spacing.sm),
             color: colors.border,
           ),
           Text(
             '$clampedScore/100',
             style: TextStyle(
-                fontSize: 13,
+                fontSize: FontSizes.caption,
                 fontWeight: FontWeight.w600,
                 color: colors.textPrimary),
           ),

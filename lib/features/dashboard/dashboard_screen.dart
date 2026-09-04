@@ -15,6 +15,7 @@ import 'widgets/primary_metric_card.dart';
 import 'widgets/secondary_metric_card.dart';
 import 'widgets/route_map.dart';
 import 'widgets/speed_chart.dart';
+import '../../core/theme/design_tokens.dart';
 
 typedef StompClientFactory = StompClient Function(StompConfig config);
 typedef TokenLoader = Future<String?> Function();
@@ -320,7 +321,8 @@ class _DashboardBody extends StatelessWidget {
     final secondaryColumns = context.isDesktop ? 4 : 2;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+      padding: const EdgeInsets.fromLTRB(
+          Spacing.md, Spacing.sm, Spacing.md, Spacing.xl),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 900),
@@ -332,13 +334,13 @@ class _DashboardBody extends StatelessWidget {
                   state: connectionState,
                   lastUpdatedText: lastUpdatedText,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: Spacing.xs),
               ],
 
               // 이상 감지 배너
               if (latest.hasAnomaly) ...[
                 AnomalyBanner(dtcCodes: latest.dtcCodes),
-                const SizedBox(height: 12),
+                const SizedBox(height: Spacing.sm),
               ],
 
               // 주요 지표: 속도 + RPM
@@ -354,7 +356,7 @@ class _DashboardBody extends StatelessWidget {
                       danger: latest.speed > 200,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: Spacing.sm),
                   Expanded(
                     child: PrimaryMetricCard(
                       label: 'RPM',
@@ -367,7 +369,7 @@ class _DashboardBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Spacing.sm),
 
               // 보조 지표: 모바일 2열 / 데스크톱 4열
               GridView.count(
@@ -408,18 +410,18 @@ class _DashboardBody extends StatelessWidget {
 
               // DTC 진단 코드
               if (latest.dtcCodes.isNotEmpty) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: Spacing.md),
                 DtcSection(codes: latest.dtcCodes),
               ],
 
               // 속도 추이 차트
               if (history.length > 2) ...[
-                const SizedBox(height: 24),
+                const SizedBox(height: Spacing.lg),
                 SpeedChart(history: history),
               ],
 
               // 주행 경로 지도
-              const SizedBox(height: 24),
+              const SizedBox(height: Spacing.lg),
               RouteMap(history: history),
             ],
           ),
@@ -474,16 +476,17 @@ class _ConnectionStatus extends StatelessWidget {
       label: semanticLabel,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.md, vertical: Spacing.sm),
         decoration: BoxDecoration(
           color: background,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(Radii.md),
           border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
             Icon(icon, size: 18, color: color),
-            const SizedBox(width: 10),
+            const SizedBox(width: Spacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,16 +494,16 @@ class _ConnectionStatus extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 12.5,
+                      fontSize: FontSizes.caption,
                       fontWeight: FontWeight.w700,
                       color: color,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Spacing.xxs),
                   Text(
                     detail,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: FontSizes.badge,
                       color: colors.textSecondary,
                     ),
                   ),

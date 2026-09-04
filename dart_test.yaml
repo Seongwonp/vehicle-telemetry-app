@@ -1,0 +1,8 @@
+# 스냅샷 테스트는 "디자인을 눈으로 확인"하는 용도이지 회귀 감지가 아니다.
+# 폰트 렌더링이 환경마다 미세하게 달라 픽셀 비교를 CI에 넣으면 계속 깨진다.
+# 이미지를 다시 뽑을 때만 명시적으로 돌린다:
+#   flutter test test/golden --update-goldens --tags golden
+tags:
+  golden:
+    # 기본 실행에서만 제외한다. --run-skipped 로 명시하면 돌아간다.
+    skip: "스냅샷 확인용 — --run-skipped 로 명시할 때만 실행"

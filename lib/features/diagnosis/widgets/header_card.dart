@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/design_tokens.dart';
 
 class DiagnosisHeaderCard extends StatelessWidget {
   final String vehicleId;
@@ -8,10 +9,10 @@ class DiagnosisHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
         color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
@@ -22,12 +23,12 @@ class DiagnosisHeaderCard extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: cs.primaryContainer,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(Radii.sm),
             ),
             child: Icon(Icons.fact_check_outlined,
                 size: 22, color: cs.onPrimaryContainer),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: Spacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,13 +36,13 @@ class DiagnosisHeaderCard extends StatelessWidget {
                 Text('센서 기반 보조 진단',
                     style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        fontSize: 15,
+                        fontSize: FontSizes.body,
                         color: cs.onSurface)),
-                const SizedBox(height: 4),
+                const SizedBox(height: Spacing.xxs),
                 Text(
                   '최근 센서 데이터와 DTC·이상 이력을 바탕으로 참고용 결과를 생성합니다.',
                   style: TextStyle(
-                      fontSize: 13,
+                      fontSize: FontSizes.caption,
                       color: cs.onSurfaceVariant,
                       height: 1.45),
                 ),

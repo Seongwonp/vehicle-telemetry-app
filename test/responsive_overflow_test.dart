@@ -121,6 +121,31 @@ Map<String, Widget> _cases() => {
         onTap: () {},
         onDeleted: () {},
       ),
+      // 계측 카드는 실제로 Row 안에서 절반 폭으로 쓰인다. 전체 폭으로만 검사하면
+      // 1.5배 글자에서 게이지 안 숫자가 넘치는 걸 놓친다(실제로 놓쳤다).
+      'MetricCardRow(절반 폭)': const Row(
+        children: [
+          Expanded(
+            child: PrimaryMetricCard(
+              label: '엔진 온도',
+              value: 118.4,
+              maxValue: 130,
+              unit: '°C',
+              icon: Icons.thermostat,
+              danger: true,
+            ),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: SecondaryMetricCard(
+              label: '배터리 전압',
+              value: '13.8 V',
+              icon: Icons.battery_charging_full,
+              danger: false,
+            ),
+          ),
+        ],
+      ),
       'PrimaryMetricCard': const PrimaryMetricCard(
         label: '엔진 온도',
         value: 118.4,
@@ -136,7 +161,8 @@ Map<String, Widget> _cases() => {
         danger: false,
       ),
       'InfoChip': const InfoChip(icon: Icons.speed, label: '118.4 km/h'),
-      'AnomalyBanner': const AnomalyBanner(dtcCodes: ['P0301', 'P0420', 'U0100']),
+      'AnomalyBanner':
+          const AnomalyBanner(dtcCodes: ['P0301', 'P0420', 'U0100']),
       'DtcSection': const DtcSection(codes: ['P0301', 'P0420', 'U0100']),
       'NoDataView': const NoDataView(vehicleId: 'KR-GA-1234'),
       'AnomalyEmptyView': const AnomalyEmptyView(),

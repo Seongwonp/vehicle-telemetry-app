@@ -4,6 +4,7 @@ import '../../core/theme/app_theme.dart';
 import '../login/login_screen.dart';
 import 'widgets/hero_section.dart';
 import 'widgets/promo_visual.dart';
+import '../../core/theme/design_tokens.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -82,8 +83,8 @@ class _LandingScreenState extends State<LandingScreen>
         child: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
-              horizontal: context.isMobile ? 24 : 48,
-              vertical: 32,
+              horizontal: context.isMobile ? Spacing.lg : Spacing.xxl,
+              vertical: Spacing.xl,
             ),
             child: Center(
               child: ConstrainedBox(
@@ -129,7 +130,7 @@ class _DesktopLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 24),
+        const SizedBox(height: Spacing.lg),
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -141,7 +142,7 @@ class _DesktopLayout extends StatelessWidget {
                   alignLeft: true,
                 ),
               ),
-              const SizedBox(width: 56),
+              const SizedBox(width: Spacing.xxl),
               Expanded(
                 child: FadeTransition(
                   opacity: previewReveal,
@@ -151,7 +152,7 @@ class _DesktopLayout extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 64),
+        const SizedBox(height: Spacing.xxl),
         _FeatureGrid(columns: 4, revealBuilder: featureRevealBuilder),
       ],
     );
@@ -176,9 +177,9 @@ class _MobileLayout extends StatelessWidget {
     return Column(
       children: [
         HeroSection(reveal: heroReveal, onGetStarted: onGetStarted),
-        const SizedBox(height: 36),
+        const SizedBox(height: Spacing.xl),
         FadeTransition(opacity: previewReveal, child: const PromoVisual()),
-        const SizedBox(height: 40),
+        const SizedBox(height: Spacing.xxl),
         _FeatureGrid(columns: 2, revealBuilder: featureRevealBuilder),
       ],
     );
@@ -219,10 +220,11 @@ class _FeatureGrid extends StatelessWidget {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        padding: const EdgeInsets.symmetric(
+            vertical: Spacing.lg, horizontal: Spacing.md),
         decoration: BoxDecoration(
           color: colors.surface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(Radii.lg),
           border: Border.all(color: colors.border),
         ),
         child: Wrap(
@@ -263,17 +265,17 @@ class _CapabilityItem extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(12),
+              color: accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Icon(icon, color: accent, size: 20),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: Spacing.xs),
           Text(
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 12.5,
+              fontSize: FontSizes.caption,
               fontWeight: FontWeight.w600,
               color: colors.textPrimary,
             ),

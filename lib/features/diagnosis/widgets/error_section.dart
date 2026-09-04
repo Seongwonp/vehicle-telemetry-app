@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/design_tokens.dart';
 
 class DiagnosisErrorSection extends StatelessWidget {
   final String message;
@@ -8,20 +9,22 @@ class DiagnosisErrorSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
-        color: AppTheme.danger.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.danger.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.error_outline, color: AppTheme.danger, size: 18),
-          const SizedBox(width: 10),
+          const SizedBox(width: Spacing.sm),
           Expanded(
             child: Text(message,
                 style: const TextStyle(
-                    color: AppTheme.danger, fontSize: 13, height: 1.5)),
+                    color: AppTheme.danger,
+                    fontSize: FontSizes.caption,
+                    height: 1.5)),
           ),
         ],
       ),

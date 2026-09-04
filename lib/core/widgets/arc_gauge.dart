@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../theme/design_tokens.dart';
 
 class ArcGauge extends StatelessWidget {
   final double value;
@@ -29,7 +30,9 @@ class ArcGauge extends StatelessWidget {
     final colors = context.appColors;
     final activeColor = danger
         ? colors.danger
-        : (warning ? colors.warning : color ?? Theme.of(context).colorScheme.primary);
+        : (warning
+            ? colors.warning
+            : color ?? Theme.of(context).colorScheme.primary);
     final ratio = (value / maxValue).clamp(0.0, 1.0);
 
     return SizedBox(
@@ -46,39 +49,53 @@ class ArcGauge extends StatelessWidget {
               trackColor: colors.border,
               activeColor: activeColor,
             ),
+            // 아크는 정사각 고정 크기인데 그 안의 글자는 사용자 글자 배율을 따라
+            // 커진다. 1.5배에서는 숫자+단위+라벨이 아크 안쪽 높이를 넘어
+            // 실제로 잘리고 있었다(test/responsive_overflow_test.dart의
+            // 'MetricCardRow(절반 폭)' 조합에서 재현).
+            //
+            // 글자 배율을 무시하면 접근성이 깨지고, 그대로 두면 잘린다.
+            // FittedBox로 "공간이 있으면 커지고, 모자라면 줄어들게" 한다 —
+            // 배율 설정이 반영되면서도 잘리지는 않는다.
             child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    value.toStringAsFixed(
-                        value >= 1000 ? 0 : (value % 1 == 0 ? 0 : 1)),
-                    style: AppTheme.gaugeNumberStyle(
-                      fontSize: size * 0.2,
-                      color: activeColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    unit,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: colors.textTertiary,
-                      letterSpacing: 0.4,
-                    ),
-                  ),
-                  if (label.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colors.textSecondary,
-                        fontWeight: FontWeight.w600,
+              child: Padding(
+                padding: const EdgeInsets.all(Spacing.md),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        value.toStringAsFixed(
+                            value >= 1000 ? 0 : (value % 1 == 0 ? 0 : 1)),
+                        style: AppTheme.gaugeNumberStyle(
+                          fontSize: size * 0.2,
+                          color: activeColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ],
+                      const SizedBox(height: Spacing.xxs),
+                      Text(
+                        unit,
+                        style: TextStyle(
+                          fontSize: FontSizes.badge,
+                          color: colors.textTertiary,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      if (label.isNotEmpty) ...[
+                        const SizedBox(height: Spacing.xs),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: FontSizes.caption,
+                            color: colors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
           );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/design_tokens.dart';
 import '../../../core/widgets/arc_gauge.dart';
 
 class PrimaryMetricCard extends StatelessWidget {
@@ -26,10 +27,10 @@ class PrimaryMetricCard extends StatelessWidget {
     final color =
         danger ? colors.danger : Theme.of(context).colorScheme.primary;
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+      padding: const EdgeInsets.all(Spacing.sm),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: Radii.mdAll,
         border: Border.all(
           color: danger ? color.withValues(alpha: 0.45) : colors.border,
         ),
@@ -40,14 +41,18 @@ class PrimaryMetricCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 15, color: colors.textSecondary),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: colors.textSecondary,
+              Icon(icon, size: 16, color: colors.textSecondary),
+              const SizedBox(width: Spacing.xxs),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: FontSizes.caption,
+                    fontWeight: FontWeight.w600,
+                    color: colors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -74,13 +79,17 @@ class PrimaryMetricCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.warning_amber_rounded, size: 14, color: color),
-                const SizedBox(width: 4),
-                Text(
-                  '이상 기준 초과',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: color,
+                const SizedBox(width: Spacing.xxs),
+                Flexible(
+                  child: Text(
+                    '이상 기준 초과',
+                    style: TextStyle(
+                      fontSize: FontSizes.badge,
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

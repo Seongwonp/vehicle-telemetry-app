@@ -10,6 +10,7 @@ import 'add_vehicle_screen.dart';
 import 'widgets/empty_view.dart';
 import 'widgets/error_view.dart';
 import 'widgets/vehicle_card.dart';
+import '../../core/theme/design_tokens.dart';
 
 class VehicleListScreen extends ConsumerWidget {
   const VehicleListScreen({super.key});
@@ -91,24 +92,26 @@ class _SignalCriteriaGuide extends StatelessWidget {
     final colors = context.appColors;
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      margin: const EdgeInsets.fromLTRB(Spacing.md, Spacing.sm, Spacing.md, 0),
+      padding: const EdgeInsets.symmetric(
+          horizontal: Spacing.sm, vertical: Spacing.xs),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(color: colors.border),
       ),
       child: Row(
         children: [
           Icon(Icons.info_outline, size: 16, color: colors.textSecondary),
-          const SizedBox(width: 8),
+          const SizedBox(width: Spacing.xs),
           Expanded(
             child: Text(
               '마지막 신호 기준  ·  '
               '${recentSignalThreshold.inMinutes}분 이내 정상  ·  '
               '${recentSignalThreshold.inMinutes}~${delayedSignalThreshold.inMinutes}분 지연  ·  '
               '${delayedSignalThreshold.inMinutes}분 초과 오프라인',
-              style: TextStyle(fontSize: 11.5, color: colors.textSecondary),
+              style: TextStyle(
+                  fontSize: FontSizes.caption, color: colors.textSecondary),
             ),
           ),
         ],
@@ -129,9 +132,10 @@ class _VehicleGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     if (context.isMobile) {
       return ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: const EdgeInsets.fromLTRB(
+            Spacing.md, Spacing.sm, Spacing.md, Spacing.lg),
         itemCount: vehicles.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, __) => const SizedBox(height: Spacing.sm),
         itemBuilder: (context, index) => VehicleCard(
           vehicle: vehicles[index],
           onTap: () => onOpen(vehicles[index].vehicleId),
@@ -145,7 +149,8 @@ class _VehicleGrid extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
         child: GridView.builder(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          padding: const EdgeInsets.fromLTRB(
+              Spacing.lg, Spacing.md, Spacing.lg, Spacing.xl),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
             mainAxisSpacing: 14,

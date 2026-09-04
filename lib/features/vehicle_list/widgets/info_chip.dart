@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/design_tokens.dart';
 
 class InfoChip extends StatelessWidget {
   final String label;
@@ -12,13 +13,13 @@ class InfoChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 11, color: cs.onSurface.withOpacity(0.5)),
-        const SizedBox(width: 3),
+        Icon(icon, size: 11, color: cs.onSurface.withValues(alpha: 0.5)),
+        const SizedBox(width: Spacing.xxs),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
-            color: cs.onSurface.withOpacity(0.6),
+            fontSize: FontSizes.caption,
+            color: cs.onSurface.withValues(alpha: 0.6),
           ),
         ),
       ],

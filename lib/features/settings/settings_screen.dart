@@ -5,6 +5,7 @@ import '../../core/auth/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_provider.dart';
 import '../landing/landing_screen.dart';
+import '../../core/theme/design_tokens.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -12,6 +13,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
+
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String? _username;
   bool _loading = true;
@@ -54,7 +56,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                  padding: const EdgeInsets.fromLTRB(
+                      Spacing.md, Spacing.md, Spacing.md, Spacing.xl),
                   children: [
                     const _SectionLabel('계정'),
                     _SettingsCard(
@@ -66,7 +69,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: Spacing.lg),
                     const _SectionLabel('화면'),
                     _SettingsCard(
                       children: [
@@ -78,14 +81,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: Spacing.xl),
                     OutlinedButton.icon(
                       onPressed: _logout,
                       icon: Icon(Icons.logout, color: colors.danger),
-                      label: Text('로그아웃',
-                          style: TextStyle(color: colors.danger)),
+                      label:
+                          Text('로그아웃', style: TextStyle(color: colors.danger)),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: Spacing.md),
                         side: BorderSide(color: colors.danger, width: 1.2),
                       ),
                     ),
@@ -96,6 +100,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 }
+
 class _SectionLabel extends StatelessWidget {
   final String text;
   const _SectionLabel(this.text);
@@ -104,11 +109,11 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 0, 0, 8),
+      padding: const EdgeInsets.fromLTRB(Spacing.xxs, 0, 0, Spacing.xs),
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 12.5,
+          fontSize: FontSizes.caption,
           fontWeight: FontWeight.w700,
           color: colors.textSecondary,
           letterSpacing: 0.4,
@@ -117,6 +122,7 @@ class _SectionLabel extends StatelessWidget {
     );
   }
 }
+
 class _SettingsCard extends StatelessWidget {
   final List<Widget> children;
   const _SettingsCard({required this.children});
@@ -127,7 +133,7 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(color: colors.border),
       ),
       child: Column(children: children),
@@ -147,17 +153,19 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+          horizontal: Spacing.md, vertical: Spacing.md),
       child: Row(
         children: [
           Icon(icon, size: 20, color: colors.textSecondary),
-          const SizedBox(width: 12),
+          const SizedBox(width: Spacing.sm),
           Text(label,
-              style: TextStyle(fontSize: 14, color: colors.textSecondary)),
+              style: TextStyle(
+                  fontSize: FontSizes.body, color: colors.textSecondary)),
           const Spacer(),
           Text(value,
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+              style: const TextStyle(
+                  fontSize: FontSizes.body, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -173,7 +181,7 @@ class _ThemeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(Spacing.sm),
       child: SizedBox(
         width: double.infinity,
         child: SegmentedButton<AppThemePreference>(
@@ -202,4 +210,3 @@ class _ThemeSelector extends StatelessWidget {
     );
   }
 }
-

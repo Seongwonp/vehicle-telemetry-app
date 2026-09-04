@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/design_tokens.dart';
 
 class AnomalyEmptyView extends StatelessWidget {
   // 필터 때문에 0건인 경우(filtered)와 진짜 이상 이벤트가 없는 경우를
@@ -20,20 +21,22 @@ class AnomalyEmptyView extends StatelessWidget {
             height: 72,
             decoration: BoxDecoration(
               color: (filtered ? colors.textSecondary : colors.success)
-                  .withOpacity(0.12),
+                  .withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              filtered ? Icons.filter_alt_off_outlined : Icons.check_circle_outline,
+              filtered
+                  ? Icons.filter_alt_off_outlined
+                  : Icons.check_circle_outline,
               size: 40,
               color: filtered ? colors.textSecondary : colors.success,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Spacing.md),
           Text(filtered ? '조건에 맞는 이벤트 없음' : '이상 이벤트 없음',
               style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 8),
+                  fontSize: FontSizes.subtitle, fontWeight: FontWeight.w500)),
+          const SizedBox(height: Spacing.xs),
           Text(
             filtered ? '필터를 조정해보세요.' : '차량이 정상 범위로 주행 중입니다.',
             style: TextStyle(color: colors.textSecondary),

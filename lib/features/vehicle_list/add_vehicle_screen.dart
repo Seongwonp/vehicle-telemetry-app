@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/api/api_client.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/design_tokens.dart';
 
 // OBD-II 동글/시뮬레이터가 보내는 vehicle_id와 실제로 매칭시키려면 백엔드에
 // 차량이 미리 등록되어 있어야 한다(VehicleService.register) — 그동안 이
@@ -70,7 +71,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
       appBar: AppBar(title: const Text('차량 추가')),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(Spacing.lg),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
             child: Form(
@@ -79,29 +80,30 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(Spacing.md),
                     decoration: BoxDecoration(
                       color: colors.surface,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(Radii.md),
                       border: Border.all(color: colors.border),
                     ),
                     child: Row(
                       children: [
                         Icon(Icons.info_outline,
                             size: 18, color: colors.textSecondary),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: Spacing.sm),
                         Expanded(
                           child: Text(
                             '차량 ID는 OBD-II 동글/시뮬레이터가 전송하는 vehicle_id와 '
                             '정확히 일치해야 실시간 데이터가 연결됩니다.',
                             style: TextStyle(
-                                fontSize: 12, color: colors.textSecondary),
+                                fontSize: FontSizes.caption,
+                                color: colors.textSecondary),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: Spacing.lg),
                   TextFormField(
                     controller: _idController,
                     textCapitalization: TextCapitalization.characters,
@@ -120,7 +122,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: Spacing.md),
                   TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(
@@ -131,7 +133,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                     validator: (v) =>
                         (v == null || v.trim().isEmpty) ? '차량 이름을 입력하세요' : null,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: Spacing.md),
                   TextFormField(
                     controller: _ownerController,
                     decoration: const InputDecoration(
@@ -145,30 +147,31 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                         (v == null || v.trim().isEmpty) ? '소유자를 입력하세요' : null,
                   ),
                   if (_error != null) ...[
-                    const SizedBox(height: 14),
+                    const SizedBox(height: Spacing.md),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
+                          horizontal: Spacing.sm, vertical: Spacing.sm),
                       decoration: BoxDecoration(
-                        color: AppTheme.danger.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppTheme.danger.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(Radii.md),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Icon(Icons.error_outline,
                               size: 16, color: AppTheme.danger),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: Spacing.xs),
                           Expanded(
                             child: Text(_error!,
                                 style: const TextStyle(
-                                    color: AppTheme.danger, fontSize: 13)),
+                                    color: AppTheme.danger,
+                                    fontSize: FontSizes.caption)),
                           ),
                         ],
                       ),
                     ),
                   ],
-                  const SizedBox(height: 24),
+                  const SizedBox(height: Spacing.lg),
                   FilledButton.icon(
                     onPressed: _loading ? null : _submit,
                     icon: _loading
@@ -181,9 +184,10 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                         : const Icon(Icons.add),
                     label: Text(_loading ? '등록 중...' : '등록하기',
                         style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.bold)),
+                            fontSize: FontSizes.body,
+                            fontWeight: FontWeight.bold)),
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: Spacing.md),
                     ),
                   ),
                 ],

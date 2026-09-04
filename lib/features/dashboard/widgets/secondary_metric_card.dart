@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/design_tokens.dart';
 
 class SecondaryMetricCard extends StatelessWidget {
   final String label;
@@ -20,10 +21,10 @@ class SecondaryMetricCard extends StatelessWidget {
     final colors = context.appColors;
     final color = danger ? colors.danger : colors.textSecondary;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(Spacing.sm),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: Radii.mdAll,
         border: Border.all(
           color: danger ? color.withValues(alpha: 0.45) : colors.border,
         ),
@@ -35,20 +36,23 @@ class SecondaryMetricCard extends StatelessWidget {
           Row(
             children: [
               Icon(icon, size: 16, color: color),
-              const SizedBox(width: 6),
+              const SizedBox(width: Spacing.xxs),
               Text(label,
-                  style: TextStyle(fontSize: 11, color: colors.textSecondary)),
-              if (danger) ...[
-                const Spacer(),
-                Icon(Icons.warning_rounded, size: 14, color: color),
-              ],
+                  style: TextStyle(
+                      fontSize: FontSizes.badge, color: colors.textSecondary)),
+              if (danger) Icon(Icons.warning_rounded, size: 14, color: color),
             ],
           ),
-          Text(
-            value,
-            style: AppTheme.gaugeNumberStyle(
-              fontSize: 20,
-              color: danger ? color : colors.textPrimary,
+          const SizedBox(height: Spacing.xs),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: AppTheme.gaugeNumberStyle(
+                fontSize: FontSizes.title,
+                color: danger ? color : colors.textPrimary,
+              ),
             ),
           ),
         ],

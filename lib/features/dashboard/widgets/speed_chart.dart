@@ -61,8 +61,8 @@ class SpeedChart extends StatelessWidget {
                     interval: maxY / 3,
                     getTitlesWidget: (value, _) => Text(
                       '${value.toInt()}',
-                      style: TextStyle(
-                          fontSize: 10, color: colors.textTertiary),
+                      style:
+                          TextStyle(fontSize: 10, color: colors.textTertiary),
                     ),
                   ),
                 ),
@@ -88,8 +88,8 @@ class SpeedChart extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        primary.withOpacity(0.25),
-                        primary.withOpacity(0.0),
+                        primary.withValues(alpha: 0.25),
+                        primary.withValues(alpha: 0.0),
                       ],
                     ),
                   ),

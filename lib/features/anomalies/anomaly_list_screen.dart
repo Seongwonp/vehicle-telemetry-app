@@ -5,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 import 'widgets/anomaly_card.dart';
 import 'widgets/empty_view.dart';
 import 'widgets/error_view.dart';
+import '../../core/theme/design_tokens.dart';
 
 enum _PeriodFilter { all, day, week }
 
@@ -59,26 +60,28 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    padding: const EdgeInsets.fromLTRB(
+                        Spacing.md, Spacing.sm, Spacing.md, 0),
                     child: Row(
                       children: [
                         const Text('이상 이력',
                             style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold)),
+                                fontSize: FontSizes.body,
+                                fontWeight: FontWeight.bold)),
                         const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                              horizontal: Spacing.sm, vertical: Spacing.xxs),
                           decoration: BoxDecoration(
                             color: anomalies.isEmpty
-                                ? AppTheme.success.withOpacity(0.15)
-                                : AppTheme.danger.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(20),
+                                ? AppTheme.success.withValues(alpha: 0.15)
+                                : AppTheme.danger.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(Radii.lg),
                           ),
                           child: Text(
                             '${result.totalElements}건',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: FontSizes.caption,
                               fontWeight: FontWeight.bold,
                               color: anomalies.isEmpty
                                   ? AppTheme.success
@@ -107,11 +110,11 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
                         : anomalies.isEmpty
                             ? const AnomalyEmptyView(filtered: true)
                             : ListView.separated(
-                                padding:
-                                    const EdgeInsets.fromLTRB(16, 4, 16, 32),
+                                padding: const EdgeInsets.fromLTRB(Spacing.md,
+                                    Spacing.xxs, Spacing.md, Spacing.xl),
                                 itemCount: anomalies.length + 1,
                                 separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: Spacing.sm),
                                 itemBuilder: (context, i) {
                                   if (i < anomalies.length) {
                                     return AnomalyCard(anomaly: anomalies[i]);
@@ -127,7 +130,7 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 12),
+                                            horizontal: Spacing.sm),
                                         child: Text('${result.page + 1}페이지'),
                                       ),
                                       TextButton(
@@ -177,7 +180,8 @@ class _FilterBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.fromLTRB(
+          Spacing.md, Spacing.xs, Spacing.md, Spacing.xxs),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -188,12 +192,12 @@ class _FilterBar extends StatelessWidget {
                 selected: severity == option,
                 onTap: () => onSeverityChanged(option),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: Spacing.xs),
             ],
             Container(
               width: 1,
               height: 20,
-              margin: const EdgeInsets.symmetric(horizontal: 6),
+              margin: const EdgeInsets.symmetric(horizontal: Spacing.xs),
               color: colors.border,
             ),
             for (final entry in _periodLabels.entries) ...[
@@ -202,7 +206,7 @@ class _FilterBar extends StatelessWidget {
                 selected: period == entry.key,
                 onTap: () => onPeriodChanged(entry.key),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: Spacing.xs),
             ],
           ],
         ),
@@ -230,17 +234,17 @@ class _FilterChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.sm, vertical: Spacing.xs),
         decoration: BoxDecoration(
-          color: selected ? primary.withOpacity(0.15) : colors.surface,
-          borderRadius: BorderRadius.circular(100),
-          border:
-              Border.all(color: selected ? primary : colors.border),
+          color: selected ? primary.withValues(alpha: 0.15) : colors.surface,
+          borderRadius: BorderRadius.circular(Radii.pill),
+          border: Border.all(color: selected ? primary : colors.border),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12.5,
+            fontSize: FontSizes.caption,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             color: selected ? primary : colors.textSecondary,
           ),

@@ -22,8 +22,7 @@ void main() {
     expect(colors!.danger, AppTheme.danger);
   });
 
-  testWidgets('라이트와 다크는 서로 다른 표면과 텍스트 토큰을 제공한다',
-      (tester) async {
+  testWidgets('라이트와 다크는 서로 다른 표면과 텍스트 토큰을 제공한다', (tester) async {
     AppSemanticColors? lightColors;
     AppSemanticColors? darkColors;
 

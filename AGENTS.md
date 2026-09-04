@@ -36,11 +36,31 @@ flutter test integration_test/app_test.dart -d <device-id>
 flutter run -d <device-id> --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
+## 디자인 시스템
+
+간격·모서리·글자 크기는 `lib/core/theme/design_tokens.dart`의 토큰만 쓴다.
+없는 값이 필요하면 값을 새로 적지 말고 먼저 `docs/design-system.md`를 고친다.
+그 문서에 왜 이 스케일인지, 어떤 실수를 반복했는지가 적혀 있다.
+
+아래 두 체크리스트 항목은 **자동 검사로 옮겼다.** 눈으로 확인하는 대신 돌린다.
+
+```powershell
+flutter test test/responsive_overflow_test.dart
+```
+
+화면을 눈으로 확인할 때는 스냅샷을 뽑는다(회귀 감지가 아니라 확인용이라 기본
+실행에서는 제외된다).
+
+```powershell
+flutter test test/golden --update-goldens --run-skipped
+# test/golden/snapshots/*.png
+```
+
 ## 화면 확인 체크리스트
 
 - 시스템/라이트/다크 모드가 각각 적용되고, 앱 재시작 후 선택값이 유지되는가
-- 320px, 360px, 400px 너비와 태블릿 너비에서 overflow가 없는가
-- 글자 크기 1.3배와 1.5배에서도 버튼, 상태 배지, 수치가 잘리지 않는가
+- ~~320px, 360px, 400px 너비와 태블릿 너비에서 overflow가 없는가~~ — `responsive_overflow_test.dart`가 검사한다
+- ~~글자 크기 1.3배와 1.5배에서도 버튼, 상태 배지, 수치가 잘리지 않는가~~ — 같은 테스트가 검사한다
 - 랜딩·로그인 화면의 텍스트와 입력 필드 대비가 충분한가
 - 차량 목록에서 정상·지연·오프라인·데이터 없음 기준과 카드 상태가 일치하는가
 - 차량 상세의 현재 상태·이상 이력·주행 기록·보조 진단 탭이 모두 전환되는가

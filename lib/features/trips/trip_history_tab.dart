@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/trip.dart';
 import '../../core/providers/trip_providers.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/design_tokens.dart';
 
 // 차량 상세 화면(VehicleDetailScreen)의 네 번째 탭 — 주행 히스토리를
 // 트립(연속 주행 구간) 단위로 보여준다. 백엔드가 수신 간격(3분) 기준으로
@@ -42,15 +43,17 @@ class _TripHistoryTabState extends ConsumerState<TripHistoryTab>
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          padding:
+              const EdgeInsets.fromLTRB(Spacing.md, Spacing.sm, Spacing.md, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 '주행 기록',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: FontSizes.body, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: Spacing.sm),
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
@@ -66,7 +69,7 @@ class _TripHistoryTabState extends ConsumerState<TripHistoryTab>
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: Spacing.xs),
         Expanded(child: _buildBody(tripsAsync)),
       ],
     );
@@ -87,14 +90,14 @@ class _TripHistoryTabState extends ConsumerState<TripHistoryTab>
         onRetry: _refresh,
         compact: !initialError,
       ));
-      children.add(const SizedBox(height: 12));
+      children.add(const SizedBox(height: Spacing.sm));
     }
 
     if (_lastTrips.isEmpty && !initialError) {
       children.add(const _EmptyTrips());
     } else {
       for (var i = 0; i < _lastTrips.length; i++) {
-        if (i > 0) children.add(const SizedBox(height: 10));
+        if (i > 0) children.add(const SizedBox(height: Spacing.sm));
         children.add(_TripCard(trip: _lastTrips[i]));
       }
     }
@@ -105,7 +108,8 @@ class _TripHistoryTabState extends ConsumerState<TripHistoryTab>
           onRefresh: _refresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+            padding: const EdgeInsets.fromLTRB(
+                Spacing.md, Spacing.xxs, Spacing.md, Spacing.xl),
             children: children,
           ),
         ),
@@ -165,11 +169,12 @@ class _TripError extends StatelessWidget {
     if (compact) {
       return Material(
         color: AppTheme.danger.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Radii.md),
         child: ListTile(
           dense: true,
           leading: const Icon(Icons.error_outline, color: AppTheme.danger),
-          title: Text(message, style: const TextStyle(fontSize: 12.5)),
+          title: Text(message,
+              style: const TextStyle(fontSize: FontSizes.caption)),
           trailing: IconButton(
             tooltip: '다시 시도',
             onPressed: onRetry,
@@ -179,15 +184,15 @@ class _TripError extends StatelessWidget {
       );
     }
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
+      padding: const EdgeInsets.symmetric(vertical: Spacing.xxl),
       child: Column(
         children: [
           const Icon(Icons.error_outline, size: 40, color: AppTheme.danger),
-          const SizedBox(height: 12),
+          const SizedBox(height: Spacing.sm),
           Text(message,
               textAlign: TextAlign.center,
               style: TextStyle(color: colors.textSecondary)),
-          const SizedBox(height: 16),
+          const SizedBox(height: Spacing.md),
           OutlinedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
@@ -206,7 +211,7 @@ class _EmptyTrips extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 56),
+      padding: const EdgeInsets.symmetric(vertical: Spacing.xxl),
       child: Column(
         children: [
           Container(
@@ -219,12 +224,12 @@ class _EmptyTrips extends StatelessWidget {
             child: Icon(Icons.route_outlined,
                 size: 36, color: colors.textSecondary),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Spacing.md),
           const Text('이 기간엔 주행 기록이 없어요',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 8),
-          Text('조회 기간을 늘려보세요.',
-              style: TextStyle(color: colors.textSecondary)),
+              style: TextStyle(
+                  fontSize: FontSizes.body, fontWeight: FontWeight.w500)),
+          const SizedBox(height: Spacing.xs),
+          Text('조회 기간을 늘려보세요.', style: TextStyle(color: colors.textSecondary)),
         ],
       ),
     );
@@ -246,17 +251,17 @@ class _PeriodChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.sm, vertical: Spacing.xs),
         decoration: BoxDecoration(
           color: selected ? primary.withValues(alpha: 0.15) : colors.surface,
-          borderRadius: BorderRadius.circular(100),
-          border:
-              Border.all(color: selected ? primary : colors.border),
+          borderRadius: BorderRadius.circular(Radii.pill),
+          border: Border.all(color: selected ? primary : colors.border),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12.5,
+            fontSize: FontSizes.caption,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             color: selected ? primary : colors.textSecondary,
           ),
@@ -288,10 +293,10 @@ class _TripCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(color: colors.border),
       ),
       child: Column(
@@ -301,18 +306,20 @@ class _TripCard extends StatelessWidget {
             children: [
               const Icon(Icons.route_outlined,
                   size: 16, color: AppTheme.primary),
-              const SizedBox(width: 6),
+              const SizedBox(width: Spacing.xs),
               Expanded(
                 child: Text(_timeRange(),
                     style: const TextStyle(
-                        fontSize: 12.5, fontWeight: FontWeight.w600)),
+                        fontSize: FontSizes.caption,
+                        fontWeight: FontWeight.w600)),
               ),
               Text('${trip.durationMinutes}분',
-                  style:
-                      TextStyle(fontSize: 12, color: colors.textSecondary)),
+                  style: TextStyle(
+                      fontSize: FontSizes.caption,
+                      color: colors.textSecondary)),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: Spacing.sm),
           Row(
             children: [
               _Stat(
@@ -345,12 +352,12 @@ class _Stat extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style:
-                  TextStyle(fontSize: 10.5, color: colors.textTertiary)),
-          const SizedBox(height: 2),
+              style: TextStyle(
+                  fontSize: FontSizes.badge, color: colors.textTertiary)),
+          const SizedBox(height: Spacing.xxs),
           Text(value,
               style: AppTheme.gaugeNumberStyle(
-                  fontSize: 15, color: colors.textPrimary)),
+                  fontSize: FontSizes.body, color: colors.textPrimary)),
         ],
       ),
     );
