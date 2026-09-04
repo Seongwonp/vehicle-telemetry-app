@@ -65,7 +65,7 @@ class HeroSection extends StatelessWidget {
             '차량 상태와 데이터 흐름을\n한눈에 확인하기',
             textAlign: textAlign,
             style: TextStyle(
-              fontSize: FontSizes.display,
+              fontSize: context.displayFontSize,
               fontWeight: FontWeight.w800,
               height: 1.3,
               letterSpacing: -0.8,

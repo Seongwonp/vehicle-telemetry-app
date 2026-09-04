@@ -75,8 +75,15 @@ class Radii {
 class FontSizes {
   FontSizes._();
 
-  /// 32 — 대시보드의 대표 수치 하나.
+  /// 32 — 대시보드의 대표 수치 하나, 랜딩 제목.
   static const double display = 32;
+
+  /// 24 — 태블릿 미만(600px 미만) 폭의 제목.
+  ///
+  /// 한글 제목은 32px에서 360px 화면에 한 줄이 안 들어가 고아 줄이 생긴다
+  /// ("차량 상태와 데이터 / 흐름을 / 한눈에 확인하기"). 줄바꿈 위치를 손으로
+  /// 잡는 대신 글자를 한 단 줄여 자연스럽게 두 줄이 되게 한다.
+  static const double displayCompact = 24;
 
   /// 20 — 화면 제목.
   static const double title = 20;
@@ -132,4 +139,9 @@ extension SpacingContext on BuildContext {
 
   /// 320px대 좁은 화면인지. 이때는 부가 정보를 접거나 줄바꿈을 허용한다.
   bool get isCompactWidth => MediaQuery.sizeOf(this).width < Widths.regular;
+
+  /// 제목 크기. 좁은 화면에서는 한 단 줄인다.
+  double get displayFontSize => MediaQuery.sizeOf(this).width < Widths.tablet
+      ? FontSizes.displayCompact
+      : FontSizes.display;
 }

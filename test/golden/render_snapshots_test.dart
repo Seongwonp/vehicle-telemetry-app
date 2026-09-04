@@ -19,6 +19,8 @@ import 'package:telemetrix/features/dashboard/widgets/primary_metric_card.dart';
 import 'package:telemetrix/features/dashboard/widgets/secondary_metric_card.dart';
 import 'package:telemetrix/features/diagnosis/widgets/header_card.dart';
 import 'package:telemetrix/features/vehicle_list/widgets/vehicle_card.dart';
+import 'package:telemetrix/features/landing/widgets/hero_section.dart';
+import 'package:telemetrix/features/landing/widgets/promo_visual.dart';
 
 /// 화면을 실제로 렌더해 PNG로 남긴다.
 ///
@@ -172,6 +174,10 @@ Future<void> _snap(
   required Brightness brightness,
   required double width,
   double textScale = 1.0,
+  Widget? body,
+  // 랜딩에는 끝나지 않는 반복 애니메이션이 있어 pumpAndSettle이 타임아웃한다.
+  // 그런 화면은 고정 시간만 진행시켜 한 프레임을 잡는다.
+  bool settle = true,
 }) async {
   tester.view.physicalSize = Size(width, 1800);
   tester.view.devicePixelRatio = 1.0;
@@ -193,7 +199,7 @@ Future<void> _snap(
             backgroundColor: theme.extension<AppSemanticColors>()!.background,
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(Spacing.md),
-              child: _gallery(),
+              child: body ?? _gallery(),
             ),
           ),
         ),
@@ -201,7 +207,11 @@ Future<void> _snap(
     ),
   );
   // 게이지가 600ms 애니메이션이라 한 프레임만 pump하면 값이 0에서 멈춘 그림이 나온다.
-  await tester.pumpAndSettle(const Duration(milliseconds: 100));
+  if (settle) {
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+  } else {
+    await tester.pump(const Duration(milliseconds: 800));
+  }
   await expectLater(
     find.byType(MaterialApp),
     matchesGoldenFile('snapshots/$name.png'),
@@ -231,8 +241,35 @@ Future<void> _loadKoreanFont() async {
   }
 }
 
+/// 랜딩은 앱의 첫인상이라 따로 본다. 여기가 시각 효과가 가장 많은 화면이다.
+Widget _landing() => Column(
+      children: [
+        HeroSection(
+          reveal: const AlwaysStoppedAnimation<double>(1),
+          onGetStarted: () {},
+        ),
+        const SizedBox(height: Spacing.lg),
+        const PromoVisual(),
+      ],
+    );
+
 void main() {
   setUpAll(_loadKoreanFont);
+
+  testWidgets('랜딩 360px', (t) async {
+    await _snap(t, 'landing_360',
+        brightness: Brightness.light,
+        width: 360,
+        body: _landing(),
+        settle: false);
+  });
+  testWidgets('랜딩 다크 360px', (t) async {
+    await _snap(t, 'landing_dark_360',
+        brightness: Brightness.dark,
+        width: 360,
+        body: _landing(),
+        settle: false);
+  });
 
   testWidgets('라이트 360px', (t) async {
     await _snap(t, 'light_360', brightness: Brightness.light, width: 360);
