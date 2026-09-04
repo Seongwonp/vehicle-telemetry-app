@@ -27,7 +27,11 @@ void main() {
     AppSemanticColors? lightColors;
     AppSemanticColors? darkColors;
 
+    // 같은 구조의 트리를 연달아 pump하면 엘리먼트가 재사용돼 두 번째 Builder가
+    // 갱신된 테마를 못 읽는다(darkColors에 light 값이 들어와 테스트가 실패했다).
+    // 테마마다 다른 key를 줘서 엘리먼트를 새로 만들게 한다.
     await tester.pumpWidget(MaterialApp(
+      key: const ValueKey('light'),
       theme: AppTheme.light(),
       home: Builder(builder: (context) {
         lightColors = context.appColors;
@@ -35,6 +39,7 @@ void main() {
       }),
     ));
     await tester.pumpWidget(MaterialApp(
+      key: const ValueKey('dark'),
       theme: AppTheme.dark(),
       home: Builder(builder: (context) {
         darkColors = context.appColors;

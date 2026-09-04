@@ -108,7 +108,7 @@ class _StatusPill extends StatelessWidget {
           Container(
             width: 6,
             height: 6,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: primary,
               shape: BoxShape.circle,
             ),

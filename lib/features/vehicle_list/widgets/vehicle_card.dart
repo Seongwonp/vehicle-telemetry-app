@@ -3,8 +3,27 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../core/api/api_client.dart';
 import '../../../core/models/vehicle.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/design_tokens.dart';
 import 'info_chip.dart';
 
+/// 차량 목록의 카드.
+///
+/// 예전 구조는 바깥 [Row]에 `[아이콘][Expanded 정보][오른쪽 열]`을 나란히 뒀는데,
+/// 오른쪽 열(상태 배지 + 메뉴 + chevron)에 폭 제약이 없어서 좁은 화면에서 밀렸다.
+/// 자동 검사로 재보니 **320px에서는 기본 글자 크기로도 99px가 넘쳐** 잘리고 있었다
+/// (test/responsive_overflow_test.dart).
+///
+/// 그래서 가로로 경쟁하는 열을 없애고 세 줄로 쌓는다.
+///
+/// ```
+/// [아이콘] 차량 이름                    ● 정상  [⋮]
+///          #KR-GA-1234  홍길동
+///          118 km/h · HIGH 12 · 5분 전 수신
+/// ```
+///
+/// 마지막 줄은 [Wrap]이라 폭이 모자라면 줄바꿈된다 — 잘리지 않는다.
+/// chevron은 없앴다. 카드 전체가 눌리는데 화살표까지 두면 어포던스가 셋이 되고,
+/// 그 화살표가 좁은 화면에서 폭을 가장 많이 잡아먹고 있었다.
 class VehicleCard extends StatelessWidget {
   final Vehicle vehicle;
   final VoidCallback onTap;
@@ -65,108 +84,62 @@ class VehicleCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
+          padding: const EdgeInsets.all(Spacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: cs.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  Icons.directions_car_outlined,
-                  size: 28,
-                  color: cs.primary,
-                ),
-              ),
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      vehicle.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (!vehicle.active) ...[
-                      const SizedBox(height: 3),
-                      Text('비활성 차량',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: colors.textTertiary,
-                          )),
-                    ],
-                    const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        InfoChip(label: vehicle.vehicleId, icon: Icons.tag),
-                        InfoChip(
-                            label: vehicle.owner, icon: Icons.person_outline),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '등록: ${_formatDate(vehicle.registeredAt)}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: cs.onSurface.withOpacity(0.5),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _FleetSummaryRow(vehicle: vehicle),
-                  ],
-                ),
-              ),
-
-              // 마지막 수신 상태 + 관리 메뉴
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _SignalStatus(
-                    state: signalState,
-                    lastSeenAt: vehicle.lastSeenAt,
-                    color: signalColor,
-                  ),
-                  Row(
-                    children: [
-                      PopupMenuButton<String>(
-                        icon: Icon(Icons.more_vert,
-                            size: 20, color: cs.onSurface.withOpacity(0.6)),
-                        padding: EdgeInsets.zero,
-                        onSelected: (value) {
-                          if (value == 'delete') _confirmDelete(context);
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                Icon(Icons.delete_outline,
-                                    size: 18, color: colors.danger),
-                                const SizedBox(width: 8),
-                                Text('삭제',
-                                    style: TextStyle(color: colors.danger)),
-                              ],
+                  _VehicleAvatar(color: cs.primary),
+                  const SizedBox(width: Spacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          vehicle.name,
+                          style: const TextStyle(
+                            fontSize: FontSizes.subtitle,
+                            fontWeight: FontWeight.w700,
+                            height: 1.3,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (!vehicle.active) ...[
+                          const SizedBox(height: Spacing.xxs),
+                          Text(
+                            '비활성 차량',
+                            style: TextStyle(
+                              fontSize: FontSizes.badge,
+                              fontWeight: FontWeight.w600,
+                              color: colors.textTertiary,
                             ),
                           ),
                         ],
-                      ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: cs.onSurface.withOpacity(0.4),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: Spacing.xs),
+                  _SignalPill(state: signalState, color: signalColor),
+                  _DeleteMenuButton(onDelete: () => _confirmDelete(context)),
                 ],
+              ),
+              const SizedBox(height: Spacing.sm),
+              Wrap(
+                spacing: Spacing.xs,
+                runSpacing: Spacing.xxs,
+                children: [
+                  InfoChip(label: vehicle.vehicleId, icon: Icons.tag),
+                  InfoChip(label: vehicle.owner, icon: Icons.person_outline),
+                ],
+              ),
+              const SizedBox(height: Spacing.xs),
+              _MetaLine(
+                vehicle: vehicle,
+                colors: colors,
+                primary: cs.primary,
               ),
             ],
           ),
@@ -174,25 +147,129 @@ class VehicleCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  String _formatDate(DateTime dt) {
-    return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
+class _VehicleAvatar extends StatelessWidget {
+  final Color color;
+  const _VehicleAvatar({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: Radii.mdAll,
+      ),
+      child: Icon(Icons.directions_car_outlined, size: 24, color: color),
+    );
   }
 }
 
-class _FleetSummaryRow extends StatelessWidget {
-  final Vehicle vehicle;
-  const _FleetSummaryRow({required this.vehicle});
+/// 상태 배지. 한 줄짜리 알약으로 줄였다.
+///
+/// 예전에는 상태와 마지막 수신 시각을 세로로 쌓은 두 줄 배지였는데, 그 폭이
+/// 좁은 화면에서 이름 영역을 밀어냈다. 시각은 아래 [_MetaLine]으로 옮겼다 —
+/// 줄바꿈이 가능한 자리다.
+class _SignalPill extends StatelessWidget {
+  final FleetSignalState state;
+  final Color color;
+  const _SignalPill({required this.state, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: '데이터 상태 ${state.label}',
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Spacing.xs,
+          vertical: Spacing.xxs,
+        ),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: Radii.pillAll,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(state.icon, size: 12, color: color),
+            const SizedBox(width: Spacing.xxs),
+            Text(
+              state.label,
+              style: TextStyle(
+                fontSize: FontSizes.badge,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 삭제 메뉴. 아이콘은 작아 보이지만 눌리는 영역은 [TouchTarget.min]을 지킨다.
+class _DeleteMenuButton extends StatelessWidget {
+  final VoidCallback onDelete;
+  const _DeleteMenuButton({required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final primary = Theme.of(context).colorScheme.primary;
-    final hasHighAnomaly = vehicle.highAnomalyCount > 0;
+    return SizedBox(
+      width: TouchTarget.min,
+      height: TouchTarget.min,
+      child: PopupMenuButton<String>(
+        icon: Icon(Icons.more_vert, size: 20, color: colors.textTertiary),
+        tooltip: '차량 관리',
+        padding: EdgeInsets.zero,
+        onSelected: (value) {
+          if (value == 'delete') onDelete();
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 'delete',
+            child: Row(
+              children: [
+                Icon(Icons.delete_outline, size: 18, color: colors.danger),
+                const SizedBox(width: Spacing.xs),
+                Text('삭제', style: TextStyle(color: colors.danger)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 속도·이상 건수·마지막 수신 시각을 한 줄에 흘린다.
+///
+/// [Wrap]이라 폭이 모자라면 다음 줄로 넘어간다. 예전에는 이 정보들이 서로 다른
+/// 자리에 흩어져 있어서(배지는 왼쪽 열, 시각은 오른쪽 배지 안) 눈이 두 번 움직여야 했다.
+class _MetaLine extends StatelessWidget {
+  final Vehicle vehicle;
+  final AppSemanticColors colors;
+  final Color primary;
+
+  const _MetaLine({
+    required this.vehicle,
+    required this.colors,
+    required this.primary,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final lastSeen = vehicle.lastSeenAt == null
+        ? '수신 이력 없음'
+        : '${timeago.format(vehicle.lastSeenAt!, locale: 'ko')} 수신';
 
     return Wrap(
-      spacing: 8,
-      runSpacing: 4,
+      spacing: Spacing.xs,
+      runSpacing: Spacing.xxs,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (vehicle.latestSpeed != null)
           _Badge(
@@ -200,67 +277,20 @@ class _FleetSummaryRow extends StatelessWidget {
             label: '${vehicle.latestSpeed!.toStringAsFixed(0)} km/h',
             color: primary,
           ),
-        if (hasHighAnomaly)
+        if (vehicle.highAnomalyCount > 0)
           _Badge(
             icon: Icons.warning_amber_rounded,
             label: 'HIGH ${vehicle.highAnomalyCount}',
             color: colors.danger,
           ),
+        Text(
+          lastSeen,
+          style: TextStyle(
+            fontSize: FontSizes.badge,
+            color: colors.textSecondary,
+          ),
+        ),
       ],
-    );
-  }
-}
-
-class _SignalStatus extends StatelessWidget {
-  final FleetSignalState state;
-  final DateTime? lastSeenAt;
-  final Color color;
-
-  const _SignalStatus({
-    required this.state,
-    required this.lastSeenAt,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final detail = lastSeenAt == null
-        ? '수신 이력 없음'
-        : timeago.format(lastSeenAt!, locale: 'ko');
-    return Semantics(
-      label: '데이터 상태 ${state.label}, 마지막 신호 $detail',
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(state.icon, size: 12, color: color),
-                const SizedBox(width: 4),
-                Text(state.label,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    )),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(detail,
-                style: TextStyle(
-                  fontSize: 9.5,
-                  color: context.appColors.textSecondary,
-                )),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -310,19 +340,27 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Spacing.xs,
+        vertical: 2,
+      ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(7),
+        color: color.withValues(alpha: 0.12),
+        borderRadius: Radii.pillAll,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 11, color: color),
-          const SizedBox(width: 3),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 10.5, fontWeight: FontWeight.w600, color: color)),
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: Spacing.xxs),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: FontSizes.badge,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
