@@ -88,7 +88,7 @@ class _LandingScreenState extends State<LandingScreen>
             ),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1100),
+                constraints: const BoxConstraints(maxWidth: ContentWidths.grid),
                 child: context.isDesktop
                     ? _DesktopLayout(
                         heroReveal: heroReveal,

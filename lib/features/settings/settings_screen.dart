@@ -54,7 +54,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
+                constraints:
+                    const BoxConstraints(maxWidth: ContentWidths.reading),
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(
                       Spacing.md, Spacing.md, Spacing.md, Spacing.xl),

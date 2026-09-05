@@ -117,7 +117,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               padding: const EdgeInsets.symmetric(
                   horizontal: Spacing.xl, vertical: Spacing.lg),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
+                constraints: const BoxConstraints(maxWidth: ContentWidths.form),
                 child: Form(
                   key: _formKey,
                   child: Column(

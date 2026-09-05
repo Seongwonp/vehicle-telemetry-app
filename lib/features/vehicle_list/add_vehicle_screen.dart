@@ -73,7 +73,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(Spacing.lg),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
+            constraints: const BoxConstraints(maxWidth: ContentWidths.form),
             child: Form(
               key: _formKey,
               child: Column(

@@ -21,7 +21,6 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   final Color warning;
   final Color danger;
   final Gradient primaryGradient;
-  final List<BoxShadow> accentGlow;
 
   const AppSemanticColors({
     required this.background,
@@ -37,7 +36,6 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     required this.warning,
     required this.danger,
     required this.primaryGradient,
-    required this.accentGlow,
   });
 
   @override
@@ -55,7 +53,6 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     Color? warning,
     Color? danger,
     Gradient? primaryGradient,
-    List<BoxShadow>? accentGlow,
   }) {
     return AppSemanticColors(
       background: background ?? this.background,
@@ -71,7 +68,6 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       warning: warning ?? this.warning,
       danger: danger ?? this.danger,
       primaryGradient: primaryGradient ?? this.primaryGradient,
-      accentGlow: accentGlow ?? this.accentGlow,
     );
   }
 
@@ -93,7 +89,6 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       warning: Color.lerp(warning, other.warning, t)!,
       danger: Color.lerp(danger, other.danger, t)!,
       primaryGradient: t < 0.5 ? primaryGradient : other.primaryGradient,
-      accentGlow: t < 0.5 ? accentGlow : other.accentGlow,
     );
   }
 }
@@ -135,14 +130,6 @@ class AppTheme {
     end: Alignment.bottomRight,
     colors: [primaryBright, primary],
   );
-
-  static final accentGlow = [
-    BoxShadow(
-      color: primary.withValues(alpha: 0.14),
-      blurRadius: 20,
-      spreadRadius: -8,
-    ),
-  ];
 
   // 계기판 숫자(속도/RPM 등) 전용 — 일반 UI 폰트(Manrope)와 의도적으로 분리해
   // "숫자만 다른 서체"인 HUD 느낌을 낸다. tabular figures로 자릿수 흔들림 방지.
@@ -282,7 +269,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: Radii.smAll),
       ),
-      extensions: [
+      extensions: const [
         AppSemanticColors(
           background: bg,
           backgroundElevated: bgElevated,
@@ -297,7 +284,6 @@ class AppTheme {
           warning: warning,
           danger: danger,
           primaryGradient: primaryGradient,
-          accentGlow: accentGlow,
         ),
       ],
     );
@@ -440,7 +426,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: Radii.smAll),
       ),
-      extensions: [
+      extensions: const [
         AppSemanticColors(
           background: darkBg,
           backgroundElevated: darkBgElevated,
@@ -454,18 +440,11 @@ class AppTheme {
           success: darkSuccess,
           warning: darkWarning,
           danger: darkDanger,
-          primaryGradient: const LinearGradient(
+          primaryGradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [Color(0xFF9AB8FF), darkPrimary],
           ),
-          accentGlow: [
-            BoxShadow(
-              color: darkPrimary.withValues(alpha: 0.18),
-              blurRadius: 20,
-              spreadRadius: -8,
-            ),
-          ],
         ),
       ],
     );

@@ -325,7 +325,7 @@ class _DashboardBody extends StatelessWidget {
           Spacing.md, Spacing.sm, Spacing.md, Spacing.xl),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
+          constraints: const BoxConstraints(maxWidth: ContentWidths.grid),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

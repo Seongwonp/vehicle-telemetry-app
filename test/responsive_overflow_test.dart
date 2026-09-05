@@ -28,7 +28,9 @@ import 'package:telemetrix/core/models/vehicle.dart';
 ///
 /// overflow는 Flutter가 렌더 단계에서 FlutterError로 보고하므로, 그것을 가로채
 /// 실패로 만든다. 화면에 노란 줄무늬가 뜨는 것과 같은 신호다.
-const List<double> _widths = [320, 360, 400, 768];
+// 데스크톱 폭(1024/1280)도 넣는다. 화면마다 ContentWidths로 내용 폭을 제한하지만,
+// 카드 내부는 그 제한 폭 안에서 다시 늘어나므로 좁은 쪽만 검사하면 놓치는 것이 생긴다.
+const List<double> _widths = [320, 360, 400, 768, 1024, 1280];
 const List<double> _textScales = [1.0, 1.3, 1.5];
 
 /// 렌더 중 발생한 overflow를 모아 테스트 실패로 올린다.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../core/api/api_client.dart';
 import 'widgets/error_section.dart';
+import '../../core/theme/design_tokens.dart';
 import 'widgets/header_card.dart';
 import 'widgets/loading_section.dart';
 import 'widgets/result_section.dart';
@@ -98,7 +99,7 @@ class _DiagnosisTabState extends State<DiagnosisTab>
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 700),
+          constraints: const BoxConstraints(maxWidth: ContentWidths.reading),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

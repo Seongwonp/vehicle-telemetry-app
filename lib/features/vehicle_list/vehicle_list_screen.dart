@@ -147,7 +147,7 @@ class _VehicleGrid extends StatelessWidget {
     final columns = context.isDesktop ? 3 : 2;
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200),
+        constraints: const BoxConstraints(maxWidth: ContentWidths.grid),
         child: GridView.builder(
           padding: const EdgeInsets.fromLTRB(
               Spacing.lg, Spacing.md, Spacing.lg, Spacing.xl),

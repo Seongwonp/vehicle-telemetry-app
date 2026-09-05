@@ -56,7 +56,7 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
           onRefresh: () => ref.refresh(anomalyPageProvider(_query).future),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
+              constraints: const BoxConstraints(maxWidth: ContentWidths.feed),
               child: Column(
                 children: [
                   Padding(

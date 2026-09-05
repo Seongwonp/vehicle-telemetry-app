@@ -38,9 +38,13 @@ flutter run -d <device-id> --dart-define=API_BASE_URL=http://localhost:8080
 
 ## 디자인 시스템
 
-간격·모서리·글자 크기는 `lib/core/theme/design_tokens.dart`의 토큰만 쓴다.
+간격·모서리·글자 크기·**내용 최대 폭**은 `lib/core/theme/design_tokens.dart`의 토큰만 쓴다.
 없는 값이 필요하면 값을 새로 적지 말고 먼저 `docs/design-system.md`를 고친다.
 그 문서에 왜 이 스케일인지, 어떤 실수를 반복했는지가 적혀 있다.
+
+새 화면에서 `BoxConstraints(maxWidth: ...)`에 숫자를 직접 쓰지 말고
+`ContentWidths.form / reading / feed / grid` 중에서 고른다 — 기준은 폭이 아니라
+**한 줄에 무엇이 들어가는가**다. 예전에는 화면마다 따로 정해 8종이 흩어져 있었다.
 
 아래 두 체크리스트 항목은 **자동 검사로 옮겼다.** 눈으로 확인하는 대신 돌린다.
 

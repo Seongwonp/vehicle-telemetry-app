@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:telemetrix/core/theme/app_theme.dart';
 import 'package:telemetrix/core/theme/design_tokens.dart';
@@ -221,7 +222,24 @@ Future<void> _snap(
 /// 테스트 환경에는 google_fonts가 폰트를 받아올 수 없어서 한글이 전부 두부(□)로
 /// 렌더된다. 그러면 자간·행간·위계 같은 타이포그래피 판단을 아예 할 수 없다.
 /// 시스템에 있는 한글 폰트를 직접 물려 스냅샷을 읽을 수 있게 만든다.
+/// ## 오프라인에서는 이 스위트가 "실패"로 표시된다 — 그래도 PNG는 정상이다
+///
+/// 테마가 `GoogleFonts.manrope()`를 쓰는데, google_fonts는 폰트를 못 구하면 예외를
+/// 던진다(런타임 fetch를 켜두면 네트워크 실패로, 꺼두면 "assets에 없다"로).
+/// 그 예외는 `fake_async` 존 안에서 비동기로 올라와 `FlutterError.onError`로는
+/// 가로챌 수 없다(시도해봤고 안 된다).
+///
+/// **스냅샷 자체는 영향을 받지 않는다.** 아래에서 시스템 한글 폰트를 `FontLoader`로
+/// `'Manrope'` 이름에 직접 물려두므로, google_fonts가 실패해도 그 이름으로 렌더된다.
+/// 즉 실패 표시는 이미지 품질과 무관하다 — `--update-goldens`로 돌린 뒤
+/// `snapshots/*.png`를 열어보면 된다.
+///
+/// 근본 해결은 Manrope를 `assets/fonts/`에 넣고 pubspec에 선언하는 것인데,
+/// 확인용 스냅샷 하나 때문에 앱 번들에 폰트를 넣을 이유가 없어 하지 않았다.
 Future<void> _loadKoreanFont() async {
+  // 네트워크 상태에 따라 결과가 달라지지 않도록 fetch를 끈다.
+  GoogleFonts.config.allowRuntimeFetching = false;
+
   for (final path in const [
     r'C:\Windows\Fonts\malgun.ttf',
     '/System/Library/Fonts/AppleSDGothicNeo.ttc',
@@ -283,5 +301,24 @@ void main() {
   testWidgets('라이트 360px 글자 1.5배', (t) async {
     await _snap(t, 'light_360_scale15',
         brightness: Brightness.light, width: 360, textScale: 1.5);
+  });
+
+  // 넓은 화면에서 내용이 얼마나 늘어나도 되는지를 눈으로 보기 위한 것.
+  // overflow 검사(responsive_overflow_test)는 "잘리지 않는가"만 보고,
+  // "한 줄이 너무 길어 읽기 나쁜가"는 못 잡는다. 두 장을 나란히 두고 판단한다.
+  testWidgets('데스크톱 1280px — 폭 제한 없음(비교용)', (t) async {
+    await _snap(t, 'light_1280_unbounded',
+        brightness: Brightness.light, width: 1280);
+  });
+  testWidgets('데스크톱 1280px — ContentWidths.feed 적용', (t) async {
+    await _snap(t, 'light_1280_feed',
+        brightness: Brightness.light,
+        width: 1280,
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: ContentWidths.feed),
+            child: _gallery(),
+          ),
+        ));
   });
 }
