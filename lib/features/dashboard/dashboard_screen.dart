@@ -243,6 +243,26 @@ class _DashboardTabState extends State<DashboardTab>
           return;
         }
         if (telemetry == null) return;
+
+        // 이미 가진 값보다 오래된 프레임은 버린다.
+        //
+        // 파이프라인은 차량별 순서를 **전역으로 보장하지 않는다.** Kafka 브로커 장애 뒤
+        // 로컬 spool을 드레인할 때, 밀렸던 메시지가 새 메시지보다 늦게 도착할 수 있다.
+        // 실측하니 90초 장애에서 차량당 4~6건, **최대 114초 묵은 값**이 최신 메시지 뒤에
+        // 왔다(백엔드 저장소의 load-test/order-integrity/RESULT_20260905_order.md).
+        //
+        // 그대로 두면 묵은 값이 현재 값으로 표시되고, `_lastUpdated`가 도착 시각으로
+        // 갱신돼 "오래된 데이터" 표시로도 안 걸러진다.
+        //
+        // 파이프라인에서 순서를 맞추지 않는 이유는 그쪽 비용이 크기 때문이다 —
+        // 드레인과 신규 발행을 한 락으로 묶으면 수집 처리량이 무너진다. 순서가 필요한 곳은
+        // "지금 값"을 보여주는 이 화면 하나뿐이라 여기서 막는 게 가장 싸고 정확하다.
+        final previous = _latest;
+        if (previous != null &&
+            telemetry.timestamp.isBefore(previous.timestamp)) {
+          return;
+        }
+
         setState(() {
           _latest = telemetry;
           _history = [telemetry!, ..._history].take(_historyLimit).toList();
