@@ -96,7 +96,8 @@ class _DiagnosisTabState extends State<DiagnosisTab>
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin 필수 호출
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+      padding: const EdgeInsets.fromLTRB(
+          Spacing.md, Spacing.sm, Spacing.md, Spacing.xl),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: ContentWidths.reading),
@@ -104,7 +105,7 @@ class _DiagnosisTabState extends State<DiagnosisTab>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DiagnosisHeaderCard(vehicleId: widget.vehicleId),
-              const SizedBox(height: 16),
+              const SizedBox(height: Spacing.md),
               FilledButton.icon(
                 onPressed: _loading ? null : _requestDiagnosis,
                 icon: _loading
@@ -120,22 +121,23 @@ class _DiagnosisTabState extends State<DiagnosisTab>
                       ? '분석 중...'
                       : (_diagnosis != null ? '다시 확인하기' : '진단 요청'),
                   style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold),
+                      fontSize: FontSizes.subtitle,
+                      fontWeight: FontWeight.bold),
                 ),
                 style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: Spacing.md),
                 ),
               ),
               if (_loading) ...[
-                const SizedBox(height: 24),
+                const SizedBox(height: Spacing.lg),
                 const DiagnosisLoadingSection(),
               ],
               if (_error != null) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: Spacing.md),
                 DiagnosisErrorSection(message: _error!),
               ],
               if (_diagnosis != null) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: Spacing.md),
                 DiagnosisResultSection(
                   diagnosis: _diagnosis!,
                   dataPoints: _dataPoints ?? 0,

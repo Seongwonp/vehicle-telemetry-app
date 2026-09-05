@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/design_tokens.dart';
 import '../../core/theme/app_theme.dart';
 import '../anomalies/anomaly_list_screen.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -17,15 +18,15 @@ class VehicleDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final compactTabs = MediaQuery.sizeOf(context).width < 400 ||
-        MediaQuery.textScalerOf(context).scale(11.5) > 14;
+        MediaQuery.textScalerOf(context).scale(FontSizes.badge) > 14;
 
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: Text(vehicleId,
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              style: const TextStyle(
+                  fontSize: FontSizes.subtitle, fontWeight: FontWeight.bold)),
           bottom: TabBar(
             isScrollable: compactTabs,
             tabAlignment: compactTabs ? TabAlignment.start : TabAlignment.fill,
@@ -38,8 +39,8 @@ class VehicleDetailScreen extends StatelessWidget {
             labelColor: Theme.of(context).colorScheme.primary,
             unselectedLabelColor: colors.textSecondary,
             indicatorColor: Theme.of(context).colorScheme.primary,
-            labelStyle: const TextStyle(fontSize: 11.5),
-            unselectedLabelStyle: const TextStyle(fontSize: 11.5),
+            labelStyle: const TextStyle(fontSize: FontSizes.badge),
+            unselectedLabelStyle: const TextStyle(fontSize: FontSizes.badge),
           ),
         ),
         body: TabBarView(

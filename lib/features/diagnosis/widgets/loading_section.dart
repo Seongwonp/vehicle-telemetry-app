@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/design_tokens.dart';
 import '../../../core/theme/app_theme.dart';
 
 class DiagnosisLoadingSection extends StatelessWidget {
@@ -15,7 +16,7 @@ class DiagnosisLoadingSection extends StatelessWidget {
     return Column(
       children: steps
           .map((step) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(bottom: Spacing.sm),
                 child: Row(
                   children: [
                     const SizedBox(
@@ -23,10 +24,11 @@ class DiagnosisLoadingSection extends StatelessWidget {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: Spacing.sm),
                     Text(step,
                         style: TextStyle(
-                            color: colors.textSecondary, fontSize: 13)),
+                            color: colors.textSecondary,
+                            fontSize: FontSizes.body)),
                   ],
                 ),
               ))

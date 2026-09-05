@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/design_tokens.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../core/models/telemetry.dart';
 import '../../../core/theme/app_theme.dart';
@@ -28,15 +29,17 @@ class SpeedChart extends StatelessWidget {
         Row(
           children: [
             Icon(Icons.show_chart, size: 16, color: primary),
-            const SizedBox(width: 6),
+            const SizedBox(width: Spacing.xxs),
             const Text('속도 추이',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: FontSizes.body)),
             const Spacer(),
             Text('최근 ${history.length}개',
-                style: TextStyle(fontSize: 11, color: colors.textSecondary)),
+                style: TextStyle(
+                    fontSize: FontSizes.badge, color: colors.textSecondary)),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: Spacing.sm),
         SizedBox(
           height: 140,
           child: LineChart(
@@ -61,8 +64,9 @@ class SpeedChart extends StatelessWidget {
                     interval: maxY / 3,
                     getTitlesWidget: (value, _) => Text(
                       '${value.toInt()}',
-                      style:
-                          TextStyle(fontSize: 10, color: colors.textTertiary),
+                      style: TextStyle(
+                          fontSize: FontSizes.badge,
+                          color: colors.textTertiary),
                     ),
                   ),
                 ),
