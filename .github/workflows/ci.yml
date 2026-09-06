@@ -1,0 +1,52 @@
+# 앱 자동 검증 (백엔드 저장소 docs/roadmap.md P1-4).
+#
+# 여기서 도는 세 단계는 AGENTS.md "데스크톱 필수 검증"의 앞부분과 **같은 명령**이다.
+# 사람이 데스크톱에서 돌리던 것을 그대로 옮겼기 때문에, CI가 통과했는데 로컬에서
+# 실패하는(또는 그 반대) 상황이 생기면 둘 중 하나가 뒤처진 것이다.
+#
+# 여기서 돌리지 않는 것과 이유:
+#   - `flutter test integration_test/...` : 실행 가능한 백엔드와 기기가 필요하다.
+#   - 골든 스냅샷(`test/golden`)          : 기본 실행에서 skip이다. 렌더링이 플랫폼마다
+#                                          달라 Linux 러너에서 돌리면 폰트 차이로 깨진다.
+#   - 실기기 확인(스크롤·터치·키보드·재연결) : 기기가 필요하다. P1-4의 남은 절반이고
+#                                          CI로 대체되지 않는다.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # 버전을 고정한다. `channel: stable`만 주면 러너가 그때그때 최신 stable을 받아
+      # 앱 코드가 그대로인데 어느 날 갑자기 깨진다 — 그러면 CI 실패가 신호가 아니라
+      # 잡음이 된다. 올릴 때는 로컬 검증과 같이 올린다.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.6
+          channel: stable
+          cache: true
+
+      - name: pub get
+        run: flutter pub get
+
+      # 포맷을 고쳐주지 않고 **다르면 실패시킨다**. CI가 코드를 고치면 로컬과 원격이
+      # 조용히 갈라진다.
+      - name: format
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
+
+      - name: analyze
+        run: flutter analyze
+
+      # 반응형 overflow 자동 검사(test/responsive_overflow_test.dart)가 여기 포함된다.
+      # 이 검사는 도입하자마자 overflow 12건을 잡았고, 그중 차량 카드는 320px에서
+      # 기본 글자 크기로도 99px 잘리고 있었다.
+      - name: test
+        run: flutter test --reporter expanded
