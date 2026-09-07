@@ -200,8 +200,7 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('같은 timestamp 재전달은 현재값과 마지막 수신 시각을 갱신하지 않는다',
-      (tester) async {
+  testWidgets('같은 timestamp 재전달은 현재값과 마지막 수신 시각을 갱신하지 않는다', (tester) async {
     const duplicateTimestampTelemetry = '''{
       "vehicleId":"SIM-001",
       "timestamp":"2026-08-04T10:00:00Z",
