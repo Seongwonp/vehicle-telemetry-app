@@ -200,8 +200,43 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('같은 timestamp 재전달은 현재값과 마지막 수신 시각을 갱신하지 않는다',
+      (tester) async {
+    const duplicateTimestampTelemetry = '''{
+      "vehicleId":"SIM-001",
+      "timestamp":"2026-08-04T10:00:00Z",
+      "speed":7.0,
+      "rpm":800,
+      "engineTemp":70.0,
+      "throttlePosition":5.0,
+      "fuelLevel":70.0,
+      "batteryVoltage":13.8,
+      "dtcCodes":[]
+    }''';
+
+    await pumpDashboard(tester);
+    await clients.single.connect();
+
+    clients.single.emit(validTelemetry);
+    await tester.pump();
+    expect(find.text('42'), findsOneWidget);
+
+    now = now.add(const Duration(seconds: 3));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('데이터 지연'), findsOneWidget);
+
+    // 같은 event time의 재전달은 값과 도착 시각을 모두 그대로 둬야 한다.
+    clients.single.emit(duplicateTimestampTelemetry);
+    await tester.pump();
+
+    expect(find.text('42'), findsOneWidget);
+    expect(find.text('7'), findsNothing);
+    expect(find.text('데이터 지연'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('나중 시각 frame은 정상 반영한다 — 방어가 정상 갱신을 막으면 안 된다', (tester) async {
-    // 역전 판정은 "더 이르다"만 버린다. 이 테스트가 없으면 조건을 잘못 뒤집어
+    // 역전 판정은 이전보다 늦은 시각만 받는다. 이 테스트가 없으면 조건을 잘못 뒤집어
     // 화면이 아예 안 갱신되는 회귀를 못 잡는다.
     await pumpDashboard(tester);
     await clients.single.connect();
