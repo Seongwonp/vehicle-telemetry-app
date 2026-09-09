@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-09-09 — 현재 상태 재감사와 실기기 검증 인수인계
+
+백엔드 저장소와 함께 앱의 코드, 테스트, CI, README를 다시 대조했다. 디자인 작업은 밝은
+기본 테마, 시스템/라이트/다크 모드, 디자인 토큰, 내용 최대 폭 네 단계, 작은 화면·큰 글자
+overflow 자동 검사까지 반영돼 있다. WebSocket 경로에도 재연결, 최신 token, malformed frame,
+stale, out-of-order, 동일 timestamp 재전달 회귀 테스트가 있다.
+
+GitHub Actions는 Flutter 3.41.6을 고정하고 `dart format`, `flutter analyze`, `flutter test`를
+실행한다. 다만 이 결과는 실제 기기의 스크롤·터치·키보드와 네트워크 단절/복구를 대신하지
+않는다.
+
+`integration_test/app_test.dart`는 실제 위젯 트리와 백엔드를 연결하지만 macOS ad-hoc
+서명에서 `flutter_secure_storage` Keychain entitlement 오류로 로그인 직후 막힌 상태다.
+iOS 플랫폼도 아직 추가하지 않았다. 따라서 현재 앱 평가는 코드/위젯 수준 검증이며,
+실기기 동작과 시각 품질은 **미검증**이다.
+
+다음 데스크탑 작업은 새 UI 추가가 아니다. Android 실제 기기 또는 에뮬레이터에서 로그인,
+refresh, WebSocket 단절/복구, stale·역전 frame, 로그아웃을 실행하고 앱·백엔드 commit과
+API 주소, 로그, 라이트/다크 및 오류·빈 상태 스크린샷을 남긴다. 구체적인 순서는
+`CLAUDE.md`와 `AGENTS.md`에 정리했다.
+
+---
+
 ## 2026-07-02
 
 ### UI 전면 개편 — 테마, 파일 구조, 반응형, 랜딩페이지

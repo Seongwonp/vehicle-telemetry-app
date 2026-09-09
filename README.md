@@ -14,6 +14,21 @@
 반응형(`lib/core/responsive/breakpoints.dart`)도 적용되어 모바일/데스크톱(웹) 폭에서
 레이아웃이 분기된다.
 
+## 현재 검증 상태
+
+| 항목 | 상태 |
+| --- | --- |
+| format / analyze / unit·widget test | GitHub Actions에서 자동 검증 |
+| 320~1280px, 글자 배율 1.0/1.3/1.5 overflow | widget test 검증 |
+| WebSocket 재연결·stale·malformed·역전·동일 timestamp | unit/widget test 검증 |
+| 실제 백엔드 integration test | 테스트는 있으나 macOS Keychain entitlement에서 로그인 후 차단 |
+| Android 실기기·에뮬레이터 조작 | 미검증 |
+| 라이트/다크 실제 기기 스크린샷 | 미검증 |
+
+현재 다음 작업은 새 화면 추가가 아니라 실제 기기에서 로그인, 네트워크 단절/복구,
+오래된 frame 방어와 로그아웃을 확인하는 것이다. 데스크탑 인수인계와 명령은
+[`CLAUDE.md`](CLAUDE.md), 세부 체크리스트는 [`AGENTS.md`](AGENTS.md)에 있다.
+
 ## 화면 구성
 
 | 화면 | 설명 |
