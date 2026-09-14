@@ -220,14 +220,32 @@ flutter test test/golden --update-goldens --run-skipped
 overflow 검사는 "잘리지 않는가"만 보고 **"한 줄이 너무 길어 읽기 나쁜가"는 못 잡는다.**
 그건 나란히 놓고 눈으로 판단할 수밖에 없다.
 
-테스트 환경에는 google_fonts가 폰트를 받아올 수 없어 한글이 두부(□)로 렌더되므로,
-시스템 한글 폰트를 `FontLoader`로 물려서 읽을 수 있게 해뒀다.
+스냅샷은 **네트워크 없이, 라이선스를 확인한 파일로만** 글꼴을 싣는다.
 
-> **오프라인에서 이 스위트는 "실패"로 표시된다.** 테마가 `GoogleFonts.manrope()`를
-> 쓰는데 폰트를 못 구하면 예외가 나고, 그 예외가 `fake_async` 존 안에서 비동기로
-> 올라와 `FlutterError.onError`로 가로챌 수 없다(시도했고 안 된다).
-> **PNG는 정상적으로 나온다** — 위 `FontLoader`가 같은 이름으로 폰트를 물려두기
-> 때문이다. 실패 표시는 이미지 품질과 무관하니 `snapshots/*.png`를 열어보면 된다.
+| 글자 | 스냅샷 | 실제 앱 | 같은가 |
+| --- | --- | --- | --- |
+| 라틴·숫자 | `assets/google_fonts/Manrope-*.ttf` 5종(OFL, 파일에 라이선스 내장 + `Manrope-OFL.txt`) | 같은 에셋 — google_fonts가 에셋을 먼저 찾아 런타임에 내려받지 않는다 | **같다** |
+| 한글 | `test/fonts/NanumGothic-*.ttf`(OFL, `NanumGothic-OFL.txt`) — 테스트 전용, 출처 `test/fonts/SOURCE.md` | 기기 OS의 한글 글꼴(기기마다 다름) | **다르다** |
+
+Manrope 출처: `github.com/aaronbell/manrope`(Google Fonts `ofl/manrope`의 upstream) `fonts/ttf/`, 커밋
+`6f81ebecdf65e4463b798cc07b16a4f8d5216917`, 2026-09-14. 원본 파일명은 소문자(`manrope-regular.ttf`)이고
+google_fonts가 찾는 이름(`Manrope-Regular.ttf`)으로 **파일명만** 바꿨다 — 글꼴 내용은 그대로다.
+sha256: Regular `2d9a9960…0903`, Medium `42133571…3aec`, SemiBold `e80a2c37…70ac`, Bold `2da33eb3…f7d9`, ExtraBold `2522cd61…cad5`.
+
+**CI 비교는 기준 이미지를 만든 OS 계열(Windows)에서만 한다** — 같은 글꼴 파일이라도 OS마다 래스터화가 달라
+Linux에서는 픽셀이 어긋난다. CI는 기준 이미지를 **갱신하지 않고**, 실패하면 차이 이미지만 올린다.
+| 아이콘 | 테스트 번들 `FontManifest.json`의 MaterialIcons | 같은 글꼴 | 같다 |
+
+**한글의 모양·폭·줄바꿈 위치는 스냅샷으로 판단하지 않는다.** 배치·위계·잘림 여부만 본다.
+앱과 한글까지 맞추려면 한글 글꼴을 앱에 번들하고 테마 `fontFamilyFallback`에 넣어야 한다
+(나눔고딕 Regular+Bold 약 4MB). 앱 크기와 기기 기본 글꼴 포기의 문제라 **결정 전이다.**
+
+> **2026-09-14 정정 — 예전 스냅샷은 정상이 아니었다.** 숫자·영문·아이콘이 □였다.
+> google_fonts는 글꼴 이름을 `'Manrope'`가 아니라 굵기별(`Manrope_regular`, `Manrope_700`)로 쓰고
+> `'Manrope'`는 fallback으로만 두는데, 테스트는 시스템 한글 글꼴을 `'Manrope'`에만 물리고 있었다 —
+> 한글만 fallback으로 그려졌다. Material Icons도 flutter test가 싣지 않았다.
+> 오프라인 "실패"도 같은 원인이었다 — google_fonts가 에셋에서 Manrope를 못 찾아 예외를 던졌다.
+> 테스트는 main()을 거치지 않아 `timeago`의 한국어 메시지도 등록되지 않았다(영어로 떨어졌다).
 
 ### 전체
 

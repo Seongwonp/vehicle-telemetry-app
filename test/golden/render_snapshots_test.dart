@@ -1,6 +1,7 @@
 @Tags(['golden'])
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:telemetrix/core/theme/app_theme.dart';
 import 'package:telemetrix/core/theme/design_tokens.dart';
@@ -207,6 +209,14 @@ Future<void> _snap(
       ),
     ),
   );
+  // 이미지 에셋은 fake_async 밖의 **실제 비동기**로 읽고 디코딩된다. pump만으로는 끝나지 않아
+  // 스위트에서 **처음** 이미지를 쓰는 테스트는 빈 자리로 찍히고, 뒤 테스트는 캐시 덕에 나왔다
+  // (2026-09-14 확인: 랜딩 라이트·다크를 각각 단독 실행하면 둘 다 로고가 빠진다 — 테마가 아니라 순서 의존).
+  await tester.runAsync(() async {
+    for (final element in find.byType(Image).evaluate()) {
+      await precacheImage((element.widget as Image).image, element);
+    }
+  });
   // 게이지가 600ms 애니메이션이라 한 프레임만 pump하면 값이 0에서 멈춘 그림이 나온다.
   if (settle) {
     await tester.pumpAndSettle(const Duration(milliseconds: 100));
@@ -219,45 +229,50 @@ Future<void> _snap(
   );
 }
 
-/// 테스트 환경에는 google_fonts가 폰트를 받아올 수 없어서 한글이 전부 두부(□)로
-/// 렌더된다. 그러면 자간·행간·위계 같은 타이포그래피 판단을 아예 할 수 없다.
-/// 시스템에 있는 한글 폰트를 직접 물려 스냅샷을 읽을 수 있게 만든다.
-/// ## 오프라인에서는 이 스위트가 "실패"로 표시된다 — 그래도 PNG는 정상이다
+/// 스냅샷의 글꼴을 **네트워크 없이, 출처와 라이선스가 확인된 파일로만** 싣는다.
 ///
-/// 테마가 `GoogleFonts.manrope()`를 쓰는데, google_fonts는 폰트를 못 구하면 예외를
-/// 던진다(런타임 fetch를 켜두면 네트워크 실패로, 꺼두면 "assets에 없다"로).
-/// 그 예외는 `fake_async` 존 안에서 비동기로 올라와 `FlutterError.onError`로는
-/// 가로챌 수 없다(시도해봤고 안 된다).
+/// - **Manrope**: 앱과 같은 파일(`assets/google_fonts/`, OFL). google_fonts가 에셋에서 찾는다.
+///   `allowRuntimeFetching = false`라 에셋에 없으면 내려받지 않고 예외로 실패한다.
+/// - **한글**: `test/fonts/NanumGothic-*.ttf`(OFL, `test/fonts/NanumGothic-OFL.txt`) — **테스트 전용**.
+///   Manrope에는 한글이 없고, google_fonts는 fallback 이름을 `'Manrope'`로만 두므로 그 이름에 싣는다.
+///   앱은 기기 OS의 한글 글꼴로 떨어지므로 **스냅샷의 한글 모양·폭은 실기기와 다를 수 있다.**
+/// - **Material Icons**: flutter test가 자동으로 싣지 않는다. 테스트 번들 `FontManifest.json`에서 싣는다.
 ///
-/// **스냅샷 자체는 영향을 받지 않는다.** 아래에서 시스템 한글 폰트를 `FontLoader`로
-/// `'Manrope'` 이름에 직접 물려두므로, google_fonts가 실패해도 그 이름으로 렌더된다.
-/// 즉 실패 표시는 이미지 품질과 무관하다 — `--update-goldens`로 돌린 뒤
-/// `snapshots/*.png`를 열어보면 된다.
-///
-/// 근본 해결은 Manrope를 `assets/fonts/`에 넣고 pubspec에 선언하는 것인데,
-/// 확인용 스냅샷 하나 때문에 앱 번들에 폰트를 넣을 이유가 없어 하지 않았다.
-Future<void> _loadKoreanFont() async {
-  // 네트워크 상태에 따라 결과가 달라지지 않도록 fetch를 끈다.
+/// 예전 스냅샷의 □ 원인(2026-09-14 확인): google_fonts가 쓰는 굵기별 이름(`Manrope_regular`,
+/// `Manrope_700`)에 글꼴이 없어 라틴·숫자가 테스트 기본 글꼴로 그려졌고, 아이콘 글꼴도 없었다.
+Future<void> _loadTestFonts() async {
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  for (final path in const [
-    r'C:\Windows\Fonts\malgun.ttf',
-    '/System/Library/Fonts/AppleSDGothicNeo.ttc',
-    '/usr/share/fonts/truetype/nanum/NanumGothic.ttf',
-  ]) {
-    final file = File(path);
-    if (!file.existsSync()) continue;
-    final bytes = await file.readAsBytes();
-    // 테마가 GoogleFonts.manrope를 쓰므로 'Manrope'로도 등록해야 실제로 적용된다.
-    // google_fonts는 이름만 지정하고 파일을 못 받아오면 그리지 못한다.
-    for (final family in const ['Roboto', 'Manrope']) {
-      final loader = FontLoader(family)
-        ..addFont(Future.value(ByteData.view(bytes.buffer)));
-      await loader.load();
+  final manifest =
+      jsonDecode(await rootBundle.loadString('FontManifest.json')) as List;
+  for (final entry in manifest.cast<Map<String, dynamic>>()) {
+    final loader = FontLoader(entry['family'] as String);
+    for (final font in (entry['fonts'] as List).cast<Map<String, dynamic>>()) {
+      loader.addFont(rootBundle.load(font['asset'] as String));
     }
-    return;
+    await loader.load();
   }
+
+  final hangul = FontLoader('Manrope')
+    ..addFont(_fontFile('test/fonts/NanumGothic-Regular.ttf'))
+    ..addFont(_fontFile('test/fonts/NanumGothic-Bold.ttf'));
+  await hangul.load();
+
+  // 테마가 쓰는 굵기를 첫 프레임 전에 전부 싣는다 — 로딩이 늦으면 스냅샷이 대체 글꼴로 찍힌다.
+  for (final weight in const [
+    FontWeight.w400,
+    FontWeight.w500,
+    FontWeight.w600,
+    FontWeight.w700,
+    FontWeight.w800,
+  ]) {
+    GoogleFonts.manrope(fontWeight: weight);
+  }
+  await GoogleFonts.pendingFonts();
 }
+
+Future<ByteData> _fontFile(String path) async =>
+    ByteData.view((await File(path).readAsBytes()).buffer);
 
 /// 랜딩은 앱의 첫인상이라 따로 본다. 여기가 시각 효과가 가장 많은 화면이다.
 Widget _landing() => Column(
@@ -272,7 +287,12 @@ Widget _landing() => Column(
     );
 
 void main() {
-  setUpAll(_loadKoreanFont);
+  setUpAll(() async {
+    // 앱은 main()에서 한국어 메시지를 등록한다. 테스트는 main()을 거치지 않아
+    // locale: 'ko'가 영어로 떨어졌다("2 minutes ago").
+    timeago.setLocaleMessages('ko', timeago.KoMessages());
+    await _loadTestFonts();
+  });
 
   testWidgets('랜딩 360px', (t) async {
     await _snap(t, 'landing_360',
