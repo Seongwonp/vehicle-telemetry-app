@@ -42,6 +42,10 @@ linux/
 .vscode/
 *.iml
 
+# 골든 비교가 실패할 때 flutter test가 만드는 차이 이미지 — 기준이 아니라 진단 산출물이다.
+# (예전에 커밋된 두 파일은 추적 해제 여부를 결정해야 한다 — docs/HANDOFF_2026-09-14.md)
+test/golden/failures/
+
 # Jupyter (서버 환경 잔재)
 .ipynb_checkpoints/
 

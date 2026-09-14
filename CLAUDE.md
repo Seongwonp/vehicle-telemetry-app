@@ -74,8 +74,10 @@ USB 실제 기기에서 백엔드가 PC의 localhost에 있다면 `adb reverse t
 flutter test test/golden --update-goldens --run-skipped
 ```
 
-golden은 플랫폼별 폰트 차이가 있어 기본 CI에 포함하지 않는다. 회귀 통과 수치로 포장하지
-말고 화면 확인 자료로 사용한다.
+golden은 플랫폼별 폰트 차이가 있어 기본 `verify` 잡(ubuntu)에는 포함하지 않는다. 2026-09-14부터
+기준 이미지를 만든 OS 계열(Windows)의 **`golden` 잡이 비교만** 한다 — CI는 기준 이미지를 갱신하지 않는다.
+글꼴은 저장소 안 파일만 쓴다(`docs/design-system.md` "스냅샷의 글꼴"). 그래도 한글은 실기기와 다르므로
+통과를 디자인 검증 완료로 포장하지 말고 화면 확인 자료로 사용한다.
 
 ## 화면 판단 기준
 
