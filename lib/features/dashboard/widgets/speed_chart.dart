@@ -6,12 +6,16 @@ import '../../../core/theme/app_theme.dart';
 
 class SpeedChart extends StatelessWidget {
   final List<Telemetry> history;
-  const SpeedChart({required this.history, super.key});
+
+  /// 재연결·지연 중이면 true — 선을 흐리게, 제목에 "마지막으로 받은"을 붙인다.
+  final bool past;
+  const SpeedChart({required this.history, this.past = false, super.key});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final primary = Theme.of(context).colorScheme.primary;
+    final primary =
+        past ? colors.textTertiary : Theme.of(context).colorScheme.primary;
     final spots = history.reversed
         .toList()
         .asMap()
@@ -30,13 +34,27 @@ class SpeedChart extends StatelessWidget {
           children: [
             Icon(Icons.show_chart, size: 16, color: primary),
             const SizedBox(width: Spacing.xxs),
-            const Text('속도 추이',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: FontSizes.body)),
-            const Spacer(),
-            Text('최근 ${history.length}개',
-                style: TextStyle(
-                    fontSize: FontSizes.badge, color: colors.textSecondary)),
+            // 좁은 폭·큰 글자에서는 개수가 제목 아래로 내려간다(제목이 세 줄로 눌리지 않게).
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: Spacing.xs,
+                children: [
+                  Text(past ? '마지막으로 받은 속도 추이' : '속도 추이',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: FontSizes.body)),
+                  Text(
+                      past
+                          ? '최근 ${history.length}개 · 이후 수신 없음'
+                          : '최근 ${history.length}개',
+                      style: TextStyle(
+                          fontSize: FontSizes.badge,
+                          color: colors.textSecondary)),
+                ],
+              ),
+            ),
           ],
         ),
         const SizedBox(height: Spacing.sm),

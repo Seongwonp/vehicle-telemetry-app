@@ -66,11 +66,13 @@ class VehicleListScreen extends ConsumerWidget {
                       onRefresh: () => ref.refresh(vehiclesProvider.future),
                       child: _VehicleGrid(
                         vehicles: vehicles,
-                        onOpen: (vehicleId) => Navigator.push(
+                        onOpen: (vehicle) => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                VehicleDetailScreen(vehicleId: vehicleId),
+                            builder: (_) => VehicleDetailScreen(
+                              vehicleId: vehicle.vehicleId,
+                              vehicle: vehicle,
+                            ),
                           ),
                         ),
                         onDeleted: () => ref.invalidate(vehiclesProvider),
@@ -122,7 +124,7 @@ class _SignalCriteriaGuide extends StatelessWidget {
 
 class _VehicleGrid extends StatelessWidget {
   final List<Vehicle> vehicles;
-  final void Function(String vehicleId) onOpen;
+  final void Function(Vehicle vehicle) onOpen;
   final VoidCallback onDeleted;
 
   const _VehicleGrid(
@@ -138,7 +140,7 @@ class _VehicleGrid extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(height: Spacing.sm),
         itemBuilder: (context, index) => VehicleCard(
           vehicle: vehicles[index],
-          onTap: () => onOpen(vehicles[index].vehicleId),
+          onTap: () => onOpen(vehicles[index]),
           onDeleted: onDeleted,
         ),
       );
@@ -160,7 +162,7 @@ class _VehicleGrid extends StatelessWidget {
           itemCount: vehicles.length,
           itemBuilder: (context, index) => VehicleCard(
             vehicle: vehicles[index],
-            onTap: () => onOpen(vehicles[index].vehicleId),
+            onTap: () => onOpen(vehicles[index]),
             onDeleted: onDeleted,
           ),
         ),

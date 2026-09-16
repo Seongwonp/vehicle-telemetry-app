@@ -1,14 +1,9 @@
 @Tags(['golden'])
 library;
 
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:telemetrix/core/theme/app_theme.dart';
@@ -16,14 +11,17 @@ import 'package:telemetrix/core/theme/design_tokens.dart';
 import 'package:telemetrix/core/models/anomaly.dart';
 import 'package:telemetrix/core/models/vehicle.dart';
 import 'package:telemetrix/features/anomalies/widgets/anomaly_card.dart';
-import 'package:telemetrix/features/dashboard/widgets/anomaly_banner.dart';
+import 'package:telemetrix/core/models/telemetry.dart';
+import 'package:telemetrix/features/dashboard/dashboard_view_state.dart';
+import 'package:telemetrix/features/dashboard/widgets/metric_tile_grid.dart';
+import 'package:telemetrix/features/dashboard/widgets/status_summary.dart';
 import 'package:telemetrix/features/dashboard/widgets/dtc_section.dart';
-import 'package:telemetrix/features/dashboard/widgets/primary_metric_card.dart';
-import 'package:telemetrix/features/dashboard/widgets/secondary_metric_card.dart';
 import 'package:telemetrix/features/diagnosis/widgets/header_card.dart';
 import 'package:telemetrix/features/vehicle_list/widgets/vehicle_card.dart';
 import 'package:telemetrix/features/landing/widgets/hero_section.dart';
 import 'package:telemetrix/features/landing/widgets/promo_visual.dart';
+
+import 'golden_support.dart';
 
 /// 화면을 실제로 렌더해 PNG로 남긴다.
 ///
@@ -63,6 +61,23 @@ Vehicle _vehicle({
       highAnomalyCount: highAnomalies,
     );
 
+DashboardViewState _viewState(DashboardConnectionState connection) =>
+    DashboardViewState.from(
+      latest: Telemetry(
+        vehicleId: 'KR-GA-1234',
+        timestamp: DateTime.utc(2026, 8, 4, 14, 41, 21),
+        speed: 87.3,
+        rpm: 3120,
+        engineTemp: 118.4,
+        throttlePosition: 18.5,
+        fuelLevel: 67,
+        batteryVoltage: 13.8,
+        dtcCodes: const ['P0301', 'P0420'],
+      ),
+      connection: connection,
+      receivedAt: DateTime(2026, 8, 4, 23, 41, 21),
+    );
+
 Widget _gallery() => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -89,54 +104,8 @@ Widget _gallery() => Column(
           onDeleted: () {},
         ),
         const SizedBox(height: Spacing.lg),
-        const _SectionLabel('계측 카드'),
-        const Row(
-          children: [
-            Expanded(
-              child: PrimaryMetricCard(
-                label: '엔진 온도',
-                value: 118.4,
-                maxValue: 130,
-                unit: '°C',
-                icon: Icons.thermostat,
-                danger: true,
-              ),
-            ),
-            SizedBox(width: Spacing.sm),
-            Expanded(
-              child: PrimaryMetricCard(
-                label: '속도',
-                value: 87.3,
-                maxValue: 200,
-                unit: 'km/h',
-                icon: Icons.speed,
-                danger: false,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: Spacing.sm),
-        const Row(
-          children: [
-            Expanded(
-              child: SecondaryMetricCard(
-                label: '배터리 전압',
-                value: '13.8 V',
-                icon: Icons.battery_charging_full,
-                danger: false,
-              ),
-            ),
-            SizedBox(width: Spacing.sm),
-            Expanded(
-              child: SecondaryMetricCard(
-                label: '연료',
-                value: '67 %',
-                icon: Icons.local_gas_station,
-                danger: false,
-              ),
-            ),
-          ],
-        ),
+        const _SectionLabel('계측 타일'),
+        MetricTileGrid(state: _viewState(DashboardConnectionState.connected)),
         const SizedBox(height: Spacing.lg),
         const _SectionLabel('이상 이력'),
         AnomalyCard(anomaly: _anomaly()),
@@ -144,7 +113,10 @@ Widget _gallery() => Column(
         AnomalyCard(anomaly: _anomaly(high: false)),
         const SizedBox(height: Spacing.lg),
         const _SectionLabel('경고와 진단'),
-        const AnomalyBanner(dtcCodes: ['P0301', 'P0420']),
+        StatusSummary(
+          state: _viewState(DashboardConnectionState.connected),
+          lastUpdatedText: '방금 업데이트',
+        ),
         const SizedBox(height: Spacing.sm),
         const DtcSection(codes: ['P0301', 'P0420', 'U0100']),
         const SizedBox(height: Spacing.sm),
@@ -229,51 +201,6 @@ Future<void> _snap(
   );
 }
 
-/// 스냅샷의 글꼴을 **네트워크 없이, 출처와 라이선스가 확인된 파일로만** 싣는다.
-///
-/// - **Manrope**: 앱과 같은 파일(`assets/google_fonts/`, OFL). google_fonts가 에셋에서 찾는다.
-///   `allowRuntimeFetching = false`라 에셋에 없으면 내려받지 않고 예외로 실패한다.
-/// - **한글**: `test/fonts/NanumGothic-*.ttf`(OFL, `test/fonts/NanumGothic-OFL.txt`) — **테스트 전용**.
-///   Manrope에는 한글이 없고, google_fonts는 fallback 이름을 `'Manrope'`로만 두므로 그 이름에 싣는다.
-///   앱은 기기 OS의 한글 글꼴로 떨어지므로 **스냅샷의 한글 모양·폭은 실기기와 다를 수 있다.**
-/// - **Material Icons**: flutter test가 자동으로 싣지 않는다. 테스트 번들 `FontManifest.json`에서 싣는다.
-///
-/// 예전 스냅샷의 □ 원인(2026-09-14 확인): google_fonts가 쓰는 굵기별 이름(`Manrope_regular`,
-/// `Manrope_700`)에 글꼴이 없어 라틴·숫자가 테스트 기본 글꼴로 그려졌고, 아이콘 글꼴도 없었다.
-Future<void> _loadTestFonts() async {
-  GoogleFonts.config.allowRuntimeFetching = false;
-
-  final manifest =
-      jsonDecode(await rootBundle.loadString('FontManifest.json')) as List;
-  for (final entry in manifest.cast<Map<String, dynamic>>()) {
-    final loader = FontLoader(entry['family'] as String);
-    for (final font in (entry['fonts'] as List).cast<Map<String, dynamic>>()) {
-      loader.addFont(rootBundle.load(font['asset'] as String));
-    }
-    await loader.load();
-  }
-
-  final hangul = FontLoader('Manrope')
-    ..addFont(_fontFile('test/fonts/NanumGothic-Regular.ttf'))
-    ..addFont(_fontFile('test/fonts/NanumGothic-Bold.ttf'));
-  await hangul.load();
-
-  // 테마가 쓰는 굵기를 첫 프레임 전에 전부 싣는다 — 로딩이 늦으면 스냅샷이 대체 글꼴로 찍힌다.
-  for (final weight in const [
-    FontWeight.w400,
-    FontWeight.w500,
-    FontWeight.w600,
-    FontWeight.w700,
-    FontWeight.w800,
-  ]) {
-    GoogleFonts.manrope(fontWeight: weight);
-  }
-  await GoogleFonts.pendingFonts();
-}
-
-Future<ByteData> _fontFile(String path) async =>
-    ByteData.view((await File(path).readAsBytes()).buffer);
-
 /// 랜딩은 앱의 첫인상이라 따로 본다. 여기가 시각 효과가 가장 많은 화면이다.
 Widget _landing() => Column(
       children: [
@@ -291,7 +218,7 @@ void main() {
     // 앱은 main()에서 한국어 메시지를 등록한다. 테스트는 main()을 거치지 않아
     // locale: 'ko'가 영어로 떨어졌다("2 minutes ago").
     timeago.setLocaleMessages('ko', timeago.KoMessages());
-    await _loadTestFonts();
+    await loadTestFonts();
   });
 
   testWidgets('랜딩 360px', (t) async {

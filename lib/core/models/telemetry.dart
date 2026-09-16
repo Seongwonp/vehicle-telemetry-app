@@ -1,3 +1,5 @@
+import 'telemetry_limits.dart';
+
 class Telemetry {
   final String vehicleId;
   final DateTime timestamp;
@@ -59,10 +61,9 @@ class Telemetry {
   }
 
   bool get hasAnomaly =>
-      engineTemp > 105 ||
-      rpm > 6000 ||
-      batteryVoltage < 11.5 ||
-      batteryVoltage > 15.0 ||
-      speed > 200 ||
+      TelemetryLimits.engineTempOver(engineTemp) ||
+      TelemetryLimits.rpmOver(rpm) ||
+      TelemetryLimits.batteryOut(batteryVoltage) ||
+      TelemetryLimits.speedOver(speed) ||
       dtcCodes.isNotEmpty;
 }

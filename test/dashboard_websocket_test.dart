@@ -1,45 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'package:telemetrix/features/dashboard/dashboard_screen.dart';
 
-class FakeStompClient extends StompClient {
-  FakeStompClient(StompConfig config) : super(config: config);
-
-  bool activated = false;
-  int deactivateCount = 0;
-  StompFrameCallback? messageCallback;
-
-  @override
-  void activate() => activated = true;
-
-  @override
-  void deactivate() {
-    deactivateCount++;
-    activated = false;
-  }
-
-  @override
-  StompUnsubscribe subscribe({
-    required String destination,
-    required StompFrameCallback callback,
-    Map<String, String>? headers,
-  }) {
-    messageCallback = callback;
-    return ({Map<String, String>? unsubscribeHeaders}) {};
-  }
-
-  Future<void> connect() async {
-    await config.beforeConnect();
-    config.onConnect(StompFrame(command: 'CONNECTED'));
-  }
-
-  void emit(String body) =>
-      messageCallback?.call(StompFrame(command: 'MESSAGE', body: body));
-
-  void fail() => config.onWebSocketError(StateError('socket failed'));
-  void disconnect() => config.onWebSocketDone();
-}
+import 'fake_stomp_client.dart';
 
 void main() {
   const validTelemetry = '''{
@@ -86,6 +49,12 @@ void main() {
       'ws://localhost:8080/ws',
     );
   });
+
+  final speedValue = find.byKey(const Key('metric_tile_speed_value'));
+  final speedBlank = find.byKey(const Key('metric_tile_speed_blank'));
+  final speedPast = find.byKey(const Key('metric_tile_speed_past'));
+  String textOf(WidgetTester tester, Finder f) =>
+      tester.widget<Text>(f).data ?? '';
 
   Future<void> pumpDashboard(WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
@@ -139,17 +108,25 @@ void main() {
     await clients.single.connect();
     clients.single.emit(validTelemetry);
     await tester.pump();
-    expect(find.text('실시간 수신 중'), findsOneWidget);
+    expect(find.textContaining('실시간 수신 중'), findsOneWidget);
     expect(find.textContaining('방금 업데이트'), findsOneWidget);
+    expect(textOf(tester, speedValue), '42.0');
 
     clients.single.disconnect();
     await tester.pump();
     expect(find.textContaining('재연결 중'), findsOneWidget);
+    // 재연결 중에는 마지막 값을 큰 자리에 두지 않는다 — 받은 시각과 함께 작게만.
+    expect(speedValue, findsNothing);
+    expect(speedBlank, findsOneWidget);
+    expect(textOf(tester, speedPast), contains('42.0 km/h'));
+    expect(find.text('현재 값 아님 · 기준 판정 안 함'), findsOneWidget);
 
     now = now.add(const Duration(seconds: 3));
     await tester.pump(const Duration(seconds: 1));
     await tester.pump();
     expect(find.textContaining('데이터 지연'), findsOneWidget);
+    expect(speedValue, findsNothing);
+    expect(speedBlank, findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -162,7 +139,7 @@ void main() {
 
     clients.single.emit(validTelemetry);
     await tester.pump();
-    expect(find.text('42'), findsOneWidget);
+    expect(textOf(tester, speedValue), '42.0');
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -189,14 +166,14 @@ void main() {
 
     clients.single.emit(validTelemetry); // 10:00:00, 속도 42
     await tester.pump();
-    expect(find.text('42'), findsOneWidget);
+    expect(textOf(tester, speedValue), '42.0');
 
     clients.single.emit(staleTelemetry); // 09:58:06 — 114초 과거
     await tester.pump();
 
-    // 묵은 값(7)으로 바뀌지 않고 42가 유지돼야 한다.
-    expect(find.text('42'), findsOneWidget);
-    expect(find.text('7'), findsNothing);
+    // 묵은 값(7)으로 바뀌지 않고 42가 유지돼야 한다. 7은 화면 어디에도(지난 값 줄 포함) 없어야 한다.
+    expect(textOf(tester, speedValue), '42.0');
+    expect(find.textContaining('7.0'), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -218,19 +195,23 @@ void main() {
 
     clients.single.emit(validTelemetry);
     await tester.pump();
-    expect(find.text('42'), findsOneWidget);
+    expect(textOf(tester, speedValue), '42.0');
 
     now = now.add(const Duration(seconds: 3));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('데이터 지연'), findsOneWidget);
+    expect(find.textContaining('데이터 지연'), findsOneWidget);
+    final pastBefore = textOf(tester, speedPast);
+    expect(pastBefore, contains('42.0 km/h'));
 
     // 같은 event time의 재전달은 값과 도착 시각을 모두 그대로 둬야 한다.
     clients.single.emit(duplicateTimestampTelemetry);
     await tester.pump();
 
-    expect(find.text('42'), findsOneWidget);
-    expect(find.text('7'), findsNothing);
-    expect(find.text('데이터 지연'), findsOneWidget);
+    expect(find.textContaining('데이터 지연'), findsOneWidget,
+        reason: '재전달이 지연 상태를 거짓으로 회복시키면 안 된다');
+    expect(speedValue, findsNothing);
+    expect(textOf(tester, speedPast), pastBefore, reason: '값과 수신 시각이 그대로여야 한다');
+    expect(find.textContaining('7.0'), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -245,7 +226,8 @@ void main() {
     clients.single.emit(anomalousTelemetry); // 10:00:01
     await tester.pump();
 
-    expect(find.text('이상 기준 초과'), findsNWidgets(2));
+    expect(textOf(tester, speedValue), '201.0');
+    expect(find.textContaining('기준 초과 4건'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -255,8 +237,20 @@ void main() {
     clients.single.emit(anomalousTelemetry);
     await tester.pump();
 
-    expect(find.text('이상 기준 초과'), findsNWidgets(2));
+    // 네 계측값이 모두 기준을 넘는다(201km/h, 6001rpm, 106°C, 15.1V). 연료 5%는 기준이 없다.
+    for (final kind in ['speed', 'rpm', 'engineTemp', 'battery']) {
+      expect(
+        find.descendant(
+          of: find.byKey(Key('metric_tile_$kind')),
+          matching: find.byIcon(Icons.warning_rounded),
+        ),
+        findsOneWidget,
+        reason: '$kind 타일이 기준 초과로 보여야 한다',
+      );
+    }
+    expect(find.textContaining('기준 초과 4건'), findsOneWidget);
     expect(find.text('5.0%'), findsOneWidget);
+    expect(find.text('이상 값 감지됨'), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
 }

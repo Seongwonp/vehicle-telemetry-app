@@ -5,11 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:telemetrix/core/theme/app_theme.dart';
 import 'package:telemetrix/features/anomalies/widgets/anomaly_card.dart';
 import 'package:telemetrix/features/anomalies/widgets/empty_view.dart';
-import 'package:telemetrix/features/dashboard/widgets/anomaly_banner.dart';
+import 'package:telemetrix/core/models/telemetry.dart';
+import 'package:telemetrix/features/dashboard/dashboard_view_state.dart';
 import 'package:telemetrix/features/dashboard/widgets/dtc_section.dart';
 import 'package:telemetrix/features/dashboard/widgets/no_data_view.dart';
-import 'package:telemetrix/features/dashboard/widgets/primary_metric_card.dart';
-import 'package:telemetrix/features/dashboard/widgets/secondary_metric_card.dart';
+import 'package:telemetrix/features/dashboard/widgets/extra_readings.dart';
+import 'package:telemetrix/features/dashboard/widgets/metric_tile_grid.dart';
+import 'package:telemetrix/features/dashboard/widgets/status_summary.dart';
 import 'package:telemetrix/features/diagnosis/widgets/header_card.dart';
 import 'package:telemetrix/features/landing/widgets/hero_section.dart';
 import 'package:telemetrix/features/vehicle_list/widgets/info_chip.dart';
@@ -110,6 +112,23 @@ Vehicle _vehicle() => Vehicle(
       highAnomalyCount: 12,
     );
 
+DashboardViewState _viewState(DashboardConnectionState connection) =>
+    DashboardViewState.from(
+      latest: Telemetry(
+        vehicleId: 'KR-GA-1234',
+        timestamp: DateTime.utc(2026, 8, 4, 14, 41, 21),
+        speed: 118.4,
+        rpm: 16383.75,
+        engineTemp: 118.4,
+        throttlePosition: 100,
+        fuelLevel: 100,
+        batteryVoltage: 10.95,
+        dtcCodes: const ['P0217', 'P0301', 'U0100'],
+      ),
+      connection: connection,
+      receivedAt: DateTime(2026, 8, 4, 23, 41, 21),
+    );
+
 /// 화면 전체가 아니라 구성 요소 단위로 돈다 — 화면은 네트워크·프로바이더가 얽혀 있어
 /// 조합 검사에 적합하지 않고, overflow는 대부분 구성 요소 안에서 난다.
 Map<String, Widget> _cases() => {
@@ -123,48 +142,23 @@ Map<String, Widget> _cases() => {
         onTap: () {},
         onDeleted: () {},
       ),
-      // 계측 카드는 실제로 Row 안에서 절반 폭으로 쓰인다. 전체 폭으로만 검사하면
-      // 1.5배 글자에서 게이지 안 숫자가 넘치는 걸 놓친다(실제로 놓쳤다).
-      'MetricCardRow(절반 폭)': const Row(
-        children: [
-          Expanded(
-            child: PrimaryMetricCard(
-              label: '엔진 온도',
-              value: 118.4,
-              maxValue: 130,
-              unit: '°C',
-              icon: Icons.thermostat,
-              danger: true,
-            ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: SecondaryMetricCard(
-              label: '배터리 전압',
-              value: '13.8 V',
-              icon: Icons.battery_charging_full,
-              danger: false,
-            ),
-          ),
-        ],
-      ),
-      'PrimaryMetricCard': const PrimaryMetricCard(
-        label: '엔진 온도',
-        value: 118.4,
-        maxValue: 130,
-        unit: '°C',
-        icon: Icons.thermostat,
-        danger: true,
-      ),
-      'SecondaryMetricCard': const SecondaryMetricCard(
-        label: '배터리 전압',
-        value: '13.8 V',
-        icon: Icons.battery_charging_full,
-        danger: false,
-      ),
+      // 계측 타일은 실제로 쓰이는 그리드로 넣는다. 카드 단독 검사는 그리드 칸 크기를 재현하지 못해
+      // 320px·1.5배 보조 지표 넘침을 놓쳤다(2026-09-16). 가장 긴 값(rpm 16383.75)과 초과·지난 값 모양을 모두 넣는다.
+      'MetricTileGrid(기준 초과)':
+          MetricTileGrid(state: _viewState(DashboardConnectionState.connected)),
+      'MetricTileGrid(4열·기준 초과)': MetricTileGrid(
+          state: _viewState(DashboardConnectionState.connected), maxColumns: 4),
+      'MetricTileGrid(지난 값)':
+          MetricTileGrid(state: _viewState(DashboardConnectionState.stale)),
+      'StatusSummary(기준 초과)': StatusSummary(
+          state: _viewState(DashboardConnectionState.connected),
+          lastUpdatedText: '방금 업데이트'),
+      'StatusSummary(데이터 지연)': StatusSummary(
+          state: _viewState(DashboardConnectionState.stale),
+          lastUpdatedText: '114초 전 업데이트'),
+      'ExtraReadings(지난 값)': ExtraReadings(
+          state: _viewState(DashboardConnectionState.reconnecting)),
       'InfoChip': const InfoChip(icon: Icons.speed, label: '118.4 km/h'),
-      'AnomalyBanner':
-          const AnomalyBanner(dtcCodes: ['P0301', 'P0420', 'U0100']),
       'DtcSection': const DtcSection(codes: ['P0301', 'P0420', 'U0100']),
       'NoDataView': const NoDataView(vehicleId: 'KR-GA-1234'),
       'AnomalyEmptyView': const AnomalyEmptyView(),

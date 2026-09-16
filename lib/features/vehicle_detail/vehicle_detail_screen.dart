@@ -5,6 +5,8 @@ import '../anomalies/anomaly_list_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../diagnosis/diagnosis_screen.dart';
 import '../trips/trip_history_tab.dart';
+import '../../core/models/vehicle.dart';
+import 'widgets/vehicle_title.dart';
 
 // 예전엔 대시보드 앱바에 경고/뇌 아이콘 두 개만 달아두고 각각 이상 이력·AI
 // 진단으로 push했는데, 아이콘만으로는 뭘 누르는 건지 알기 어렵다는 피드백을
@@ -12,21 +14,53 @@ import '../trips/trip_history_tab.dart';
 // 뭘 보여주는지 이름으로 바로 보이게 했다.
 class VehicleDetailScreen extends StatelessWidget {
   final String vehicleId;
-  const VehicleDetailScreen({required this.vehicleId, super.key});
+
+  /// 목록에서 넘겨받은 차량. 없으면 제목에 차량 ID만 쓴다(목록 외 진입 경로 대비).
+  final Vehicle? vehicle;
+
+  /// 테스트가 네트워크 없이 '현재 상태' 탭을 넣을 때만 쓴다.
+  @visibleForTesting
+  final Widget? dashboardOverride;
+
+  const VehicleDetailScreen({
+    required this.vehicleId,
+    this.vehicle,
+    this.dashboardOverride,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final compactTabs = MediaQuery.sizeOf(context).width < 400 ||
-        MediaQuery.textScalerOf(context).scale(FontSizes.badge) > 14;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final textScaler = MediaQuery.textScalerOf(context);
+    final compactTabs =
+        screenWidth < 400 || textScaler.scale(FontSizes.badge) > 14;
+    final name = vehicle?.name.trim().isNotEmpty == true ? vehicle!.name : null;
+    final titleLayout = name == null
+        ? null
+        : VehicleTitleLayout.measure(
+            name: name,
+            screenWidth: screenWidth,
+            textScaler: textScaler,
+            baseStyle: Theme.of(context).appBarTheme.titleTextStyle,
+          );
 
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(vehicleId,
-              style: const TextStyle(
-                  fontSize: FontSizes.subtitle, fontWeight: FontWeight.bold)),
+          toolbarHeight: titleLayout?.toolbarHeight,
+          title: name == null
+              ? Text(vehicleId,
+                  style: const TextStyle(
+                      fontSize: FontSizes.subtitle,
+                      fontWeight: FontWeight.bold))
+              : VehicleTitle(name: name, vehicleId: vehicleId),
+          actions: [
+            if (titleLayout?.clipped == true)
+              VehicleFullNameButton(name: name!, vehicleId: vehicleId),
+          ],
           bottom: TabBar(
             isScrollable: compactTabs,
             tabAlignment: compactTabs ? TabAlignment.start : TabAlignment.fill,
@@ -45,7 +79,7 @@ class VehicleDetailScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            DashboardTab(vehicleId: vehicleId),
+            dashboardOverride ?? DashboardTab(vehicleId: vehicleId),
             AnomalyListTab(vehicleId: vehicleId),
             TripHistoryTab(vehicleId: vehicleId),
             DiagnosisTab(vehicleId: vehicleId),

@@ -11,7 +11,10 @@ import '../../../core/theme/design_tokens.dart';
 // "지금 어디를 달리고 있는지"를 보여준다.
 class RouteMap extends StatefulWidget {
   final List<Telemetry> history;
-  const RouteMap({required this.history, super.key});
+
+  /// 재연결·지연 중이면 true — 제목에 "마지막으로 받은"을 붙인다(지도 위치가 현재 위치로 읽히지 않게).
+  final bool past;
+  const RouteMap({required this.history, this.past = false, super.key});
 
   @override
   State<RouteMap> createState() => _RouteMapState();
@@ -109,9 +112,12 @@ class _RouteMapState extends State<RouteMap> {
           children: [
             Icon(Icons.map_outlined, size: 16, color: primary),
             const SizedBox(width: Spacing.xs),
-            const Text('주행 경로',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: FontSizes.caption)),
+            Flexible(
+              child: Text(widget.past ? '마지막으로 받은 주행 경로' : '주행 경로',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: FontSizes.caption)),
+            ),
           ],
         ),
         const SizedBox(height: Spacing.sm),

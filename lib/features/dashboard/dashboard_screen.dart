@@ -7,15 +7,18 @@ import '../../core/auth/token_storage.dart';
 import '../../core/models/telemetry.dart';
 import '../../core/responsive/breakpoints.dart';
 import '../../core/theme/app_theme.dart';
-import 'widgets/anomaly_banner.dart';
 import 'widgets/dtc_section.dart';
 import 'widgets/error_view.dart';
+import 'widgets/extra_readings.dart';
+import 'widgets/metric_tile_grid.dart';
+import 'widgets/status_summary.dart';
 import 'widgets/no_data_view.dart';
-import 'widgets/primary_metric_card.dart';
-import 'widgets/secondary_metric_card.dart';
 import 'widgets/route_map.dart';
 import 'widgets/speed_chart.dart';
 import '../../core/theme/design_tokens.dart';
+import 'dashboard_view_state.dart';
+
+export 'dashboard_view_state.dart' show DashboardConnectionState;
 
 typedef StompClientFactory = StompClient Function(StompConfig config);
 typedef TokenLoader = Future<String?> Function();
@@ -35,13 +38,6 @@ String webSocketUrlForApiBase(String apiBaseUrl) {
         path: path,
       )
       .toString();
-}
-
-enum DashboardConnectionState {
-  connecting,
-  connected,
-  reconnecting,
-  stale,
 }
 
 // 차량 상세 화면(VehicleDetailScreen)의 첫 번째 탭 — 자체 Scaffold/AppBar
@@ -312,138 +308,101 @@ class _DashboardTabState extends State<DashboardTab>
           : NoDataView(vehicleId: widget.vehicleId);
     }
     return _DashboardBody(
-      latest: _latest!,
+      state: DashboardViewState.from(
+        latest: _latest!,
+        connection: _connectionState,
+        receivedAt: _lastUpdated ?? widget.now(),
+      ),
       history: _history,
       lastUpdatedText: _lastUpdatedText(),
-      connectionState: _connectionState,
     );
   }
 }
 
 // ── 본문 ─────────────────────────────────────────────────────
 
+/// 폭별 배치(docs/plans/2026-09-16-vehicle-detail-c.md §5):
+/// - 600 미만: 한 열. 타일 2×2(좁거나 글자가 크면 1열)
+/// - 600~1023: 한 열, 타일 4열 한 줄, 내용 폭 feed(840)
+/// - 1024 이상: 요약 아래 2단 — 왼쪽(값) 7 : 오른쪽(차트·지도) 5, 내용 폭 grid(1200)
 class _DashboardBody extends StatelessWidget {
-  final Telemetry latest;
+  final DashboardViewState state;
   final List<Telemetry> history;
   final String lastUpdatedText;
-  final DashboardConnectionState connectionState;
 
   const _DashboardBody({
-    required this.latest,
+    required this.state,
     required this.history,
     required this.lastUpdatedText,
-    required this.connectionState,
   });
 
   @override
   Widget build(BuildContext context) {
-    // 데스크톱 폭에서는 보조지표를 4열로 펼치고 전체 콘텐츠 폭을 제한해
-    // 카드가 화면 끝까지 늘어나 보이지 않게 한다.
-    final secondaryColumns = context.isDesktop ? 4 : 2;
+    final wide = context.isDesktop;
+    final tablet = !context.isMobile && !wide;
+    final past = !state.isLive;
+
+    final values = <Widget>[
+      _ValuesHeader(state: state),
+      const SizedBox(height: Spacing.sm),
+      MetricTileGrid(state: state, maxColumns: tablet ? 4 : 2),
+      const SizedBox(height: Spacing.sm),
+      ExtraReadings(state: state),
+      // DTC는 지난 프레임 것이면 현재 고장 코드처럼 읽히므로 수신 중에만 둔다.
+      if (state.isLive && state.dtcCodes.isNotEmpty) ...[
+        const SizedBox(height: Spacing.sm),
+        DtcSection(codes: state.dtcCodes),
+      ],
+    ];
+    final trends = <Widget>[
+      if (history.length > 2) ...[
+        SpeedChart(history: history, past: past),
+        const SizedBox(height: Spacing.lg),
+      ],
+      RouteMap(history: history, past: past),
+    ];
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(
-          Spacing.md, Spacing.sm, Spacing.md, Spacing.xl),
+      padding: EdgeInsets.fromLTRB(
+          context.screenPadding, Spacing.sm, context.screenPadding, Spacing.xl),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: ContentWidths.grid),
+          constraints: BoxConstraints(
+            maxWidth: wide
+                ? ContentWidths.grid
+                : (tablet ? ContentWidths.feed : double.infinity),
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (lastUpdatedText.isNotEmpty) ...[
-                _ConnectionStatus(
-                  state: connectionState,
-                  lastUpdatedText: lastUpdatedText,
-                ),
-                const SizedBox(height: Spacing.xs),
-              ],
-
-              // 이상 감지 배너
-              if (latest.hasAnomaly) ...[
-                AnomalyBanner(dtcCodes: latest.dtcCodes),
-                const SizedBox(height: Spacing.sm),
-              ],
-
-              // 주요 지표: 속도 + RPM
-              Row(
-                children: [
-                  Expanded(
-                    child: PrimaryMetricCard(
-                      label: '속도',
-                      value: latest.speed,
-                      maxValue: 220,
-                      unit: 'km/h',
-                      icon: Icons.speed_outlined,
-                      danger: latest.speed > 200,
+              StatusSummary(state: state, lastUpdatedText: lastUpdatedText),
+              const SizedBox(height: Spacing.md),
+              if (wide)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 7,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: values,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: PrimaryMetricCard(
-                      label: 'RPM',
-                      value: latest.rpm,
-                      maxValue: 7000,
-                      unit: 'rpm',
-                      icon: Icons.rotate_right,
-                      danger: latest.rpm > 6000,
+                    const SizedBox(width: Spacing.lg),
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: trends,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: Spacing.sm),
-
-              // 보조 지표: 모바일 2열 / 데스크톱 4열
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: secondaryColumns,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: secondaryColumns == 4 ? 1.3 : 1.65,
-                children: [
-                  SecondaryMetricCard(
-                    label: '엔진 온도',
-                    value: '${latest.engineTemp.toStringAsFixed(1)}°C',
-                    icon: Icons.thermostat_outlined,
-                    danger: latest.engineTemp > 105,
-                  ),
-                  SecondaryMetricCard(
-                    label: '연료',
-                    value: '${latest.fuelLevel.toStringAsFixed(1)}%',
-                    icon: Icons.local_gas_station_outlined,
-                    danger: false,
-                  ),
-                  SecondaryMetricCard(
-                    label: '배터리',
-                    value: '${latest.batteryVoltage.toStringAsFixed(2)}V',
-                    icon: Icons.battery_charging_full_outlined,
-                    danger: latest.batteryVoltage < 11.5 ||
-                        latest.batteryVoltage > 15.0,
-                  ),
-                  SecondaryMetricCard(
-                    label: '스로틀',
-                    value: '${latest.throttlePosition.toStringAsFixed(1)}%',
-                    icon: Icons.tune,
-                    danger: false,
-                  ),
-                ],
-              ),
-
-              // DTC 진단 코드
-              if (latest.dtcCodes.isNotEmpty) ...[
-                const SizedBox(height: Spacing.md),
-                DtcSection(codes: latest.dtcCodes),
-              ],
-
-              // 속도 추이 차트
-              if (history.length > 2) ...[
+                  ],
+                )
+              else ...[
+                ...values,
                 const SizedBox(height: Spacing.lg),
-                SpeedChart(history: history),
+                ...trends,
               ],
-
-              // 주행 경로 지도
-              const SizedBox(height: Spacing.lg),
-              RouteMap(history: history),
             ],
           ),
         ),
@@ -452,88 +411,41 @@ class _DashboardBody extends StatelessWidget {
   }
 }
 
-class _ConnectionStatus extends StatelessWidget {
-  final DashboardConnectionState state;
-  final String lastUpdatedText;
-
-  const _ConnectionStatus({required this.state, required this.lastUpdatedText});
+/// 타일 위 한 줄 — 이 값들이 "지금" 것인지 "언제" 것인지 먼저 말한다.
+class _ValuesHeader extends StatelessWidget {
+  final DashboardViewState state;
+  const _ValuesHeader({required this.state});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final (icon, title, detail, color, background) = switch (state) {
-      DashboardConnectionState.connected => (
-          Icons.wifi,
-          '실시간 수신 중',
-          lastUpdatedText,
-          colors.success,
-          colors.success.withValues(alpha: 0.08),
+    final live = state.isLive;
+    final overCount = state.overCount;
+    return Wrap(
+      spacing: Spacing.xs,
+      runSpacing: Spacing.xxs,
+      crossAxisAlignment: WrapCrossAlignment.end,
+      children: [
+        Text(
+          live ? '지금 받은 값' : '${state.receivedClock}에 받은 값',
+          style: TextStyle(
+            fontSize: FontSizes.subtitle,
+            fontWeight: FontWeight.w700,
+            color: colors.textPrimary,
+          ),
         ),
-      DashboardConnectionState.connecting => (
-          Icons.sync,
-          '연결 확인 중',
-          '마지막 $lastUpdatedText',
-          colors.warning,
-          colors.warning.withValues(alpha: 0.08),
+        Text(
+          live
+              ? (overCount > 0 ? '기준 초과 $overCount' : '기준 초과 없음')
+              : '현재 값 아님 · 기준 판정 안 함',
+          key: const Key('values_header_aside'),
+          style: TextStyle(
+            fontSize: FontSizes.caption,
+            fontWeight: overCount > 0 ? FontWeight.w700 : FontWeight.w400,
+            color: overCount > 0 ? colors.danger : colors.textTertiary,
+          ),
         ),
-      DashboardConnectionState.reconnecting => (
-          Icons.sync_problem,
-          '재연결 중',
-          '마지막 $lastUpdatedText',
-          colors.warning,
-          colors.warning.withValues(alpha: 0.08),
-        ),
-      DashboardConnectionState.stale => (
-          Icons.schedule,
-          '데이터 지연',
-          '마지막 $lastUpdatedText',
-          colors.danger,
-          colors.danger.withValues(alpha: 0.08),
-        ),
-    };
-    final semanticLabel = '$title, $detail';
-    return Semantics(
-      liveRegion: state != DashboardConnectionState.connected,
-      label: semanticLabel,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.md, vertical: Spacing.sm),
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(width: Spacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: FontSizes.caption,
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
-                  ),
-                  const SizedBox(height: Spacing.xxs),
-                  Text(
-                    detail,
-                    style: TextStyle(
-                      fontSize: FontSizes.badge,
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }
