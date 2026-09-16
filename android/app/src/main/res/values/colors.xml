@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- lib/core/theme/app_theme.dart의 배경색과 맞춘다 — 시작 화면에서 Flutter 첫 화면으로 넘어갈 때 색이 튀지 않게. -->
+    <color name="splash_background">#F5F7FA</color>
+    <color name="ic_launcher_background">#2457D6</color>
+</resources>

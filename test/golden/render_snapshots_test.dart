@@ -11,6 +11,7 @@ import 'package:telemetrix/core/theme/design_tokens.dart';
 import 'package:telemetrix/core/models/anomaly.dart';
 import 'package:telemetrix/core/models/vehicle.dart';
 import 'package:telemetrix/features/anomalies/widgets/anomaly_card.dart';
+import 'package:telemetrix/features/boot/boot_screen.dart';
 import 'package:telemetrix/core/models/telemetry.dart';
 import 'package:telemetrix/features/dashboard/dashboard_view_state.dart';
 import 'package:telemetrix/features/dashboard/widgets/metric_tile_grid.dart';
@@ -233,6 +234,22 @@ void main() {
         brightness: Brightness.dark,
         width: 360,
         body: _landing(),
+        settle: false);
+  });
+
+  // 부팅 화면: Android 시작 화면에서 이어지는 첫 Flutter 화면. 진행 표시가 끝없이 움직여 settle하지 않는다.
+  testWidgets('부팅 360px', (t) async {
+    await _snap(t, 'boot_360',
+        brightness: Brightness.light,
+        width: 360,
+        body: const SizedBox(height: 700, child: BootScreen()),
+        settle: false);
+  });
+  testWidgets('부팅 다크 360px', (t) async {
+    await _snap(t, 'boot_dark_360',
+        brightness: Brightness.dark,
+        width: 360,
+        body: const SizedBox(height: 700, child: BootScreen()),
         settle: false);
   });
 

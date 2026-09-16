@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:telemetrix/features/boot/boot_screen.dart';
 import 'package:telemetrix/core/api/api_client.dart';
 import 'package:telemetrix/core/auth/auth_provider.dart';
 import 'package:telemetrix/core/providers/vehicle_providers.dart';
@@ -50,7 +50,8 @@ void main() {
       child: const TelemetryApp(),
     ));
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(BootScreen), findsOneWidget);
+    expect(find.text('TELEMETRIX'), findsOneWidget);
     expect(find.byType(LandingScreen), findsNothing);
     expect(find.byType(VehicleListScreen), findsNothing);
 

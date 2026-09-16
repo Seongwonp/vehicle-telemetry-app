@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:telemetrix/core/theme/app_theme.dart';
 import 'package:telemetrix/features/anomalies/widgets/anomaly_card.dart';
 import 'package:telemetrix/features/anomalies/widgets/empty_view.dart';
+import 'package:telemetrix/features/boot/boot_screen.dart';
 import 'package:telemetrix/core/models/telemetry.dart';
 import 'package:telemetrix/features/dashboard/dashboard_view_state.dart';
 import 'package:telemetrix/features/dashboard/widgets/dtc_section.dart';
@@ -158,6 +159,7 @@ Map<String, Widget> _cases() => {
           lastUpdatedText: '114초 전 업데이트'),
       'ExtraReadings(지난 값)': ExtraReadings(
           state: _viewState(DashboardConnectionState.reconnecting)),
+      'BootScreen': const SizedBox(height: 600, child: BootScreen()),
       'InfoChip': const InfoChip(icon: Icons.speed, label: '118.4 km/h'),
       'DtcSection': const DtcSection(codes: ['P0301', 'P0420', 'U0100']),
       'NoDataView': const NoDataView(vehicleId: 'KR-GA-1234'),
