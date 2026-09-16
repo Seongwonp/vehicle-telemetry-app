@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,9 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 ///
 /// - **Manrope**: 앱과 같은 파일(`assets/google_fonts/`, OFL). google_fonts가 에셋에서 찾는다.
 ///   `allowRuntimeFetching = false`라 에셋에 없으면 내려받지 않고 예외로 실패한다.
-/// - **한글**: `test/fonts/NanumGothic-*.ttf`(OFL, `test/fonts/NanumGothic-OFL.txt`) — **테스트 전용**.
-///   Manrope에는 한글이 없고, google_fonts는 fallback 이름을 `'Manrope'`로만 두므로 그 이름에 싣는다.
-///   앱은 기기 OS의 한글 글꼴로 떨어지므로 **스냅샷의 한글 모양·폭은 실기기와 다를 수 있다.**
+/// - **한글**: 앱이 싣는 `assets/fonts/NanumGothic-*.ttf`(OFL). pubspec `fonts:`에 있어 `FontManifest.json`으로 함께 실린다.
+///   2026-09-16부터 앱도 같은 글꼴을 테마 fallback으로 쓴다 — 스냅샷과 앱의 한글 글꼴이 같다
+///   (래스터화는 OS마다 다르므로 픽셀 비교는 여전히 Windows에서만).
 /// - **Material Icons**: flutter test가 자동으로 싣지 않는다. 테스트 번들 `FontManifest.json`에서 싣는다.
 ///
 /// 예전 스냅샷의 □ 원인(2026-09-14 확인): google_fonts가 쓰는 굵기별 이름(`Manrope_regular`,
@@ -28,11 +27,6 @@ Future<void> loadTestFonts() async {
     await loader.load();
   }
 
-  final hangul = FontLoader('Manrope')
-    ..addFont(_fontFile('test/fonts/NanumGothic-Regular.ttf'))
-    ..addFont(_fontFile('test/fonts/NanumGothic-Bold.ttf'));
-  await hangul.load();
-
   // 테마가 쓰는 굵기를 첫 프레임 전에 전부 싣는다 — 로딩이 늦으면 스냅샷이 대체 글꼴로 찍힌다.
   for (final weight in const [
     FontWeight.w400,
@@ -45,6 +39,3 @@ Future<void> loadTestFonts() async {
   }
   await GoogleFonts.pendingFonts();
 }
-
-Future<ByteData> _fontFile(String path) async =>
-    ByteData.view((await File(path).readAsBytes()).buffer);

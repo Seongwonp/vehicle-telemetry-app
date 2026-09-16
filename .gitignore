@@ -9,8 +9,16 @@ build/
 *.g.dart
 *.freezed.dart
 
-# Android
-android/
+# Android — 2026-09-16부터 플랫폼 설정을 추적한다(에뮬레이터 검증). 로컬 SDK 경로·빌드 산출물·서명 키는 제외한다.
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/app/build/
+android/build/
+android/key.properties
+android/**/*.jks
+android/**/*.keystore
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 *.apk
 *.aab
 

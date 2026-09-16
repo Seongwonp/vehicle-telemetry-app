@@ -133,6 +133,9 @@ class AppTheme {
 
   // 계기판 숫자(속도/RPM 등) 전용 — 일반 UI 폰트(Manrope)와 의도적으로 분리해
   // "숫자만 다른 서체"인 HUD 느낌을 낸다. tabular figures로 자릿수 흔들림 방지.
+  /// 한글 글꼴. Manrope(라틴·숫자)에 없는 글자를 이 글꼴로 그린다 — 기기 OS 글꼴에 맡기지 않는다.
+  static const List<String> hangulFallback = ['NanumGothic'];
+
   static TextStyle gaugeNumberStyle({
     double fontSize = 36,
     required Color color,
@@ -144,11 +147,14 @@ class AppTheme {
       color: color,
       height: 1.0,
       fontFeatures: const [FontFeature.tabularFigures()],
-    );
+    ).copyWith(fontFamilyFallback: hangulFallback);
   }
 
   static ThemeData light() {
-    final base = GoogleFonts.manropeTextTheme(ThemeData.light().textTheme);
+    // ThemeData(fontFamilyFallback:)는 **기본** 텍스트 테마에만 적용되고, 여기서 넘기는 Manrope 테마의
+    // fallback(['Manrope'])이 덮어쓴다 — 한글이 □로 나왔다(2026-09-16 스냅샷). 텍스트 테마에 직접 건다.
+    final base = GoogleFonts.manropeTextTheme(ThemeData.light().textTheme)
+        .apply(fontFamilyFallback: hangulFallback);
 
     final colorScheme = ColorScheme.fromSeed(
       seedColor: primary,
@@ -166,6 +172,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: bg,
+      fontFamilyFallback: hangulFallback,
       splashFactory: InkSparkle.splashFactory,
       textTheme: base.copyWith(
         headlineSmall: base.headlineSmall?.copyWith(
@@ -242,7 +249,10 @@ class AppTheme {
           backgroundColor: primary,
           foregroundColor: Colors.white,
           disabledBackgroundColor: primary.withValues(alpha: 0.3),
-          padding: const EdgeInsets.symmetric(vertical: Spacing.md),
+          // 가로 여백이 0이면 아이콘 버튼의 글자가 버튼 끝에 붙고, 폭이 넓은 한글 글꼴(나눔고딕 Bold)에서
+          // 마지막 글자가 잘렸다(2026-09-16 에뮬레이터, 빈 목록의 '차량 추가'). Outlined와 같게 둔다.
+          padding: const EdgeInsets.symmetric(
+              vertical: Spacing.md, horizontal: Spacing.lg),
           shape: const RoundedRectangleBorder(borderRadius: Radii.smAll),
           textStyle: const TextStyle(
               fontWeight: FontWeight.w700, fontSize: FontSizes.subtitle),
@@ -304,7 +314,10 @@ class AppTheme {
     const darkWarning = Color(0xFFE0A33A);
     const darkDanger = Color(0xFFE16B75);
 
-    final base = GoogleFonts.manropeTextTheme(ThemeData.dark().textTheme);
+    // ThemeData(fontFamilyFallback:)는 **기본** 텍스트 테마에만 적용되고, 여기서 넘기는 Manrope 테마의
+    // fallback(['Manrope'])이 덮어쓴다 — 한글이 □로 나왔다(2026-09-16 스냅샷). 텍스트 테마에 직접 건다.
+    final base = GoogleFonts.manropeTextTheme(ThemeData.dark().textTheme)
+        .apply(fontFamilyFallback: hangulFallback);
     final colorScheme = ColorScheme.fromSeed(
       seedColor: darkPrimary,
       brightness: Brightness.dark,
@@ -321,6 +334,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: darkBg,
+      fontFamilyFallback: hangulFallback,
       splashFactory: InkSparkle.splashFactory,
       textTheme: base.copyWith(
         headlineSmall: base.headlineSmall?.copyWith(
@@ -398,7 +412,10 @@ class AppTheme {
           backgroundColor: darkPrimary,
           foregroundColor: const Color(0xFF0C1B3E),
           disabledBackgroundColor: darkPrimary.withValues(alpha: 0.3),
-          padding: const EdgeInsets.symmetric(vertical: Spacing.md),
+          // 가로 여백이 0이면 아이콘 버튼의 글자가 버튼 끝에 붙고, 폭이 넓은 한글 글꼴(나눔고딕 Bold)에서
+          // 마지막 글자가 잘렸다(2026-09-16 에뮬레이터, 빈 목록의 '차량 추가'). Outlined와 같게 둔다.
+          padding: const EdgeInsets.symmetric(
+              vertical: Spacing.md, horizontal: Spacing.lg),
           shape: const RoundedRectangleBorder(borderRadius: Radii.smAll),
           textStyle: const TextStyle(
               fontWeight: FontWeight.w700, fontSize: FontSizes.subtitle),
