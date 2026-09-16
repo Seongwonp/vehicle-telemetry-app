@@ -255,7 +255,7 @@ overflow 검사는 "잘리지 않는가"만 보고 **"한 줄이 너무 길어 �
 | 글자 | 스냅샷 | 실제 앱 | 같은가 |
 | --- | --- | --- | --- |
 | 라틴·숫자 | `assets/google_fonts/Manrope-*.ttf` 5종(OFL, 파일에 라이선스 내장 + `Manrope-OFL.txt`) | 같은 에셋 — google_fonts가 에셋을 먼저 찾아 런타임에 내려받지 않는다 | **같다** |
-| 한글 | `test/fonts/NanumGothic-*.ttf`(OFL, `NanumGothic-OFL.txt`) — 테스트 전용, 출처 `test/fonts/SOURCE.md` | 기기 OS의 한글 글꼴(기기마다 다름) | **다르다** |
+| 한글 | `assets/fonts/NanumGothic-*.ttf`(OFL, `NanumGothic-OFL.txt`) — 출처 `assets/fonts/SOURCE.md` | **같은 파일** — 2026-09-16부터 앱이 번들하고 테마 `fontFamilyFallback`으로 쓴다 | **같다**(래스터화는 OS마다 다름) |
 
 Manrope 출처: `github.com/aaronbell/manrope`(Google Fonts `ofl/manrope`의 upstream) `fonts/ttf/`, 커밋
 `6f81ebecdf65e4463b798cc07b16a4f8d5216917`, 2026-09-14. 원본 파일명은 소문자(`manrope-regular.ttf`)이고
@@ -266,9 +266,12 @@ sha256: Regular `2d9a9960…0903`, Medium `42133571…3aec`, SemiBold `e80a2c37�
 Linux에서는 픽셀이 어긋난다. CI는 기준 이미지를 **갱신하지 않고**, 실패하면 차이 이미지만 올린다.
 | 아이콘 | 테스트 번들 `FontManifest.json`의 MaterialIcons | 같은 글꼴 | 같다 |
 
-**한글의 모양·폭·줄바꿈 위치는 스냅샷으로 판단하지 않는다.** 배치·위계·잘림 여부만 본다.
-앱과 한글까지 맞추려면 한글 글꼴을 앱에 번들하고 테마 `fontFamilyFallback`에 넣어야 한다
-(나눔고딕 Regular+Bold 약 4MB). 앱 크기와 기기 기본 글꼴 포기의 문제라 **결정 전이다.**
+**한글 글꼴은 2026-09-16부터 앱에 번들한다**(나눔고딕 Regular·Bold 약 4MB). 기기마다 OS 한글 글꼴로 떨어져
+글자 폭·줄바꿈이 달라지던 것을 없앴다. `ThemeData(fontFamilyFallback:)`는 기본 텍스트 테마에만 적용되고
+Manrope 텍스트 테마의 fallback이 덮어써서 한글이 □로 나왔다 — 텍스트 테마에 `.apply(fontFamilyFallback:)`로 직접 건다.
+적용 후 스냅샷 16장이 **픽셀 단위로 그대로**였다 — 테스트가 쓰던 한글 글꼴과 앱이 같아졌다는 확인이다.
+래스터화는 OS마다 달라 실기기의 픽셀까지 같다는 뜻은 아니다.
+2026-09-16 전에는 한글을 기기 OS 글꼴로 그렸고, 이 절은 "한글의 모양·폭·줄바꿈 위치는 스냅샷으로 판단하지 않는다"였다.
 
 > **2026-09-14 정정 — 예전 스냅샷은 정상이 아니었다.** 숫자·영문·아이콘이 □였다.
 > google_fonts는 글꼴 이름을 `'Manrope'`가 아니라 굵기별(`Manrope_regular`, `Manrope_700`)로 쓰고
@@ -294,4 +297,4 @@ flutter test
 - **`ContentWidths`를 실제 화면 전체로 렌더한 것은 차량 상세 '현재 상태' 탭뿐이다**(2026-09-16).
   목록·이상 이력·진단 화면은 여전히 구성 요소 갤러리 기준이다.
 - ~~대시보드 그리드의 열 수 기준(`isDesktop`이면 4열)~~ — 2026-09-16 받은 폭 기준 계산으로 바꿨다(위 "계측값은 같은 크기의 타일로").
-- 스냅샷 한글은 나눔고딕이라 **한국어 줄바꿈 위치**(예: "기준 초/과")는 실기기에서 다를 수 있다. 판단하지 않는다.
+- 한국어가 단어 중간에서 줄바꿈된다(예: "기준 초/과", 글자 1.5배). 글꼴은 이제 앱과 같지만 줄바꿈 규칙은 Flutter 기본 동작이라 그대로다.
