@@ -1,5 +1,8 @@
 # 디자인 다음 단계 (라이트 테마 전환 + 고도화)
 
+> **2026-09-16 폐기.** 이 문서의 방향(큰 radius·플랫 카드·토스 스타일)은 `design-system.md` 원칙 3과 충돌하고,
+> 차량 상세는 [`plans/2026-09-16-vehicle-detail-c.md`](plans/2026-09-16-vehicle-detail-c.md)로 진행했다. 기록으로만 남긴다.
+
 > 이 문서는 다음 세션에서 이어서 작업하기 위한 작업 목록이다. 현재까지 상태와 결정 사항을 먼저 정리하고, 그 다음 할 일을 적는다.
 
 ---
@@ -42,6 +45,6 @@
 
 ## 참고
 
-- 관리자 로그인: `admin` / `changeme` (docker-compose.yml이 `.env`의 `ADMIN_PASSWORD`를 백엔드 컨테이너로 전달하지 않아서 스프링 기본값이 적용되고 있음 — 이것도 고칠지 결정 필요. `.env`엔 `localpassword123`으로 적혀있지만 실제로는 무시됨).
+- 관리자 로그인: 계정·비밀번호 값은 문서에 적지 않는다. 백엔드 `.env`의 `ADMIN_PASSWORD`와 Spring 기본값 적용 여부를 확인한다(2026-07-04 당시 `.env` 값이 백엔드 컨테이너로 전달되지 않아 기본값이 적용되고 있었다 — 고칠지 결정 필요).
 - 로컬 실행: `docker compose up -d` (백엔드 레포에서) 후 `flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080`.
 - 시뮬레이터로 실데이터 흐르게 하려면 백엔드 레포의 `simulator/vehicle_simulator.py` 실행 (차량 `SIM-001`이 이미 등록돼 있음).
