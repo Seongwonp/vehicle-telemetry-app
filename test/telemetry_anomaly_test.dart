@@ -3,7 +3,7 @@ import 'package:telemetrix/core/models/telemetry.dart';
 
 Telemetry telemetry({
   double speed = 80,
-  int rpm = 2000,
+  double rpm = 2000,
   double engineTemp = 90,
   double batteryVoltage = 13.8,
   double fuelLevel = 50,

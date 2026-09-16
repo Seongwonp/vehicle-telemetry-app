@@ -381,7 +381,7 @@ class _DashboardBody extends StatelessWidget {
                   Expanded(
                     child: PrimaryMetricCard(
                       label: 'RPM',
-                      value: latest.rpm.toDouble(),
+                      value: latest.rpm,
                       maxValue: 7000,
                       unit: 'rpm',
                       icon: Icons.rotate_right,

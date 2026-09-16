@@ -2,7 +2,7 @@ class Telemetry {
   final String vehicleId;
   final DateTime timestamp;
   final double speed;
-  final int rpm;
+  final double rpm;
   final double engineTemp;
   final double throttlePosition;
   final double fuelLevel;
@@ -30,7 +30,7 @@ class Telemetry {
       vehicleId: json['vehicleId'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       speed: (json['speed'] as num).toDouble(),
-      rpm: (json['rpm'] as num).toInt(),
+      rpm: (json['rpm'] as num).toDouble(),
       engineTemp: (json['engineTemp'] as num).toDouble(),
       throttlePosition: (json['throttlePosition'] as num).toDouble(),
       fuelLevel: (json['fuelLevel'] as num).toDouble(),
