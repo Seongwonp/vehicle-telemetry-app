@@ -83,6 +83,7 @@ class VehicleTitleLayout {
     final idHeight = idPainter.height;
     idPainter.dispose();
 
+    // 위아래 여백 xs씩 — 두 줄 이름이 앱바 가장자리에 붙지 않게.
     final height = nameHeight + idHeight + Spacing.xs * 2;
     return VehicleTitleLayout._(
         clipped, height < kToolbarHeight ? kToolbarHeight : height);

@@ -46,6 +46,8 @@ class StatusSummary extends StatelessWidget {
           '재연결 중 — 지금 상태를 알 수 없음',
           received,
         ),
+      // 받은 값이 있는 상태에서는 DashboardTab이 connecting을 쓰지 않는다(재연결로 둔다).
+      // 첫 값 전에는 이 위젯이 아니라 로딩·오류·데이터 없음 화면이 나온다. 방어용 분기다.
       DashboardConnectionState.connecting => (
           Icons.sync,
           colors.warning,

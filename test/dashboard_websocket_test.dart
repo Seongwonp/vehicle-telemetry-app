@@ -130,6 +130,65 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('재연결에 성공해도 새 frame이 오기 전에는 지난 값을 현재처럼 보이지 않는다', (tester) async {
+    await pumpDashboard(tester);
+    await clients.single.connect();
+    clients.single.emit(anomalousTelemetry); // 기준 초과 4건
+    await tester.pump();
+    expect(find.textContaining('기준 초과 4건'), findsOneWidget);
+
+    clients.single.disconnect();
+    await tester.pump();
+    // stomp 클라이언트의 자동 재연결이 성공한 상황 — 같은 client에 CONNECTED가 다시 온다.
+    await clients.single.connect();
+    await tester.pump();
+
+    expect(find.textContaining('재연결 중'), findsOneWidget);
+    expect(speedValue, findsNothing);
+    expect(speedBlank, findsOneWidget);
+    expect(find.textContaining('기준 초과 4건'), findsNothing,
+        reason: '지난 프레임으로 기준 초과를 다시 말하면 안 된다');
+
+    // 1초 주기 검사도 새 frame 없이 connected로 올리지 않는다.
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.textContaining('재연결 중'), findsOneWidget);
+    expect(speedValue, findsNothing);
+
+    // 끊기기 전과 같은 timestamp의 재전달은 "새 frame"이 아니다.
+    clients.single.emit(anomalousTelemetry);
+    await tester.pump();
+    expect(speedValue, findsNothing);
+
+    // 더 늦은 frame이 오면 그때 실시간으로 돌아온다.
+    clients.single
+        .emit(anomalousTelemetry.replaceFirst('10:00:01', '10:00:02'));
+    await tester.pump();
+    expect(find.textContaining('기준 초과 4건'), findsOneWidget);
+    expect(find.textContaining('재연결 중'), findsNothing);
+    expect(textOf(tester, speedValue), '201.0');
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('지난 값 타일은 스크린 리더에도 현재 값이 아니라고 읽힌다', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpDashboard(tester);
+    await clients.single.connect();
+    clients.single.emit(anomalousTelemetry);
+    await tester.pump();
+    expect(find.bySemanticsLabel(RegExp(r'^엔진 온도 106\.0 °C, 기준 105°C 초과$')),
+        findsOneWidget);
+
+    clients.single.disconnect();
+    await tester.pump();
+    expect(
+        find.bySemanticsLabel(
+            RegExp(r'^엔진 온도, \d\d:\d\d:\d\d에 받은 값 106\.0 °C, 현재 값 아님$')),
+        findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('기준 105°C 초과')), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    semantics.dispose();
+  });
+
   testWidgets('malformed frame은 무시하고 다음 정상 frame을 처리한다', (tester) async {
     await pumpDashboard(tester);
     await clients.single.connect();

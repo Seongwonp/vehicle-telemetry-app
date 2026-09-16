@@ -82,6 +82,12 @@ class _DashboardTabState extends State<DashboardTab>
   DashboardConnectionState _connectionState =
       DashboardConnectionState.connecting;
   DateTime? _lastUpdated;
+
+  // 지금 연결에서 새 프레임을 하나라도 받았는지. **소켓이 다시 붙은 것만으로는 "실시간"이 아니다** —
+  // 새 프레임이 오기 전까지 화면의 값은 끊기기 전 것이다. 이게 없으면 재연결 직후 지난 값이
+  // 큰 숫자·기준 초과로 다시 현재처럼 보였다(2026-09-16 Copilot 리뷰 지적, 코드로 확인).
+  // 역전·중복 프레임은 버려지므로 이 값을 올리지 않는다.
+  bool _frameSinceConnect = false;
   Timer? _signalTimeout;
   Timer? _staleTimer;
   int _connectionGeneration = 0;
@@ -131,6 +137,7 @@ class _DashboardTabState extends State<DashboardTab>
     final generation = ++_connectionGeneration;
     _client?.deactivate();
     _client = null;
+    _frameSinceConnect = false;
 
     setState(() {
       _loading = _latest == null;
@@ -200,7 +207,7 @@ class _DashboardTabState extends State<DashboardTab>
           widget.now().difference(_lastUpdated!) > widget.staleTimeout;
       final nextState = stale
           ? DashboardConnectionState.stale
-          : (_connected
+          : (_connected && _frameSinceConnect
               ? DashboardConnectionState.connected
               : DashboardConnectionState.reconnecting);
       // 매초 rebuild해 "N초 전" 표시도 데이터가 끊긴 동안 정확히 갱신한다.
@@ -212,7 +219,10 @@ class _DashboardTabState extends State<DashboardTab>
     if (!mounted) return;
     setState(() {
       _connected = true;
-      _connectionState = DashboardConnectionState.connected;
+      // 받은 값이 이미 있으면 새 프레임이 올 때까지 재연결 중으로 둔다(_frameSinceConnect 참고).
+      _connectionState = _latest == null || _frameSinceConnect
+          ? DashboardConnectionState.connected
+          : DashboardConnectionState.reconnecting;
     });
     final client = _client;
     if (client == null) return;
@@ -266,6 +276,7 @@ class _DashboardTabState extends State<DashboardTab>
           _loading = false;
           _error = false;
           _connected = true;
+          _frameSinceConnect = true;
           _connectionState = DashboardConnectionState.connected;
           _lastUpdated = widget.now();
         });
@@ -275,6 +286,7 @@ class _DashboardTabState extends State<DashboardTab>
 
   void _handleConnectionIssue() {
     if (!mounted) return;
+    _frameSinceConnect = false;
     setState(() {
       _connected = false;
       _connectionState = _latest == null
