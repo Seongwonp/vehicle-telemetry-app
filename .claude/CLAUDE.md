@@ -6,7 +6,7 @@
 
 ## 먼저 읽을 것
 
-1. `AGENTS.md` — 작업 원칙, 필수 검증, 화면 체크리스트
+1. `.claude/AGENTS.md` — 작업 원칙, 필수 검증, 화면 체크리스트
 2. `README.md` — 앱 구조와 현재 검증 범위
 3. `docs/design-system.md` — 간격·색·내용 폭 토큰과 변경 이유
 4. `docs/design-next-steps.md` — 디자인 후속 후보

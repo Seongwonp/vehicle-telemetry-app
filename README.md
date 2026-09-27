@@ -27,7 +27,7 @@
 
 현재 다음 작업은 새 화면 추가가 아니라 실제 기기에서 로그인, 네트워크 단절/복구,
 오래된 frame 방어와 로그아웃을 확인하는 것이다. 데스크탑 인수인계와 명령은
-[`CLAUDE.md`](CLAUDE.md), 세부 체크리스트는 [`AGENTS.md`](AGENTS.md)에 있다.
+`.claude/CLAUDE.md`, 세부 체크리스트는 `.claude/AGENTS.md`에 있다.
 
 ## 화면 구성
 
