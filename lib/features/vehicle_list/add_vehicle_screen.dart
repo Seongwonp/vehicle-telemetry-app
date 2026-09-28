@@ -151,19 +151,19 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: Spacing.sm, vertical: Spacing.sm),
                       decoration: BoxDecoration(
-                        color: AppTheme.danger.withValues(alpha: 0.08),
+                        color: colors.danger.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(Radii.md),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.error_outline,
-                              size: 16, color: AppTheme.danger),
+                          Icon(Icons.error_outline,
+                              size: 16, color: colors.danger),
                           const SizedBox(width: Spacing.xs),
                           Expanded(
                             child: Text(_error!,
-                                style: const TextStyle(
-                                    color: AppTheme.danger,
+                                style: TextStyle(
+                                    color: colors.danger,
                                     fontSize: FontSizes.caption)),
                           ),
                         ],

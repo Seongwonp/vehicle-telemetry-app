@@ -3,6 +3,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../core/models/anomaly.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/design_tokens.dart';
+import '../../../core/widgets/status_pill.dart';
 
 /// 이상 이력 목록의 카드.
 ///
@@ -13,7 +14,7 @@ import '../../../core/theme/design_tokens.dart';
 /// 배지를 제목과 같은 줄로 옮기고 제목에 [Expanded]를 줬다. 같은 정보를 담으면서
 /// 가로로 경쟁하는 고정 폭 요소가 하나 줄어든다.
 ///
-/// 색도 `AppTheme.danger` 같은 정적 상수 대신 [AppSemanticColors]에서 가져온다 —
+/// 색도 `AppTheme`의 정적 팔레트 상수 대신 [AppSemanticColors]에서 가져온다 —
 /// 정적 상수는 다크 모드에서 그대로라 배경 대비가 무너졌다.
 class AnomalyCard extends StatelessWidget {
   final Anomaly anomaly;
@@ -94,9 +95,10 @@ class AnomalyCard extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: Spacing.xs),
-                              _SeverityBadge(
-                                severity: anomaly.severity,
+                              StatusPill(
+                                label: anomaly.severity,
                                 color: color,
+                                fillOpacity: 0.15,
                               ),
                             ],
                           ),
@@ -138,34 +140,6 @@ class AnomalyCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SeverityBadge extends StatelessWidget {
-  final String severity;
-  final Color color;
-  const _SeverityBadge({required this.severity, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Spacing.xs,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: Radii.pillAll,
-      ),
-      child: Text(
-        severity,
-        style: TextStyle(
-          fontSize: FontSizes.badge,
-          fontWeight: FontWeight.w700,
-          color: color,
         ),
       ),
     );

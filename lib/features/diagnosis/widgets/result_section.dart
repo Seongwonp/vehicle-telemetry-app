@@ -30,11 +30,11 @@ class DiagnosisResultSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.check_circle, size: 15, color: AppTheme.success),
+            Icon(Icons.check_circle, size: 15, color: colors.success),
             const SizedBox(width: Spacing.xs),
-            const Text('진단 완료',
+            Text('진단 완료',
                 style: TextStyle(
-                    color: AppTheme.success,
+                    color: colors.success,
                     fontSize: FontSizes.caption,
                     fontWeight: FontWeight.w600)),
             const Spacer(),
@@ -114,23 +114,23 @@ class _ReferenceSummary extends StatelessWidget {
 
   const _ReferenceSummary({required this.grade, required this.score});
 
-  Color get _gradeColor {
+  Color _gradeColor(AppSemanticColors colors) {
     switch (grade.toUpperCase()) {
       case 'A':
       case 'B':
-        return AppTheme.success;
+        return colors.success;
       case 'C':
       case 'D':
-        return AppTheme.warning;
+        return colors.warning;
       default:
-        return AppTheme.danger;
+        return colors.danger;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final color = _gradeColor;
+    final color = _gradeColor(colors);
     final clampedScore = score.clamp(0, 100);
 
     return Container(

@@ -8,23 +8,22 @@ class DiagnosisErrorSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final danger = context.appColors.danger;
     return Container(
       padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
-        color: AppTheme.danger.withValues(alpha: 0.08),
+        color: danger.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline, color: AppTheme.danger, size: 18),
+          Icon(Icons.error_outline, color: danger, size: 18),
           const SizedBox(width: Spacing.sm),
           Expanded(
             child: Text(message,
-                style: const TextStyle(
-                    color: AppTheme.danger,
-                    fontSize: FontSizes.caption,
-                    height: 1.5)),
+                style: TextStyle(
+                    color: danger, fontSize: FontSizes.caption, height: 1.5)),
           ),
         ],
       ),

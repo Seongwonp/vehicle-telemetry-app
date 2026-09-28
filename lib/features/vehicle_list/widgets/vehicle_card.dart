@@ -4,6 +4,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/models/vehicle.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/design_tokens.dart';
+import '../../../core/widgets/status_pill.dart';
 import 'info_chip.dart';
 
 /// 차량 목록의 카드.
@@ -16,7 +17,7 @@ import 'info_chip.dart';
 /// 그래서 가로로 경쟁하는 열을 없애고 세 줄로 쌓는다.
 ///
 /// ```
-/// [아이콘] 차량 이름                    ● 정상  [⋮]
+/// [아이콘] 차량 이름                  ● 최근 수신  [⋮]
 ///          #KR-GA-1234  홍길동
 ///          118 km/h · HIGH 12 · 5분 전 수신
 /// ```
@@ -122,7 +123,13 @@ class VehicleCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: Spacing.xs),
-                  _SignalPill(state: signalState, color: signalColor),
+                  StatusPill(
+                    label: signalState.label,
+                    color: signalColor,
+                    icon: signalState.icon,
+                    density: StatusPillDensity.regular,
+                    semanticsLabel: '데이터 상태 ${signalState.label}',
+                  ),
                   _DeleteMenuButton(onDelete: () => _confirmDelete(context)),
                 ],
               ),
@@ -163,49 +170,6 @@ class _VehicleAvatar extends StatelessWidget {
         borderRadius: Radii.mdAll,
       ),
       child: Icon(Icons.directions_car_outlined, size: 24, color: color),
-    );
-  }
-}
-
-/// 상태 배지. 한 줄짜리 알약으로 줄였다.
-///
-/// 예전에는 상태와 마지막 수신 시각을 세로로 쌓은 두 줄 배지였는데, 그 폭이
-/// 좁은 화면에서 이름 영역을 밀어냈다. 시각은 아래 [_MetaLine]으로 옮겼다 —
-/// 줄바꿈이 가능한 자리다.
-class _SignalPill extends StatelessWidget {
-  final FleetSignalState state;
-  final Color color;
-  const _SignalPill({required this.state, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: '데이터 상태 ${state.label}',
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Spacing.xs,
-          vertical: Spacing.xxs,
-        ),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: Radii.pillAll,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(state.icon, size: 12, color: color),
-            const SizedBox(width: Spacing.xxs),
-            Text(
-              state.label,
-              style: TextStyle(
-                fontSize: FontSizes.badge,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -272,16 +236,18 @@ class _MetaLine extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (vehicle.latestSpeed != null)
-          _Badge(
+          StatusPill(
             icon: Icons.speed_outlined,
             label: '${vehicle.latestSpeed!.toStringAsFixed(0)} km/h',
             color: primary,
+            fontWeight: FontWeight.w600,
           ),
         if (vehicle.highAnomalyCount > 0)
-          _Badge(
+          StatusPill(
             icon: Icons.warning_amber_rounded,
             label: 'HIGH ${vehicle.highAnomalyCount}',
             color: colors.danger,
+            fontWeight: FontWeight.w600,
           ),
         Text(
           lastSeen,
@@ -309,10 +275,16 @@ FleetSignalState fleetSignalState(DateTime? lastSeenAt, DateTime now) {
   return FleetSignalState.offline;
 }
 
+/// 목록 카드의 신호 상태 문구.
+///
+/// 상세 화면의 실시간 상태(10초 넘으면 "데이터 지연")와 **기준이 다르다** —
+/// 여기는 마지막 수신 시각이 5분/15분을 넘었는지를 본다. 예전에는 양쪽이 모두
+/// "지연"이라는 낱말을 써서, 목록의 "지연"이 상세의 "데이터 지연"과 같은 판정인
+/// 것처럼 읽혔다. 목록 쪽을 **수신 시각에 대한 말**로 바꿔 구분한다.
 extension on FleetSignalState {
   String get label => switch (this) {
-        FleetSignalState.recent => '정상',
-        FleetSignalState.delayed => '지연',
+        FleetSignalState.recent => '최근 수신',
+        FleetSignalState.delayed => '수신 지연',
         FleetSignalState.offline => '오프라인',
         FleetSignalState.noData => '데이터 없음',
       };
@@ -329,40 +301,4 @@ extension on FleetSignalState {
         FleetSignalState.offline => colors.danger,
         FleetSignalState.noData => colors.textTertiary,
       };
-}
-
-class _Badge extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  const _Badge({required this.icon, required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Spacing.xs,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: Radii.pillAll,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: Spacing.xxs),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: FontSizes.badge,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

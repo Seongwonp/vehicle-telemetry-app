@@ -186,16 +186,39 @@ class _MobileLayout extends StatelessWidget {
   }
 }
 
+/// 능력치 띠의 포인트 색. 색 자체가 아니라 **어느 역할인지**를 담는다 —
+/// `AppTheme`의 정적 팔레트 상수를 그대로 들고 있으면 다크 테마에서 색이
+/// 바뀌지 않아 배경 대비가 무너진다.
+enum _FeatureAccent { primary, warning, danger, success }
+
 const _features = [
   (
     icon: Icons.monitor_heart_outlined,
     title: '실시간 상태',
-    accent: AppTheme.primary
+    accent: _FeatureAccent.primary
   ),
-  (icon: Icons.schedule_outlined, title: '데이터 지연', accent: AppTheme.warning),
-  (icon: Icons.warning_amber_rounded, title: '이상 이력', accent: AppTheme.danger),
-  (icon: Icons.route_outlined, title: '주행 기록', accent: AppTheme.success),
+  (
+    icon: Icons.schedule_outlined,
+    title: '데이터 지연',
+    accent: _FeatureAccent.warning
+  ),
+  (
+    icon: Icons.warning_amber_rounded,
+    title: '이상 이력',
+    accent: _FeatureAccent.danger
+  ),
+  (icon: Icons.route_outlined, title: '주행 기록', accent: _FeatureAccent.success),
 ];
+
+Color _accentColor(BuildContext context, _FeatureAccent accent) {
+  final colors = context.appColors;
+  return switch (accent) {
+    _FeatureAccent.primary => Theme.of(context).colorScheme.primary,
+    _FeatureAccent.warning => colors.warning,
+    _FeatureAccent.danger => colors.danger,
+    _FeatureAccent.success => colors.success,
+  };
+}
 
 // 아이콘+설명이 딸린 큰 카드 4개 대신, 계기판 하단 인디케이터처럼 얇고
 // 압축된 띠 하나로 능력치를 나열한다 — "기능 소개 카드 그리드"라는 흔한
@@ -234,7 +257,7 @@ class _FeatureGrid extends StatelessWidget {
               .map((f) => _CapabilityItem(
                     icon: f.icon,
                     title: f.title,
-                    accent: f.accent,
+                    accent: _accentColor(context, f.accent),
                   ))
               .toList(),
         ),

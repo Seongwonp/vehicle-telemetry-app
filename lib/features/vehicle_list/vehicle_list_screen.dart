@@ -97,6 +97,10 @@ class VehicleListScreen extends ConsumerWidget {
   }
 }
 
+/// 카드의 신호 알약이 무엇을 기준으로 정해지는지 한 줄로 알려준다.
+///
+/// 문구는 [FleetSignalState]의 알약 문구와 같은 낱말을 써야 한다 — 상세 화면의
+/// "데이터 지연"(10초 기준)과 섞이지 않도록 양쪽 모두 "수신"을 붙인다.
 class _SignalCriteriaGuide extends StatelessWidget {
   const _SignalCriteriaGuide();
 
@@ -119,9 +123,9 @@ class _SignalCriteriaGuide extends StatelessWidget {
           const SizedBox(width: Spacing.xs),
           Expanded(
             child: Text(
-              '마지막 신호 기준  ·  '
-              '${recentSignalThreshold.inMinutes}분 이내 정상  ·  '
-              '${recentSignalThreshold.inMinutes}~${delayedSignalThreshold.inMinutes}분 지연  ·  '
+              '마지막 수신 시각 기준  ·  '
+              '${recentSignalThreshold.inMinutes}분 이내 최근 수신  ·  '
+              '${recentSignalThreshold.inMinutes}~${delayedSignalThreshold.inMinutes}분 수신 지연  ·  '
               '${delayedSignalThreshold.inMinutes}분 초과 오프라인',
               style: TextStyle(
                   fontSize: FontSizes.caption, color: colors.textSecondary),

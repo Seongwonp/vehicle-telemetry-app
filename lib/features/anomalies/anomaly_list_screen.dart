@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/anomaly_providers.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/choice_chip.dart';
 import 'widgets/anomaly_card.dart';
 import 'widgets/empty_view.dart';
 import 'widgets/error_view.dart';
@@ -37,10 +38,16 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
         page: _page,
       );
 
+  /// 필터가 걸려 있는지. 0건일 때 "차량이 정상 범위로 주행 중"과
+  /// "조건에 맞는 이벤트 없음"을 가르는 값이다.
+  bool get _filtered =>
+      _severityFilter != '전체' || _periodFilter != _PeriodFilter.all;
+
   @override
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin 필수 호출
     final anomaliesAsync = ref.watch(anomalyPageProvider(_query));
+    final colors = context.appColors;
 
     // 조회 실패(error)와 "이상 이벤트 없음"(data가 빈 리스트, 정상)을
     // AsyncValue가 애초에 서로 다른 상태로 분리해주기 때문에, 예전처럼 catch에서
@@ -73,9 +80,10 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
                           padding: const EdgeInsets.symmetric(
                               horizontal: Spacing.sm, vertical: Spacing.xxs),
                           decoration: BoxDecoration(
-                            color: anomalies.isEmpty
-                                ? AppTheme.success.withValues(alpha: 0.15)
-                                : AppTheme.danger.withValues(alpha: 0.15),
+                            color: (anomalies.isEmpty
+                                    ? colors.success
+                                    : colors.danger)
+                                .withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(Radii.lg),
                           ),
                           child: Text(
@@ -84,8 +92,8 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
                               fontSize: FontSizes.caption,
                               fontWeight: FontWeight.bold,
                               color: anomalies.isEmpty
-                                  ? AppTheme.success
-                                  : AppTheme.danger,
+                                  ? colors.success
+                                  : colors.danger,
                             ),
                           ),
                         ),
@@ -105,44 +113,45 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
                     }),
                   ),
                   Expanded(
+                    // 예전에는 `anomalies.isEmpty`를 두 번 중첩해 물어서 두 번째
+                    // 분기(필터 때문에 0건)에 **도달할 수 없었다.** 필터가 걸려
+                    // 있어도 "차량이 정상 범위로 주행 중"이라고 말하고 있었다.
                     child: anomalies.isEmpty
-                        ? const AnomalyEmptyView()
-                        : anomalies.isEmpty
-                            ? const AnomalyEmptyView(filtered: true)
-                            : ListView.separated(
-                                padding: const EdgeInsets.fromLTRB(Spacing.md,
-                                    Spacing.xxs, Spacing.md, Spacing.xl),
-                                itemCount: anomalies.length + 1,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(height: Spacing.sm),
-                                itemBuilder: (context, i) {
-                                  if (i < anomalies.length) {
-                                    return AnomalyCard(anomaly: anomalies[i]);
-                                  }
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      TextButton(
-                                        onPressed: _page == 0
-                                            ? null
-                                            : () => setState(() => _page--),
-                                        child: const Text('이전'),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: Spacing.sm),
-                                        child: Text('${result.page + 1}페이지'),
-                                      ),
-                                      TextButton(
-                                        onPressed: result.hasNext
-                                            ? () => setState(() => _page++)
-                                            : null,
-                                        child: const Text('다음'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
+                        ? AnomalyEmptyView(filtered: _filtered)
+                        : ListView.separated(
+                            padding: const EdgeInsets.fromLTRB(Spacing.md,
+                                Spacing.xxs, Spacing.md, Spacing.xl),
+                            itemCount: anomalies.length + 1,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: Spacing.sm),
+                            itemBuilder: (context, i) {
+                              if (i < anomalies.length) {
+                                return AnomalyCard(anomaly: anomalies[i]);
+                              }
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextButton(
+                                    onPressed: _page == 0
+                                        ? null
+                                        : () => setState(() => _page--),
+                                    child: const Text('이전'),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: Spacing.sm),
+                                    child: Text('${result.page + 1}페이지'),
+                                  ),
+                                  TextButton(
+                                    onPressed: result.hasNext
+                                        ? () => setState(() => _page++)
+                                        : null,
+                                    child: const Text('다음'),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                   ),
                 ],
               ),
@@ -187,7 +196,7 @@ class _FilterBar extends StatelessWidget {
         child: Row(
           children: [
             for (final option in _severityOptions) ...[
-              _FilterChip(
+              AppChoiceChip(
                 label: option,
                 selected: severity == option,
                 onTap: () => onSeverityChanged(option),
@@ -201,7 +210,7 @@ class _FilterBar extends StatelessWidget {
               color: colors.border,
             ),
             for (final entry in _periodLabels.entries) ...[
-              _FilterChip(
+              AppChoiceChip(
                 label: entry.value,
                 selected: period == entry.key,
                 onTap: () => onPeriodChanged(entry.key),
@@ -209,45 +218,6 @@ class _FilterBar extends StatelessWidget {
               const SizedBox(width: Spacing.xs),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final primary = Theme.of(context).colorScheme.primary;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.sm, vertical: Spacing.xs),
-        decoration: BoxDecoration(
-          color: selected ? primary.withValues(alpha: 0.15) : colors.surface,
-          borderRadius: BorderRadius.circular(Radii.pill),
-          border: Border.all(color: selected ? primary : colors.border),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: FontSizes.caption,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? primary : colors.textSecondary,
-          ),
         ),
       ),
     );

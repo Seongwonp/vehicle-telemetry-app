@@ -44,7 +44,7 @@ void main() {
     expect(vehicle.highAnomalyCount, 0);
   });
 
-  test('fleet 신호 시각을 정상/지연/오프라인/데이터 없음으로 분류한다', () {
+  test('fleet 신호 시각을 최근 수신/수신 지연/오프라인/데이터 없음으로 분류한다', () {
     final now = DateTime.utc(2026, 8, 5, 1);
 
     expect(fleetSignalState(now.subtract(const Duration(minutes: 4)), now),
@@ -56,7 +56,7 @@ void main() {
     expect(fleetSignalState(null, now), FleetSignalState.noData);
   });
 
-  test('fleet 신호 경계값 5분과 15분은 각각 정상과 지연에 포함된다', () {
+  test('fleet 신호 경계값 5분과 15분은 각각 최근 수신과 수신 지연에 포함된다', () {
     final now = DateTime.utc(2026, 8, 5, 1);
 
     expect(fleetSignalState(now.subtract(recentSignalThreshold), now),
@@ -106,8 +106,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(VehicleCard), findsOneWidget);
-    expect(find.textContaining('마지막 신호 기준'), findsOneWidget);
-    expect(find.text('지연'), findsOneWidget);
+    expect(find.textContaining('마지막 수신 시각 기준'), findsOneWidget);
+    // 목록의 문구는 상세 탭의 "데이터 지연"(10초 기준)과 겹치지 않아야 한다.
+    expect(find.text('수신 지연'), findsOneWidget);
+    expect(find.text('지연'), findsNothing);
     expect(find.text('123 km/h'), findsOneWidget);
     expect(find.text('HIGH 3'), findsOneWidget);
     expect(tester.takeException(), isNull);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/design_tokens.dart';
+import '../../../core/widgets/status_pill.dart';
 
 class DtcSection extends StatelessWidget {
   final List<String> codes;
@@ -36,23 +37,15 @@ class DtcSection extends StatelessWidget {
             spacing: Spacing.xs,
             runSpacing: Spacing.xxs,
             children: codes
-                .map((code) => Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: Spacing.xs, vertical: 2),
-                      decoration: BoxDecoration(
-                        // 채움 대신 테두리를 쓴다. DTC 코드는 보조 정보인데
-                        // 진한 배경으로 칠하면 화면에서 가장 무거운 요소가 돼
-                        // 위계가 뒤집힌다.
-                        borderRadius: Radii.pillAll,
-                        border:
-                            Border.all(color: warning.withValues(alpha: 0.45)),
-                      ),
-                      child: Text(code,
-                          style: TextStyle(
-                              color: warning,
-                              fontSize: FontSizes.badge,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5)),
+                .map((code) => StatusPill(
+                      label: code,
+                      color: warning,
+                      // 채움 대신 테두리를 쓴다. DTC 코드는 보조 정보인데
+                      // 진한 배경으로 칠하면 화면에서 가장 무거운 요소가 돼
+                      // 위계가 뒤집힌다.
+                      variant: StatusPillVariant.outlined,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
                     ))
                 .toList(),
           ),

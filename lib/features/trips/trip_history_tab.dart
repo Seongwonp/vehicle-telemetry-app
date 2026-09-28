@@ -6,6 +6,7 @@ import '../../core/models/trip.dart';
 import '../../core/providers/trip_providers.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/design_tokens.dart';
+import '../../core/widgets/choice_chip.dart';
 
 // 차량 상세 화면(VehicleDetailScreen)의 네 번째 탭 — 주행 히스토리를
 // 트립(연속 주행 구간) 단위로 보여준다. 백엔드가 수신 간격(3분) 기준으로
@@ -40,38 +41,46 @@ class _TripHistoryTabState extends ConsumerState<TripHistoryTab>
       _lastTrips = tripsAsync.requireValue;
     }
 
-    return Column(
-      children: [
-        Padding(
-          padding:
-              const EdgeInsets.fromLTRB(Spacing.md, Spacing.sm, Spacing.md, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                '주행 기록',
-                style: TextStyle(
-                    fontSize: FontSizes.body, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: Spacing.sm),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
+    // 다른 탭과 같은 내용 폭을 쓴다 — 여기만 제한이 없어서 1280px에서 주행 카드가
+    // 화면 끝까지 늘어났고, 카드 안의 거리·평균속도·최고속도가 서로 멀어졌다.
+    // 카드 한 열이므로 `feed`다(`docs/design-system.md` "내용 폭").
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: ContentWidths.feed),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  Spacing.md, Spacing.sm, Spacing.md, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (final h in _hourOptions)
-                    _PeriodChip(
-                      label: '$h시간',
-                      selected: _hours == h,
-                      onTap: () => setState(() => _hours = h),
-                    ),
+                  const Text(
+                    '주행 기록',
+                    style: TextStyle(
+                        fontSize: FontSizes.body, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: Spacing.sm),
+                  Wrap(
+                    spacing: Spacing.xs,
+                    runSpacing: Spacing.xs,
+                    children: [
+                      for (final h in _hourOptions)
+                        AppChoiceChip(
+                          label: '$h시간',
+                          selected: _hours == h,
+                          onTap: () => setState(() => _hours = h),
+                        ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: Spacing.xs),
+            Expanded(child: _buildBody(tripsAsync)),
+          ],
         ),
-        const SizedBox(height: Spacing.xs),
-        Expanded(child: _buildBody(tripsAsync)),
-      ],
+      ),
     );
   }
 
@@ -116,8 +125,8 @@ class _TripHistoryTabState extends ConsumerState<TripHistoryTab>
         if (tripsAsync.isLoading && _lastTrips.isNotEmpty)
           const Positioned(
             top: 0,
-            left: 16,
-            right: 16,
+            left: Spacing.md,
+            right: Spacing.md,
             child: LinearProgressIndicator(minHeight: 2),
           ),
       ],
@@ -168,11 +177,11 @@ class _TripError extends StatelessWidget {
     final colors = context.appColors;
     if (compact) {
       return Material(
-        color: AppTheme.danger.withValues(alpha: 0.1),
+        color: colors.danger.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(Radii.md),
         child: ListTile(
           dense: true,
-          leading: const Icon(Icons.error_outline, color: AppTheme.danger),
+          leading: Icon(Icons.error_outline, color: colors.danger),
           title: Text(message,
               style: const TextStyle(fontSize: FontSizes.caption)),
           trailing: IconButton(
@@ -187,7 +196,7 @@ class _TripError extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: Spacing.xxl),
       child: Column(
         children: [
-          const Icon(Icons.error_outline, size: 40, color: AppTheme.danger),
+          Icon(Icons.error_outline, size: 40, color: colors.danger),
           const SizedBox(height: Spacing.sm),
           Text(message,
               textAlign: TextAlign.center,
@@ -231,41 +240,6 @@ class _EmptyTrips extends StatelessWidget {
           const SizedBox(height: Spacing.xs),
           Text('조회 기간을 늘려보세요.', style: TextStyle(color: colors.textSecondary)),
         ],
-      ),
-    );
-  }
-}
-
-class _PeriodChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _PeriodChip(
-      {required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final primary = Theme.of(context).colorScheme.primary;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.sm, vertical: Spacing.xs),
-        decoration: BoxDecoration(
-          color: selected ? primary.withValues(alpha: 0.15) : colors.surface,
-          borderRadius: BorderRadius.circular(Radii.pill),
-          border: Border.all(color: selected ? primary : colors.border),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: FontSizes.caption,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? primary : colors.textSecondary,
-          ),
-        ),
       ),
     );
   }
