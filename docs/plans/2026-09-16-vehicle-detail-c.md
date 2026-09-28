@@ -253,6 +253,8 @@ lib/core/widgets/arc_gauge.dart   유지 — 랜딩 promo_visual.dart:54가 쓴�
 
 ## 9. 이 계획 밖 (순서 후보)
 
+> 2026-09-29: 1~4번 처리 — 목록 문구를 '최근 수신·수신 지연·오프라인'으로, `StatusPill`·`AppChoiceChip` 공통화, 이상 이력 배지 토큰화, 주행 기록 `feed` 폭. `design-system.md` 2026-09-29 절.
+
 1. 차량 목록 카드와 상세의 상태 표현 맞추기 — 목록의 정상·지연·오프라인(5·15분)과 상세의 live·stale(10초)은 **다른 기준**이다. 같은 단어를 쓰지 않도록 문구 정리.
 2. 공통 상태 알약(`_SignalPill`, `_Badge`, `_SeverityBadge`, DTC 알약) 하나로.
 3. 이상 이력 탭의 배지가 정적 `AppTheme.success/danger`를 써 다크에서 토큰을 안 따른다(`anomaly_list_screen.dart:76-88`), 같은 파일 108-110행 `anomalies.isEmpty` 중복 분기.
