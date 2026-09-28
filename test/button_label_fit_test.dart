@@ -20,7 +20,7 @@ void main() {
         home: MediaQuery(
           data: MediaQueryData(
               size: const Size(360, 800), textScaler: TextScaler.linear(scale)),
-          child: Scaffold(body: EmptyView(onRetry: () {})),
+          child: Scaffold(body: EmptyView(canRegister: true, onRetry: () {})),
         ),
       ));
       for (final label in const ['차량 추가', '다시 시도']) {

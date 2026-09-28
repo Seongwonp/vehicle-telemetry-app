@@ -93,6 +93,7 @@ void main() {
       ProviderScope(
         overrides: [
           vehiclesProvider.overrideWith((_) async => [vehicle]),
+          canRegisterVehiclesProvider.overrideWith((_) async => false),
         ],
         child: const MaterialApp(
           home: MediaQuery(

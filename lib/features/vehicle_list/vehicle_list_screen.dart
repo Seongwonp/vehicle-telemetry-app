@@ -18,27 +18,33 @@ class VehicleListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vehiclesAsync = ref.watch(vehiclesProvider);
+    final canRegister =
+        ref.watch(canRegisterVehiclesProvider).valueOrNull == true;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('내 차량'),
         centerTitle: false,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: '차량 추가',
-            onPressed: () async {
-              final registered = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(builder: (_) => const AddVehicleScreen()),
-              );
-              if (registered == true) ref.invalidate(vehiclesProvider);
-            },
-          ),
+          if (canRegister)
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: '차량 추가',
+              onPressed: () async {
+                final registered = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddVehicleScreen()),
+                );
+                if (registered == true) ref.invalidate(vehiclesProvider);
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: '새로고침',
-            onPressed: () => ref.invalidate(vehiclesProvider),
+            onPressed: () {
+              ref.invalidate(vehiclesProvider);
+              ref.invalidate(canRegisterVehiclesProvider);
+            },
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
@@ -57,7 +63,12 @@ class VehicleListScreen extends ConsumerWidget {
           onRetry: () => ref.invalidate(vehiclesProvider),
         ),
         data: (vehicles) => vehicles.isEmpty
-            ? EmptyView(onRetry: () => ref.invalidate(vehiclesProvider))
+            ? EmptyView(
+                canRegister: canRegister,
+                onRetry: () {
+                  ref.invalidate(vehiclesProvider);
+                  ref.invalidate(canRegisterVehiclesProvider);
+                })
             : Column(
                 children: [
                   const _SignalCriteriaGuide(),

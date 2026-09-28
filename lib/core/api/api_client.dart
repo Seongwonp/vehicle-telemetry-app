@@ -78,21 +78,34 @@ class ApiClient {
         handler.next(options);
       },
       onError: (error, handler) async {
-        // /auth/ 경로는 refresh 시도 제외 (무한 루프 방지)
+        // 발급·폐기 요청은 제외하되 인증이 필요한 /auth/me는 갱신 대상이다.
         if (error.response?.statusCode == 401 &&
-            !error.requestOptions.path.contains('/auth/')) {
-          final refreshed = await _tryRefresh();
+            !const ['/api/auth/login', '/api/auth/refresh', '/api/auth/logout']
+                .contains(error.requestOptions.path) &&
+            error.requestOptions.extra['authRetried'] != true) {
+          bool refreshed;
+          try {
+            refreshed = await _tryRefresh();
+          } on DioException catch (refreshError) {
+            handler.next(refreshError);
+            return;
+          } catch (_) {
+            handler.next(error);
+            return;
+          }
           if (refreshed) {
             // 새 access token으로 원래 요청 재시도
             final token = await _tokenStore.getToken();
             final opts = error.requestOptions;
+            opts.extra['authRetried'] = true;
             opts.headers['Authorization'] = 'Bearer $token';
             try {
               final retryResp = await _dio.fetch(opts);
               handler.resolve(retryResp);
               return;
-            } catch (_) {
-              // retry도 실패 — 아래 handler.next로 낙하
+            } on DioException catch (retryError) {
+              handler.next(retryError);
+              return;
             }
           } else {
             onRefreshFailed?.call();
@@ -132,9 +145,14 @@ class ApiClient {
         response.data['refreshToken'] as String,
       );
       return true;
-    } catch (_) {
-      await _tokenStore.clear();
-      return false;
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 401 ||
+          error.response?.statusCode == 403) {
+        await _tokenStore.clear();
+        return false;
+      }
+      // 일시적인 통신·저장소 장애는 자격증명 만료가 아니다.
+      rethrow;
     }
   }
 
@@ -159,6 +177,11 @@ class ApiClient {
   }
 
   // ── 차량 관리 ─────────────────────────────────────────────────
+  Future<bool> canRegisterVehicles() async {
+    final response = await _dio.get('/api/auth/me');
+    return (response.data['roles'] as List<dynamic>).contains('ROLE_ADMIN');
+  }
+
   Future<List<dynamic>> getVehicles() async {
     final response = await _dio.get('/api/vehicles');
     return response.data as List<dynamic>;

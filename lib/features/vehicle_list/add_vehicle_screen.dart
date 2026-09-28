@@ -137,14 +137,13 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                   TextFormField(
                     controller: _ownerController,
                     decoration: const InputDecoration(
-                      labelText: '소유자',
-                      hintText: '예: 박성원',
+                      labelText: '소유자 계정',
+                      hintText: '예: hong (비우면 내 계정)',
+                      helperText: '등록된 사용자의 계정 이름을 입력하세요.',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _submit(),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? '소유자를 입력하세요' : null,
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: Spacing.md),

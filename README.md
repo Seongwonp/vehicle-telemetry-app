@@ -22,7 +22,8 @@
 | 320~1280px, 글자 배율 1.0/1.3/1.5 overflow | widget test 검증 |
 | WebSocket 재연결·stale·malformed·역전·동일 timestamp | unit/widget test 검증 |
 | 실제 백엔드 integration test | 테스트는 있으나 macOS Keychain entitlement에서 로그인 후 차단 |
-| Android 실기기·에뮬레이터 조작 | 미검증 |
+| Android 에뮬레이터 | 로그인·수신·원천 정지 후 stale·복구 확인([기록](docs/verification/2026-09-16-android-emulator.md)). 실제 소켓 단절·재연결은 미검증 |
+| Android 실기기 조작 | 미검증 |
 | 라이트/다크 실제 기기 스크린샷 | 미검증 |
 
 현재 다음 작업은 새 화면 추가가 아니라 실제 기기에서 로그인, 네트워크 단절/복구,
@@ -61,6 +62,10 @@ flutter build apk --release \
 ```
 
 ## 백엔드 연동
+
+차량 등록·소유자 배정은 관리자만 가능하다. 앱은 인증된 `GET /api/auth/me` 응답으로
+등록 버튼을 표시하며, 권한 조회가 실패하거나 일반 사용자이면 관리자에게 배정을 요청하도록 안내한다.
+소유자에는 표시 이름이 아닌 등록된 계정 이름을 입력하고, 비우면 관리자 본인에게 배정한다.
 
 `vehicle-telemetry-platform` 프로젝트의 Spring Boot 서버가 실행 중이어야 함.
 
