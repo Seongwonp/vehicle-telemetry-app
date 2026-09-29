@@ -31,11 +31,16 @@ class VehicleCard extends StatelessWidget {
   final VoidCallback onDeleted;
   final ApiClient? apiClient;
 
+  /// 삭제(비활성화) 메뉴를 보일지. 백엔드는 관리자만 허용한다(2026-09-29) — 일반 사용자에게 보이면
+  /// 눌러도 403이라 권한 조회 결과를 받는다. 기본값 true는 기존 스냅샷·레이아웃 테스트를 그대로 두기 위해서다.
+  final bool canManage;
+
   const VehicleCard({
     required this.vehicle,
     required this.onTap,
     required this.onDeleted,
     this.apiClient,
+    this.canManage = true,
     super.key,
   });
 
@@ -130,7 +135,8 @@ class VehicleCard extends StatelessWidget {
                     density: StatusPillDensity.regular,
                     semanticsLabel: '데이터 상태 ${signalState.label}',
                   ),
-                  _DeleteMenuButton(onDelete: () => _confirmDelete(context)),
+                  if (canManage)
+                    _DeleteMenuButton(onDelete: () => _confirmDelete(context)),
                 ],
               ),
               const SizedBox(height: Spacing.sm),

@@ -77,6 +77,7 @@ class VehicleListScreen extends ConsumerWidget {
                       onRefresh: () => ref.refresh(vehiclesProvider.future),
                       child: _VehicleGrid(
                         vehicles: vehicles,
+                        canManage: canRegister,
                         onOpen: (vehicle) => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -141,9 +142,13 @@ class _VehicleGrid extends StatelessWidget {
   final List<Vehicle> vehicles;
   final void Function(Vehicle vehicle) onOpen;
   final VoidCallback onDeleted;
+  final bool canManage;
 
   const _VehicleGrid(
-      {required this.vehicles, required this.onOpen, required this.onDeleted});
+      {required this.vehicles,
+      required this.onOpen,
+      required this.onDeleted,
+      required this.canManage});
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +162,7 @@ class _VehicleGrid extends StatelessWidget {
           vehicle: vehicles[index],
           onTap: () => onOpen(vehicles[index]),
           onDeleted: onDeleted,
+          canManage: canManage,
         ),
       );
     }
@@ -179,6 +185,7 @@ class _VehicleGrid extends StatelessWidget {
             vehicle: vehicles[index],
             onTap: () => onOpen(vehicles[index]),
             onDeleted: onDeleted,
+            canManage: canManage,
           ),
         ),
       ),
