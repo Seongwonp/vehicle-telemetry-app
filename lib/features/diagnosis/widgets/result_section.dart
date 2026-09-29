@@ -22,6 +22,7 @@ class DiagnosisResultSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
     final timeStr =
         '${diagnosedAt.hour.toString().padLeft(2, '0')}:${diagnosedAt.minute.toString().padLeft(2, '0')}';
 
@@ -87,16 +88,15 @@ class DiagnosisResultSection extends StatelessWidget {
                   fontSize: FontSizes.body,
                   height: 1.7,
                   color: colors.textPrimary),
-              strong: const TextStyle(
-                  fontWeight: FontWeight.w700, color: AppTheme.primaryBright),
+              strong: TextStyle(fontWeight: FontWeight.w700, color: primary),
               h1: AppTheme.gaugeNumberStyle(
                   fontSize: FontSizes.title, color: colors.textPrimary),
               h2: AppTheme.gaugeNumberStyle(
                   fontSize: FontSizes.subtitle, color: colors.textPrimary),
-              h3: const TextStyle(
+              h3: TextStyle(
                   fontSize: FontSizes.body,
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.primary),
+                  color: primary),
               listBullet: TextStyle(
                   fontSize: FontSizes.body, color: colors.textSecondary),
               blockSpacing: 12,

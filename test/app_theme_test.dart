@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:telemetrix/core/models/anomaly.dart';
 import 'package:telemetrix/core/theme/app_theme.dart';
 import 'package:telemetrix/features/anomalies/widgets/anomaly_card.dart';
 import 'package:telemetrix/features/diagnosis/widgets/error_section.dart';
+import 'package:telemetrix/features/diagnosis/widgets/result_section.dart';
 
 void main() {
   testWidgets('화면 색상은 ThemeExtension에서 조회한다', (tester) async {
@@ -96,5 +98,34 @@ void main() {
       tester.widget<Icon>(find.byIcon(Icons.error_outline).first).color,
       darkDanger,
     );
+  });
+
+  // 같은 회귀의 다른 갈래: `AppTheme.primary` / `AppTheme.primaryBright`를 직접 쓴
+  // 곳들이 다크에서 라이트 파랑(#2457D6)을 그대로 냈다. 진단 결과의 마크다운
+  // 강조·소제목이 그중 하나였다.
+  testWidgets('다크 테마에서 주 색상은 다크 토큰을 따른다 — 정적 상수가 아니다', (tester) async {
+    final darkTheme = AppTheme.dark();
+    final darkPrimary = darkTheme.colorScheme.primary;
+
+    // 전제: 두 값이 애초에 다르지 않으면 이 테스트는 아무것도 막지 못한다.
+    expect(darkPrimary, isNot(AppTheme.primary));
+    expect(darkPrimary, isNot(AppTheme.primaryBright));
+
+    await tester.pumpWidget(MaterialApp(
+      theme: darkTheme,
+      home: Scaffold(
+        body: DiagnosisResultSection(
+          diagnosis: '### 요약\n\n**엔진 온도**가 기준을 넘었습니다.',
+          dataPoints: 120,
+          grade: 'B',
+          score: 82,
+          diagnosedAt: DateTime.utc(2026, 8, 5, 1),
+        ),
+      ),
+    ));
+
+    final sheet = tester.widget<MarkdownBody>(find.byType(MarkdownBody));
+    expect(sheet.styleSheet?.strong?.color, darkPrimary);
+    expect(sheet.styleSheet?.h3?.color, darkPrimary);
   });
 }

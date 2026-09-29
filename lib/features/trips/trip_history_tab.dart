@@ -278,8 +278,8 @@ class _TripCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.route_outlined,
-                  size: 16, color: AppTheme.primary),
+              Icon(Icons.route_outlined,
+                  size: 16, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: Spacing.xs),
               Expanded(
                 child: Text(_timeRange(),

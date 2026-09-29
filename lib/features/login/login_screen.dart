@@ -145,7 +145,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppTheme.primary
+                                          color: cs.primary
                                               .withValues(alpha: 0.18),
                                           blurRadius: 20,
                                         ),

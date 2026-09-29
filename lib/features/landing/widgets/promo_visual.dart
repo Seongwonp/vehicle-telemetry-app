@@ -107,8 +107,8 @@ class _LivePulseState extends State<_LivePulse>
       child: Container(
         width: 7,
         height: 7,
-        decoration: const BoxDecoration(
-          color: AppTheme.primary,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
           shape: BoxShape.circle,
         ),
       ),

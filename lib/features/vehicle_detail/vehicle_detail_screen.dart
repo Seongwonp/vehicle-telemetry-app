@@ -32,10 +32,14 @@ class VehicleDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenSize = MediaQuery.sizeOf(context);
+    final screenWidth = screenSize.width;
     final textScaler = MediaQuery.textScalerOf(context);
     final compactTabs =
         screenWidth < 400 || textScaler.scale(FontSizes.badge) > 14;
+    // 가로 모드 폰(높이 < 480): 이름 두 줄 + ID에 TabBar까지 얹히면 본문이 거의 안 남는다.
+    // 줄 수만 줄이고, 잘렸을 때 '전체 이름' 버튼이 생기는 규칙은 그대로 둔다.
+    final titleMaxLines = screenSize.height < Heights.compactLandscape ? 1 : 2;
     final name = vehicle?.name.trim().isNotEmpty == true ? vehicle!.name : null;
     final titleLayout = name == null
         ? null
@@ -44,6 +48,7 @@ class VehicleDetailScreen extends StatelessWidget {
             screenWidth: screenWidth,
             textScaler: textScaler,
             baseStyle: Theme.of(context).appBarTheme.titleTextStyle,
+            maxLines: titleMaxLines,
           );
 
     return DefaultTabController(
@@ -56,7 +61,11 @@ class VehicleDetailScreen extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: FontSizes.subtitle,
                       fontWeight: FontWeight.bold))
-              : VehicleTitle(name: name, vehicleId: vehicleId),
+              : VehicleTitle(
+                  name: name,
+                  vehicleId: vehicleId,
+                  maxLines: titleMaxLines,
+                ),
           actions: [
             if (titleLayout?.clipped == true)
               VehicleFullNameButton(name: name!, vehicleId: vehicleId),

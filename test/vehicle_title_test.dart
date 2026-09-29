@@ -9,6 +9,10 @@ import 'package:telemetrix/features/vehicle_detail/vehicle_detail_screen.dart';
 const _short = '포터 II 1호차';
 const _long = '아이오닉 5 롱레인지 AWD 캘리그래피 2024 영업 3팀 공용';
 
+/// 가로 모드 케이스용. 폭 800에서 제목 칸은 664px(= 800 − 56 − 16×2 − 48)이라
+/// [_long]은 한 줄에 들어가버려 "한 줄로 줄였는데도 잘린다"를 못 본다.
+const _longer = '$_long · 정비 이력 다수 · 임시 번호판 · 2팀 인수 예정';
+
 Vehicle _vehicle(String name) => Vehicle(
       vehicleId: 'KR-GA-1234',
       name: name,
@@ -23,6 +27,7 @@ Future<List<String>> _pump(
   required Vehicle? vehicle,
   required double width,
   required double textScale,
+  double height = 800,
 }) async {
   final overflows = <String>[];
   final previous = FlutterError.onError;
@@ -36,7 +41,7 @@ Future<List<String>> _pump(
   };
   addTearDown(() => FlutterError.onError = previous);
 
-  tester.view.physicalSize = Size(width, 800);
+  tester.view.physicalSize = Size(width, height);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 
@@ -45,7 +50,7 @@ Future<List<String>> _pump(
       theme: AppTheme.light(),
       home: MediaQuery(
         data: MediaQueryData(
-          size: Size(width, 800),
+          size: Size(width, height),
           textScaler: TextScaler.linear(textScale),
         ),
         child: VehicleDetailScreen(
@@ -60,12 +65,24 @@ Future<List<String>> _pump(
   return overflows;
 }
 
-bool _renderedNameClipped(WidgetTester tester) {
-  final paragraph = tester.renderObject<RenderParagraph>(find.descendant(
-    of: find.byKey(const Key('vehicle_title_name')),
-    matching: find.byType(RichText),
+RenderParagraph _nameParagraph(WidgetTester tester) =>
+    tester.renderObject<RenderParagraph>(find.descendant(
+      of: find.byKey(const Key('vehicle_title_name')),
+      matching: find.byType(RichText),
+    ));
+
+bool _renderedNameClipped(WidgetTester tester) =>
+    _nameParagraph(tester).didExceedMaxLines;
+
+/// 실제로 그려진 줄 수. `maxLines` 인자를 읽는 것과 달리 렌더 결과를 본다 —
+/// 글자 상자의 서로 다른 윗변 개수가 곧 줄 수다.
+int _renderedNameLines(WidgetTester tester) {
+  final paragraph = _nameParagraph(tester);
+  final boxes = paragraph.getBoxesForSelection(TextSelection(
+    baseOffset: 0,
+    extentOffset: paragraph.text.toPlainText().length,
   ));
-  return paragraph.didExceedMaxLines;
+  return boxes.map((box) => box.top).toSet().length;
 }
 
 void main() {
@@ -114,6 +131,43 @@ void main() {
     await _pump(tester, vehicle: _vehicle(_long), width: 320, textScale: 1.5);
     expect(_renderedNameClipped(tester), isTrue);
     expect(button, findsOneWidget);
+  });
+
+  // 가로 모드 폰(높이 < 480, plans/2026-09-16-vehicle-detail-c.md §5-4).
+  // 세로로 쓸 공간이 없으므로 이름을 두 줄이 아니라 한 줄로 줄인다. 폭(800)은 태블릿급이라
+  // **폭만 보면 가로 모드를 구분할 수 없다** — 높이로 가른다.
+  testWidgets('가로 400 × 폭 800 긴 이름 — 제목은 한 줄, 잘리면 버튼', (tester) async {
+    final overflows = await _pump(tester,
+        vehicle: _vehicle(_longer), width: 800, height: 400, textScale: 1.0);
+
+    expect(overflows, isEmpty);
+    expect(_renderedNameLines(tester), 1, reason: '가로 모드에서 제목이 두 줄이 됐다');
+    expect(_renderedNameClipped(tester), isTrue,
+        reason: '전제: 이 이름은 한 줄에 안 들어간다');
+    expect(button, findsOneWidget, reason: '잘린 이름을 볼 방법이 없다');
+
+    // 앱바(제목 + ID)가 TabBar 줄을 덮지 않는다.
+    final titleBottom = tester.getBottomLeft(find.text('KR-GA-1234')).dy;
+    final tabsTop = tester.getTopLeft(find.byType(TabBar)).dy;
+    expect(titleBottom, lessThanOrEqualTo(tabsTop));
+
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(
+        tester
+            .widget<SelectableText>(
+                find.byKey(const Key('vehicle_full_name_text')))
+            .data,
+        _longer);
+  });
+
+  // 같은 폭·같은 이름을 세로 높이로만 바꾼 대조군. 줄 수가 높이에서 나온다는 근거다.
+  testWidgets('같은 폭 800이 세로(높이 800)면 제목은 두 줄로 돌아온다', (tester) async {
+    final overflows = await _pump(tester,
+        vehicle: _vehicle(_longer), width: 800, height: 800, textScale: 1.0);
+
+    expect(overflows, isEmpty);
+    expect(_renderedNameLines(tester), 2);
   });
 
   testWidgets('차량 정보 없이 들어오면 ID만 제목으로 쓴다', (tester) async {
