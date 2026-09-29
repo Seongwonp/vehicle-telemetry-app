@@ -5,6 +5,7 @@ import '../../core/auth/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_provider.dart';
 import '../landing/landing_screen.dart';
+import 'change_password_screen.dart';
 import '../../core/theme/design_tokens.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -67,6 +68,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           icon: Icons.person_outline,
                           label: '아이디',
                           value: _username ?? '알 수 없음',
+                        ),
+                        Divider(height: 1, color: colors.border),
+                        _ActionRow(
+                          icon: Icons.lock_outline,
+                          label: '비밀번호 변경',
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const ChangePasswordScreen()),
+                          ),
                         ),
                       ],
                     ),
@@ -168,6 +178,40 @@ class _InfoRow extends StatelessWidget {
               style: const TextStyle(
                   fontSize: FontSizes.body, fontWeight: FontWeight.w600)),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ActionRow(
+      {required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: Radii.mdAll,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.md, vertical: Spacing.md),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: colors.textSecondary),
+            const SizedBox(width: Spacing.sm),
+            Expanded(
+              child: Text(label,
+                  style: const TextStyle(
+                      fontSize: FontSizes.body, fontWeight: FontWeight.w600)),
+            ),
+            Icon(Icons.chevron_right, size: 20, color: colors.textSecondary),
+          ],
+        ),
       ),
     );
   }

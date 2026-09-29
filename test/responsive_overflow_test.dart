@@ -15,6 +15,7 @@ import 'package:telemetrix/features/dashboard/widgets/metric_tile_grid.dart';
 import 'package:telemetrix/features/dashboard/widgets/status_summary.dart';
 import 'package:telemetrix/features/diagnosis/widgets/header_card.dart';
 import 'package:telemetrix/features/landing/widgets/hero_section.dart';
+import 'package:telemetrix/features/settings/change_password_screen.dart';
 import 'package:telemetrix/features/vehicle_list/widgets/info_chip.dart';
 import 'package:telemetrix/features/vehicle_list/widgets/vehicle_card.dart';
 import 'package:telemetrix/core/models/anomaly.dart';
@@ -165,6 +166,9 @@ Map<String, Widget> _cases() => {
       'NoDataView': const NoDataView(vehicleId: 'KR-GA-1234'),
       'AnomalyEmptyView': const AnomalyEmptyView(),
       'DiagnosisHeaderCard': const DiagnosisHeaderCard(vehicleId: 'KR-GA-1234'),
+      // 화면 전체 — 입력칸 3개(보기 토글 아이콘 포함)와 안내 문구가 좁은 폭·큰 글자에서 가로로 넘치지 않는지.
+      'ChangePasswordScreen':
+          const SizedBox(height: 900, child: ChangePasswordScreen()),
     };
 
 void main() {

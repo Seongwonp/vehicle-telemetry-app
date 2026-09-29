@@ -176,6 +176,25 @@ class ApiClient {
     await _dio.post('/api/auth/logout', data: {'refreshToken': refreshToken});
   }
 
+  // 본인 비밀번호 변경. 성공은 204이고 서버가 이 사용자의 refresh token을 전부 폐기한다 —
+  // 호출부는 성공 뒤 로컬 세션을 정리해야 한다. 실패는 DioException으로 올리고, 화면이
+  // 구분할 오류 code는 [errorCode]로 읽는다(400 CURRENT_PASSWORD_INCORRECT ·
+  // VALIDATION_FAILED · BAD_REQUEST, 503 REDIS_UNAVAILABLE).
+  Future<void> changePassword(
+      String currentPassword, String newPassword) async {
+    await _dio.post('/api/auth/password', data: {
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    });
+  }
+
+  /// 백엔드 ErrorResponse의 `code`. 본문이 없거나 형식이 다르면 null.
+  static String? errorCode(DioException error) {
+    final data = error.response?.data;
+    if (data is Map && data['code'] is String) return data['code'] as String;
+    return null;
+  }
+
   // ── 차량 관리 ─────────────────────────────────────────────────
   Future<bool> canRegisterVehicles() async {
     final response = await _dio.get('/api/auth/me');
