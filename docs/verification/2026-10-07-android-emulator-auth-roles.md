@@ -34,7 +34,7 @@
 | 9 | 비밀번호 변경 성공 | 됨 — 처음 화면으로 돌아가고 스낵바 "비밀번호를 바꿨습니다. 다시 로그인해 주세요." | `12-pw-change-success-snackbar.png` |
 | 10 | 옛 비밀번호로 로그인 | 거부 — "아이디 또는 비밀번호가 올바르지 않습니다." | `13-login-old-password-rejected.png` |
 | 11 | 새 비밀번호로 로그인 | 됨 — 목록(SIM-002) | `14-login-new-password-ok.png` |
-| 12 | **결함** — 비밀번호 변경 화면에서 키보드 '다음' | 아래 참고 | — (포커스는 스크린샷에 안 보여 uiautomator 덤프로 확인) |
+| 12 | **결함** — 비밀번호 변경 화면에서 키보드 '다음' | 아래 참고(위젯 테스트로 수정 확인) | — (포커스는 스크린샷에 안 보여 uiautomator 덤프로 확인) |
 
 그 밖의 스크린샷: `01-landing.png`(처음 화면), `06-admin-settings.png`·`09-user-settings.png`(설정 — 계정 칸에 비밀번호 변경 항목).
 
@@ -52,9 +52,10 @@
 - 재현: 설정 → 비밀번호 변경 → 현재 비밀번호 칸 탭 → 키보드 '다음'.
 - 원인: `lib/features/settings/change_password_screen.dart`의 `_field()`가 `suffixIcon`에 포커스 가능한 `IconButton`을 두고, `next`가 `FocusScope.nextFocus()`의 순회 순서를 따른다.
   로그인 화면은 보기 토글이 마지막 칸(비밀번호, `done`)에만 있어 같은 문제가 드러나지 않는다.
-- **고치지 않았다.** 후보는 토글을 순회에서 빼는 것(`ExcludeFocus` 또는 `FocusNode(skipTraversal: true)`)이나
-  하드웨어 키보드·스크린 리더 사용자의 토글 접근성과 맞바꾸는 결정이라 사소한 수정으로 보지 않았다.
-  각 칸에 `FocusNode`를 두고 `onSubmitted`에서 다음 칸으로 직접 옮기는 방법도 있다.
+- **고쳤다(같은 날, 뒤 커밋).** 토글을 순회에서 빼면 하드웨어 키보드·스크린 리더의 토글 접근성을 잃으므로,
+  새·확인 칸에 `FocusNode`를 두고 `onSubmitted`에서 다음 칸으로 직접 옮겼다. 토글은 Tab 순회에 그대로 남는다.
+  회귀 테스트 `test/change_password_screen_test.dart`("키보드 '다음'은 … 다음 입력칸으로 간다") — 수정 전 실패·수정 뒤 통과 확인.
+  `flutter analyze` 이슈 0, `flutter test` 470 통과(skip 2는 기존). **에뮬레이터에서 다시 보지는 않았다.**
 
 ## 확인하지 않은 것
 

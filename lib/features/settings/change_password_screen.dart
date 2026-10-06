@@ -29,6 +29,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _currentController = TextEditingController();
   final _newController = TextEditingController();
   final _confirmController = TextEditingController();
+  // '다음'을 직접 다음 칸으로 넘긴다 — 기본 이동은 칸 안의 '보기' 버튼으로 가서 키보드가 닫혔다(2026-10-07 에뮬레이터).
+  final _newFocus = FocusNode();
+  final _confirmFocus = FocusNode();
 
   bool _showCurrent = false;
   bool _showNew = false;
@@ -46,6 +49,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     _currentController.dispose();
     _newController.dispose();
     _confirmController.dispose();
+    _newFocus.dispose();
+    _confirmFocus.dispose();
     super.dispose();
   }
 
@@ -151,10 +156,12 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     required VoidCallback onChanged,
     TextInputAction action = TextInputAction.next,
     VoidCallback? onSubmitted,
+    FocusNode? focusNode,
     String? helper,
   }) {
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       obscureText: !visible,
       enabled: !_loading,
       autocorrect: false,
@@ -198,6 +205,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   visible: _showCurrent,
                   onToggle: () => setState(() => _showCurrent = !_showCurrent),
                   error: _currentError,
+                  onSubmitted: _newFocus.requestFocus,
                   onChanged: () {
                     if (_currentError != null) {
                       setState(() => _currentError = null);
@@ -212,6 +220,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   visible: _showNew,
                   onToggle: () => setState(() => _showNew = !_showNew),
                   error: _newError,
+                  focusNode: _newFocus,
+                  onSubmitted: _confirmFocus.requestFocus,
                   onChanged: () {
                     if (_newError != null) setState(() => _newError = null);
                   },
@@ -223,6 +233,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   visible: _showConfirm,
                   onToggle: () => setState(() => _showConfirm = !_showConfirm),
                   error: _confirmError,
+                  focusNode: _confirmFocus,
                   action: TextInputAction.done,
                   onSubmitted: _submit,
                   onChanged: () {

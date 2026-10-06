@@ -257,4 +257,24 @@ void main() {
     await tester.pump();
     expect([obscured(0), obscured(1), obscured(2)], [true, false, true]);
   });
+
+  testWidgets("키보드 '다음'은 칸 안의 보기 버튼이 아니라 다음 입력칸으로 간다", (tester) async {
+    final h = _Harness((_) => ResponseBody.fromString('', 204));
+    await h.pump(tester);
+    final fields = find.byType(TextField);
+    bool focused(int i) =>
+        tester.widget<TextField>(fields.at(i)).focusNode?.hasFocus ??
+        tester.binding.focusManager.primaryFocus?.context
+                ?.findAncestorWidgetOfExactType<TextField>() ==
+            tester.widget<TextField>(fields.at(i));
+    await tester.tap(fields.at(0));
+    await tester.pump();
+    await tester.testTextInput.receiveAction(TextInputAction.next);
+    await tester.pump();
+    expect(focused(1), isTrue);
+    await tester.testTextInput.receiveAction(TextInputAction.next);
+    await tester.pump();
+    expect(focused(2), isTrue);
+    expect(h.passwordCalls, 0);
+  });
 }
