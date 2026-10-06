@@ -7,8 +7,15 @@ class Telemetry {
   final double rpm;
   final double engineTemp;
   final double throttlePosition;
-  final double fuelLevel;
-  final double batteryVoltage;
+
+  /// 연료량(PID 012F). **null = 이 레코드에 값이 없다**(차량 미지원 또는 미수신) — 0이 아니다.
+  ///
+  /// 백엔드 계약에서 선택 필드다(백엔드 ADR-030). 저장 시 필드를 쓰지 않으므로 응답에서도 null로 온다.
+  final double? fuelLevel;
+
+  /// 제어 모듈 전압(PID 0142). null이면 값 없음 — **기준(11.5–15V) 판정을 하지 않는다.**
+  /// 0으로 보면 "기준 밖"으로 빨갛게 뜬다.
+  final double? batteryVoltage;
   final double? lat;
   final double? lng;
   final List<String> dtcCodes;
@@ -20,8 +27,8 @@ class Telemetry {
     required this.rpm,
     required this.engineTemp,
     required this.throttlePosition,
-    required this.fuelLevel,
-    required this.batteryVoltage,
+    this.fuelLevel,
+    this.batteryVoltage,
     this.lat,
     this.lng,
     required this.dtcCodes,
@@ -35,8 +42,9 @@ class Telemetry {
       rpm: (json['rpm'] as num).toDouble(),
       engineTemp: (json['engineTemp'] as num).toDouble(),
       throttlePosition: (json['throttlePosition'] as num).toDouble(),
-      fuelLevel: (json['fuelLevel'] as num).toDouble(),
-      batteryVoltage: (json['batteryVoltage'] as num).toDouble(),
+      // 선택 필드 — 키가 없거나 null이면 null. 0으로 채우지 않는다.
+      fuelLevel: (json['fuelLevel'] as num?)?.toDouble(),
+      batteryVoltage: (json['batteryVoltage'] as num?)?.toDouble(),
       lat: (json['lat'] as num?)?.toDouble(),
       lng: (json['lng'] as num?)?.toDouble(),
       dtcCodes: (json['dtcCodes'] as List<dynamic>?)
@@ -63,7 +71,8 @@ class Telemetry {
   bool get hasAnomaly =>
       TelemetryLimits.engineTempOver(engineTemp) ||
       TelemetryLimits.rpmOver(rpm) ||
-      TelemetryLimits.batteryOut(batteryVoltage) ||
+      // 전압이 없으면 판정하지 않는다 — 감지기(rules.py)도 같은 규칙이다.
+      (batteryVoltage != null && TelemetryLimits.batteryOut(batteryVoltage!)) ||
       TelemetryLimits.speedOver(speed) ||
       dtcCodes.isNotEmpty;
 }

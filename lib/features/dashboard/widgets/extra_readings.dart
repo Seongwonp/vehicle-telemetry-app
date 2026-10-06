@@ -45,9 +45,15 @@ class ExtraReadings extends StatelessWidget {
                   ),
                   Text(
                     '${state.extras[i].valueText}${state.extras[i].unit}',
+                    // 값이 없는 선택 센서(연료량)는 "미수신" — 0%로 그리지 않고 흐리게 둔다.
+                    key: state.extras[i].available
+                        ? null
+                        : Key('extra_reading_missing_${state.extras[i].label}'),
                     style: AppTheme.gaugeNumberStyle(
                       fontSize: FontSizes.subtitle,
-                      color: live ? colors.textPrimary : colors.textTertiary,
+                      color: live && state.extras[i].available
+                          ? colors.textPrimary
+                          : colors.textTertiary,
                     ),
                   ),
                 ],

@@ -31,10 +31,15 @@ class MetricTile extends StatelessWidget {
     final over = state.showsOver(reading);
     final accent = over ? colors.danger : colors.textSecondary;
 
-    final semantics = live
-        ? '${reading.label} ${reading.valueText} ${reading.unit}, ${reading.limitText}'
-        : '${reading.label}, ${state.receivedClock}에 받은 값 '
-            '${reading.valueText} ${reading.unit}, 현재 값 아님';
+    final available = reading.available;
+    final semantics = !available
+        ? (live
+            ? '${reading.label} ${reading.valueText}, ${reading.limitText}'
+            : '${reading.label}, ${state.receivedClock}에 받은 레코드에도 값 없음, 현재 값 아님')
+        : live
+            ? '${reading.label} ${reading.valueText} ${reading.unit}, ${reading.limitText}'
+            : '${reading.label}, ${state.receivedClock}에 받은 값 '
+                '${reading.valueText} ${reading.unit}, 현재 값 아님';
 
     return Semantics(
       container: true,
@@ -76,7 +81,20 @@ class MetricTile extends StatelessWidget {
               ],
             ),
             const SizedBox(height: Spacing.xs),
-            if (live)
+            if (live && !available)
+              // 값이 없는 선택 센서 — 0을 그리지 않는다. 숫자 자리에 낱말을 두되 숫자보다 흐리게.
+              Text(
+                reading.valueText,
+                key: Key('metric_tile_${reading.kind.name}_missing'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: FontSizes.subtitle,
+                  fontWeight: FontWeight.w600,
+                  color: colors.textTertiary,
+                ),
+              )
+            else if (live)
               _LiveValue(reading: reading, over: over)
             else
               Text(
@@ -100,7 +118,9 @@ class MetricTile extends StatelessWidget {
             else
               Text(
                 // 받은 시각은 타일 위 머리("14:41:20에 받은 값")가 한 번 말한다.
-                '지난 값 ${reading.valueText} ${reading.unit}',
+                available
+                    ? '지난 값 ${reading.valueText} ${reading.unit}'
+                    : '지난 레코드에도 ${reading.valueText}',
                 key: Key('metric_tile_${reading.kind.name}_past'),
                 style: TextStyle(
                   fontSize: FontSizes.badge,

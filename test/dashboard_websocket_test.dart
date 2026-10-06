@@ -312,4 +312,71 @@ void main() {
     expect(find.text('이상 값 감지됨'), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
+
+  // 백엔드 ADR-030 — 연료량(012F)·제어 모듈 전압(0142)은 선택 필드다. 지원하지 않는 차량은 키가 없거나 null이다.
+  for (final variant in ['키 없음', 'null']) {
+    testWidgets('연료량·전압이 $variant이면 0이 아니라 "미수신"으로 보이고 기준 판정을 하지 않는다',
+        (tester) async {
+      final optionalMissing = variant == '키 없음'
+          ? '''{
+        "vehicleId":"SIM-001",
+        "timestamp":"2026-08-04T10:00:00Z",
+        "speed":42.0,
+        "rpm":1800,
+        "engineTemp":90.0,
+        "throttlePosition":20.0,
+        "dtcCodes":[]
+      }'''
+          : '''{
+        "vehicleId":"SIM-001",
+        "timestamp":"2026-08-04T10:00:00Z",
+        "speed":42.0,
+        "rpm":1800,
+        "engineTemp":90.0,
+        "throttlePosition":20.0,
+        "fuelLevel":null,
+        "batteryVoltage":null,
+        "dtcCodes":[]
+      }''';
+
+      await pumpDashboard(tester);
+      await clients.single.connect();
+      clients.single.emit(optionalMissing);
+      await tester.pump();
+
+      // frame은 버려지지 않는다 — 필수 값은 그대로 갱신된다.
+      expect(textOf(tester, speedValue), '42.0');
+
+      // 전압 타일: 숫자 자리에 "미수신", 경고 아이콘 없음, 기준 문구는 "판정 안 함".
+      final batteryMissing =
+          find.byKey(const Key('metric_tile_battery_missing'));
+      expect(textOf(tester, batteryMissing), '미수신');
+      expect(find.byKey(const Key('metric_tile_battery_value')), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('metric_tile_battery')),
+          matching: find.byIcon(Icons.warning_rounded),
+        ),
+        findsNothing,
+        reason: '값이 없는데 기준 밖(0V)으로 보이면 안 된다',
+      );
+      expect(find.textContaining('판정 안 함'), findsOneWidget);
+      // 요약은 "기준 초과 없음"이어야 한다 — 없는 전압이 0V(기준 밖)로 세지면 "기준 초과 1"이 된다.
+      expect(find.textContaining('기준 초과 없음'), findsOneWidget);
+      expect(find.textContaining('기준 초과 1'), findsNothing);
+
+      // 연료: "미수신", 0%로 그리지 않는다.
+      expect(textOf(tester, find.byKey(const Key('extra_reading_missing_연료'))),
+          '미수신');
+      expect(find.text('0.0%'), findsNothing);
+      expect(find.textContaining('0.00'), findsNothing);
+
+      // 수신이 멈추면 지난 값 줄도 0을 만들지 않는다.
+      now = now.add(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 1));
+      expect(textOf(tester, find.byKey(const Key('metric_tile_battery_past'))),
+          '지난 레코드에도 미수신');
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
 }

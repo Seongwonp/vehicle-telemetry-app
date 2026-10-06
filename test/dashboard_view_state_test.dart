@@ -128,4 +128,65 @@ void main() {
       expect(s.receivedClock, '09:05:07');
     });
   });
+
+  // 백엔드 ADR-030 — 연료량·전압은 선택 필드다. 없으면 null이고 0이 아니다.
+  group('선택 센서 — 연료량·전압이 없을 때', () {
+    Map<String, dynamic> json() => {
+          'vehicleId': 'SIM-001',
+          'timestamp': '2026-08-04T10:00:00Z',
+          'speed': 60.0,
+          'rpm': 2000,
+          'engineTemp': 90.0,
+          'throttlePosition': 18.5,
+          'dtcCodes': <String>[],
+        };
+
+    test('모델이 키 없음과 null을 모두 받고 null로 둔다 (0으로 채우지 않는다)', () {
+      final absent = Telemetry.fromJson(json());
+      expect(absent.fuelLevel, isNull);
+      expect(absent.batteryVoltage, isNull);
+
+      final nulls = Telemetry.fromJson(
+          {...json(), 'fuelLevel': null, 'batteryVoltage': null});
+      expect(nulls.fuelLevel, isNull);
+      expect(nulls.batteryVoltage, isNull);
+
+      final present =
+          Telemetry.fromJson({...json(), 'fuelLevel': 0, 'batteryVoltage': 0});
+      expect(present.fuelLevel, 0.0, reason: '실제 0은 0이다 — 없음과 다르다');
+      expect(present.batteryVoltage, 0.0);
+    });
+
+    test('필수 값이 없으면 여전히 파싱 실패다 — 선택화 범위는 두 필드뿐', () {
+      final noSpeed = json()..remove('speed');
+      expect(() => Telemetry.fromJson(noSpeed), throwsA(isA<TypeError>()));
+      expect(Telemetry.tryFromJson(noSpeed), isNull);
+    });
+
+    test('전압이 없으면 hasAnomaly가 전압 기준으로 켜지지 않는다', () {
+      expect(Telemetry.fromJson(json()).hasAnomaly, isFalse);
+      // 실제 0V는 기준 밖이다 — 없음과 0을 구분한다.
+      expect(Telemetry.fromJson({...json(), 'batteryVoltage': 0}).hasAnomaly,
+          isTrue);
+    });
+
+    test('전압 타일은 "미수신"·판정 안 함, 연료는 "미수신"', () {
+      final s = _state(Telemetry.fromJson(json()));
+      final battery =
+          s.readings.singleWhere((r) => r.kind == MetricKind.battery);
+      expect(battery.available, isFalse);
+      expect(battery.valueText, DashboardViewState.missingText);
+      expect(battery.valueText, '미수신');
+      expect(battery.unit, '');
+      expect(battery.over, isFalse);
+      expect(s.overCount, 0);
+      expect(s.readings.map((r) => r.kind), MetricKind.values,
+          reason: '타일 자리는 그대로 둔다 — 레이아웃이 차량마다 흔들리지 않게');
+
+      final fuel = s.extras.singleWhere((e) => e.label == '연료');
+      expect(fuel.available, isFalse);
+      expect(fuel.valueText, '미수신');
+      expect(fuel.unit, '');
+    });
+  });
 }
