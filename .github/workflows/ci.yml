@@ -18,6 +18,12 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      update_goldens:
+        description: 'Regenerate Windows golden snapshots and upload them as an artifact'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   verify:
@@ -75,8 +81,14 @@ jobs:
       - name: pub get
         run: flutter pub get
 
-      - name: golden compare (no update)
-        run: flutter test test/golden --run-skipped --reporter expanded
+      - name: golden compare or update
+        shell: pwsh
+        run: |
+          if ("${{ inputs.update_goldens }}" -eq "true") {
+            flutter test test/golden --run-skipped --update-goldens --reporter expanded
+          } else {
+            flutter test test/golden --run-skipped --reporter expanded
+          }
 
       - name: upload golden diffs
         if: failure()
@@ -85,3 +97,11 @@ jobs:
           name: golden-failures
           path: test/golden/failures/
           if-no-files-found: ignore
+
+      - name: upload regenerated goldens
+        if: ${{ inputs.update_goldens == true && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-goldens
+          path: test/golden/snapshots/
+          if-no-files-found: error

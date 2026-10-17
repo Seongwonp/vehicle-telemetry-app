@@ -106,9 +106,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(VehicleCard), findsOneWidget);
-    expect(find.textContaining('마지막 수신 시각 기준'), findsOneWidget);
+    expect(find.textContaining('마지막 수신 시각 기준'), findsNWidgets(2));
     // 목록의 문구는 상세 탭의 "데이터 지연"(10초 기준)과 겹치지 않아야 한다.
-    expect(find.text('수신 지연'), findsOneWidget);
+    expect(find.text('오래전 수신'), findsOneWidget);
     expect(find.text('지연'), findsNothing);
     expect(find.text('123 km/h'), findsOneWidget);
     expect(find.text('HIGH 3'), findsOneWidget);

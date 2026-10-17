@@ -100,7 +100,7 @@ void main() {
     expect(h.tokens.clearCount, 1);
     expect(h.tokens.accessToken, isNull);
     expect(find.byType(VehicleListScreen), findsOneWidget);
-    expect(find.text('차량 데이터를 확인하려면'), findsOneWidget);
+    expect(find.text('차량 데이터를 보려면 로그인해 주세요.'), findsOneWidget);
     expect(find.byType(ChangePasswordScreen), findsNothing);
     expect(find.text('비밀번호를 바꿨습니다. 다시 로그인해 주세요.'), findsOneWidget);
     await _teardown(tester);
