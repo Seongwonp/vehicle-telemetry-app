@@ -256,15 +256,19 @@ class _GuestVehicleCard extends StatelessWidget {
             const SizedBox(height: Spacing.md),
             Row(
               children: [
-                Expanded(
+                const Expanded(
                   child: _GuestMetric(
                     icon: Icons.speed_outlined,
                     label: '현재 속도',
                     value: '—',
                   ),
                 ),
-                Container(width: 1, height: 34, color: colors.border),
-                Expanded(
+                SizedBox(
+                  width: 1,
+                  height: 34,
+                  child: ColoredBox(color: colors.border),
+                ),
+                const Expanded(
                   child: _GuestMetric(
                     icon: Icons.warning_amber_outlined,
                     label: '이상 이력',
@@ -274,10 +278,10 @@ class _GuestVehicleCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: Spacing.sm),
-            Wrap(
+            const Wrap(
               spacing: Spacing.xs,
               runSpacing: Spacing.xxs,
-              children: const [
+              children: [
                 InfoChip(label: '차량 ID —', icon: Icons.tag),
                 InfoChip(label: '마지막 수신 —', icon: Icons.schedule_outlined),
               ],
