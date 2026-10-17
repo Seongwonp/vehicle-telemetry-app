@@ -110,7 +110,7 @@ void main() {
     // 목록의 문구는 상세 탭의 "데이터 지연"(10초 기준)과 겹치지 않아야 한다.
     expect(find.text('오래전 수신'), findsOneWidget);
     expect(find.text('지연'), findsNothing);
-    expect(find.text('123 km/h'), findsOneWidget);
+    expect(find.text('123 km/h'), findsNWidgets(2));
     expect(find.text('HIGH 3'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
