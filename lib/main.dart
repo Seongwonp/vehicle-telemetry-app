@@ -6,7 +6,6 @@ import 'core/navigation/navigator_key.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/boot/boot_screen.dart';
-import 'features/landing/landing_screen.dart';
 import 'features/vehicle_list/vehicle_list_screen.dart';
 import 'core/api/api_client.dart';
 
@@ -34,7 +33,8 @@ class TelemetryApp extends ConsumerWidget {
       home: switch (authStatus) {
         AuthStatus.initializing => const BootScreen(),
         AuthStatus.authenticated => const VehicleListScreen(),
-        AuthStatus.unauthenticated => const LandingScreen(),
+        AuthStatus.unauthenticated =>
+          const VehicleListScreen(requireLogin: true),
       },
     );
   }

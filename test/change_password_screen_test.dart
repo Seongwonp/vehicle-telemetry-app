@@ -8,8 +8,8 @@ import 'package:telemetrix/core/api/api_client.dart';
 import 'package:telemetrix/core/auth/auth_provider.dart';
 import 'package:telemetrix/core/providers/vehicle_providers.dart';
 import 'package:telemetrix/core/theme/app_theme.dart';
-import 'package:telemetrix/features/landing/landing_screen.dart';
 import 'package:telemetrix/features/settings/change_password_screen.dart';
+import 'package:telemetrix/features/vehicle_list/vehicle_list_screen.dart';
 import 'test_support.dart';
 
 /// 화면 + 실제 ApiClient(가짜 HTTP 어댑터) + 실제 authProvider 로그아웃 경로.
@@ -59,7 +59,6 @@ Future<void> _fill(WidgetTester tester,
 
 Future<void> _submit(WidgetTester tester) async {
   await tester.tap(find.byType(FilledButton));
-  // LandingScreen은 무한 반복 애니메이션이라 pumpAndSettle을 쓸 수 없다.
   for (var i = 0; i < 5; i++) {
     await tester.pump(const Duration(milliseconds: 50));
   }
@@ -67,7 +66,7 @@ Future<void> _submit(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 1));
 }
 
-/// 랜딩의 반복 애니메이션과 스낵바 타이머를 정리한다.
+/// 화면 전환과 스낵바 타이머를 정리한다.
 Future<void> _teardown(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox());
   await tester.pump(const Duration(seconds: 6));
@@ -100,7 +99,8 @@ void main() {
     });
     expect(h.tokens.clearCount, 1);
     expect(h.tokens.accessToken, isNull);
-    expect(find.byType(LandingScreen), findsOneWidget);
+    expect(find.byType(VehicleListScreen), findsOneWidget);
+    expect(find.text('차량 데이터를 확인하려면'), findsOneWidget);
     expect(find.byType(ChangePasswordScreen), findsNothing);
     expect(find.text('비밀번호를 바꿨습니다. 다시 로그인해 주세요.'), findsOneWidget);
     await _teardown(tester);
@@ -208,7 +208,7 @@ void main() {
     // 같은 값으로 다시 누르면 성공한다.
     await _submit(tester);
     expect(h.passwordCalls, 2);
-    expect(find.byType(LandingScreen), findsOneWidget);
+    expect(find.byType(VehicleListScreen), findsOneWidget);
     await _teardown(tester);
   });
 

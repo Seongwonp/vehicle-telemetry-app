@@ -6,17 +6,26 @@ import '../../core/responsive/breakpoints.dart';
 import '../../core/theme/app_theme.dart';
 import '../settings/settings_screen.dart';
 import '../vehicle_detail/vehicle_detail_screen.dart';
+import '../login/login_screen.dart';
 import 'add_vehicle_screen.dart';
 import 'widgets/empty_view.dart';
 import 'widgets/error_view.dart';
 import 'widgets/vehicle_card.dart';
+import 'widgets/info_chip.dart';
+import '../../core/widgets/status_pill.dart';
 import '../../core/theme/design_tokens.dart';
 
 class VehicleListScreen extends ConsumerWidget {
-  const VehicleListScreen({super.key});
+  final bool requireLogin;
+
+  const VehicleListScreen({this.requireLogin = false, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (requireLogin) {
+      return const _LoginRequiredHome();
+    }
+
     final vehiclesAsync = ref.watch(vehiclesProvider);
     final canRegister =
         ref.watch(canRegisterVehiclesProvider).valueOrNull == true;
@@ -71,6 +80,7 @@ class VehicleListScreen extends ConsumerWidget {
                 })
             : Column(
                 children: [
+                  _FleetOverview(vehicles: vehicles),
                   const _SignalCriteriaGuide(),
                   Expanded(
                     child: RefreshIndicator(
@@ -93,6 +103,370 @@ class VehicleListScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+      ),
+    );
+  }
+}
+
+class _LoginRequiredHome extends StatelessWidget {
+  const _LoginRequiredHome();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('내 차량'),
+        centerTitle: false,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+            Spacing.md, Spacing.sm, Spacing.md, Spacing.xl),
+        children: [
+          const _GuestFleetOverview(),
+          const _SignalCriteriaGuide(),
+          const SizedBox(height: Spacing.sm),
+          const _GuestVehicleCard(),
+          const SizedBox(height: Spacing.md),
+          _LoginPrompt(
+              onLogin: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  )),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuestFleetOverview extends StatelessWidget {
+  const _GuestFleetOverview();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Spacing.xs),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '차량 상태',
+            style: TextStyle(
+              fontSize: context.isMobile
+                  ? FontSizes.displayCompact
+                  : FontSizes.display,
+              fontWeight: FontWeight.w800,
+              color: colors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: Spacing.xxs),
+          Text(
+            '로그인하면 등록된 차량의 실시간 데이터를 확인할 수 있습니다.',
+            style: TextStyle(
+              fontSize: FontSizes.body,
+              color: colors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: Spacing.md),
+          Container(
+            padding: const EdgeInsets.all(Spacing.md),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: Radii.mdAll,
+              border: Border.all(color: colors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.lock_outline, color: primary),
+                const SizedBox(width: Spacing.sm),
+                Expanded(
+                  child: Text(
+                    '로그인 전 미리보기',
+                    style: TextStyle(
+                      fontSize: FontSizes.subtitle,
+                      fontWeight: FontWeight.w700,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                ),
+                Text(
+                  '로그인 후 확인',
+                  style: TextStyle(
+                    fontSize: FontSizes.body,
+                    fontWeight: FontWeight.w700,
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuestVehicleCard extends StatelessWidget {
+  const _GuestVehicleCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final primary = Theme.of(context).colorScheme.primary;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(Spacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: primary.withValues(alpha: 0.10),
+                    borderRadius: Radii.mdAll,
+                  ),
+                  child: Icon(
+                    Icons.directions_car_outlined,
+                    color: primary,
+                  ),
+                ),
+                const SizedBox(width: Spacing.sm),
+                Expanded(
+                  child: Text(
+                    '내 차량',
+                    style: TextStyle(
+                      fontSize: FontSizes.subtitle,
+                      fontWeight: FontWeight.w700,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                ),
+                StatusPill(
+                  label: '로그인 필요',
+                  icon: Icons.lock_outline,
+                  color: colors.textTertiary,
+                  semanticsLabel: '로그인 필요',
+                ),
+              ],
+            ),
+            const SizedBox(height: Spacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: _GuestMetric(
+                    icon: Icons.speed_outlined,
+                    label: '현재 속도',
+                    value: '—',
+                  ),
+                ),
+                Container(width: 1, height: 34, color: colors.border),
+                Expanded(
+                  child: _GuestMetric(
+                    icon: Icons.warning_amber_outlined,
+                    label: '이상 이력',
+                    value: '로그인 후 확인',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: Spacing.sm),
+            Wrap(
+              spacing: Spacing.xs,
+              runSpacing: Spacing.xxs,
+              children: const [
+                InfoChip(label: '차량 ID —', icon: Icons.tag),
+                InfoChip(label: '마지막 수신 —', icon: Icons.schedule_outlined),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GuestMetric extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _GuestMetric({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: colors.textSecondary),
+        const SizedBox(width: Spacing.xs),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style: TextStyle(
+                    fontSize: FontSizes.badge, color: colors.textTertiary)),
+            const SizedBox(height: Spacing.xxs),
+            Text(value,
+                style: TextStyle(
+                    fontSize: FontSizes.body,
+                    fontWeight: FontWeight.w700,
+                    color: colors.textSecondary)),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _LoginPrompt extends StatelessWidget {
+  final VoidCallback onLogin;
+
+  const _LoginPrompt({required this.onLogin});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    return Container(
+      padding: const EdgeInsets.all(Spacing.md),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: Radii.mdAll,
+        border: Border.all(color: colors.border),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, color: colors.textSecondary),
+          const SizedBox(width: Spacing.sm),
+          Expanded(
+            child: Text(
+              '차량 데이터를 보려면 로그인해 주세요.',
+              style: TextStyle(
+                fontSize: FontSizes.body,
+                color: colors.textSecondary,
+              ),
+            ),
+          ),
+          FilledButton(
+            onPressed: onLogin,
+            child: const Text('로그인'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FleetOverview extends StatelessWidget {
+  final List<Vehicle> vehicles;
+
+  const _FleetOverview({required this.vehicles});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final now = DateTime.now();
+    final recent = vehicles
+        .where((v) =>
+            fleetSignalState(v.lastSeenAt, now) == FleetSignalState.recent)
+        .length;
+    final attention = vehicles.where((v) {
+      final state = fleetSignalState(v.lastSeenAt, now);
+      return state == FleetSignalState.delayed ||
+          state == FleetSignalState.offline ||
+          v.highAnomalyCount > 0;
+    }).length;
+    final label = attention == 0 ? '모든 차량 정상' : '$attention대 확인 필요';
+    final tone = attention == 0 ? colors.success : colors.warning;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          Spacing.md, Spacing.sm, Spacing.md, Spacing.xs),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: ContentWidths.grid),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '차량 상태',
+              style: TextStyle(
+                fontSize: context.isMobile
+                    ? FontSizes.displayCompact
+                    : FontSizes.display,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+                color: colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: Spacing.xxs),
+            Text(
+              '등록된 차량의 현재 신호와 이상 상태를 한눈에 확인하세요.',
+              style: TextStyle(
+                fontSize: FontSizes.body,
+                color: colors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: Spacing.md),
+            Container(
+              padding: const EdgeInsets.all(Spacing.md),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: Radii.mdAll,
+                border: Border.all(color: colors.border),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: tone.withValues(alpha: 0.10),
+                      borderRadius: Radii.smAll,
+                    ),
+                    child: Icon(
+                      attention == 0
+                          ? Icons.verified_outlined
+                          : Icons.warning_amber_rounded,
+                      color: tone,
+                    ),
+                  ),
+                  const SizedBox(width: Spacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: FontSizes.subtitle,
+                            fontWeight: FontWeight.w700,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: Spacing.xxs),
+                        Text(
+                          '$recent/${vehicles.length}대 최근 수신 · 마지막 수신 시각 기준',
+                          style: TextStyle(
+                            fontSize: FontSizes.caption,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, color: colors.textTertiary),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -178,7 +552,7 @@ class _VehicleGrid extends StatelessWidget {
             crossAxisCount: columns,
             mainAxisSpacing: 14,
             crossAxisSpacing: 14,
-            mainAxisExtent: context.isDesktop ? 190 : 220,
+            mainAxisExtent: context.isDesktop ? 236 : 250,
           ),
           itemCount: vehicles.length,
           itemBuilder: (context, index) => VehicleCard(

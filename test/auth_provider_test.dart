@@ -7,7 +7,6 @@ import 'package:telemetrix/features/boot/boot_screen.dart';
 import 'package:telemetrix/core/api/api_client.dart';
 import 'package:telemetrix/core/auth/auth_provider.dart';
 import 'package:telemetrix/core/providers/vehicle_providers.dart';
-import 'package:telemetrix/features/landing/landing_screen.dart';
 import 'package:telemetrix/features/vehicle_list/vehicle_list_screen.dart';
 import 'package:telemetrix/main.dart';
 
@@ -52,7 +51,6 @@ void main() {
 
     expect(find.byType(BootScreen), findsOneWidget);
     expect(find.text('TELEMETRIX'), findsOneWidget);
-    expect(find.byType(LandingScreen), findsNothing);
     expect(find.byType(VehicleListScreen), findsNothing);
 
     tokens.result.complete(true);

@@ -4,7 +4,7 @@ import 'token_storage.dart';
 import '../api/api_client.dart';
 import '../navigation/navigator_key.dart';
 import '../providers/vehicle_providers.dart';
-import '../../features/landing/landing_screen.dart';
+import '../../features/vehicle_list/vehicle_list_screen.dart';
 
 enum AuthStatus { initializing, authenticated, unauthenticated }
 
@@ -91,7 +91,8 @@ class AuthNotifier extends StateNotifier<AuthStatus> {
 
 void _resetToLanding() {
   rootNavigatorKey.currentState?.pushAndRemoveUntil(
-    MaterialPageRoute(builder: (_) => const LandingScreen()),
+    MaterialPageRoute(
+        builder: (_) => const VehicleListScreen(requireLogin: true)),
     (route) => false,
   );
 }

@@ -4,7 +4,7 @@ import '../../core/auth/token_storage.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_provider.dart';
-import '../landing/landing_screen.dart';
+import '../vehicle_list/vehicle_list_screen.dart';
 import 'change_password_screen.dart';
 import '../../core/theme/design_tokens.dart';
 
@@ -39,7 +39,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await ref.read(authProvider.notifier).logout();
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LandingScreen()),
+        MaterialPageRoute(
+            builder: (_) => const VehicleListScreen(requireLogin: true)),
         (route) => false,
       );
     }

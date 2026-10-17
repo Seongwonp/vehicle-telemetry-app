@@ -6,7 +6,7 @@ import '../../core/auth/auth_provider.dart';
 import '../../core/providers/vehicle_providers.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/design_tokens.dart';
-import '../landing/landing_screen.dart';
+import '../vehicle_list/vehicle_list_screen.dart';
 
 // 백엔드 PasswordPolicy와 같은 값 — 서버가 최종 판정하고, 여기서는 요청을 아끼기 위해 먼저 거른다.
 const int _minLength = 8;
@@ -115,7 +115,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         const SnackBar(content: Text('비밀번호를 바꿨습니다. 다시 로그인해 주세요.')));
     await ref.read(authProvider.notifier).logout();
     navigator.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LandingScreen()),
+      MaterialPageRoute(
+          builder: (_) => const VehicleListScreen(requireLogin: true)),
       (route) => false,
     );
   }

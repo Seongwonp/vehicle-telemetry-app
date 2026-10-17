@@ -84,6 +84,9 @@ class VehicleCard extends StatelessWidget {
     final colors = context.appColors;
     final signalState = fleetSignalState(vehicle.lastSeenAt, DateTime.now());
     final signalColor = signalState.color(colors);
+    final hasAttention = signalState == FleetSignalState.delayed ||
+        signalState == FleetSignalState.offline ||
+        vehicle.highAnomalyCount > 0;
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -139,6 +142,36 @@ class VehicleCard extends StatelessWidget {
                     _DeleteMenuButton(onDelete: () => _confirmDelete(context)),
                 ],
               ),
+              const SizedBox(height: Spacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: _PrimaryVehicleMetric(
+                      icon: Icons.speed_outlined,
+                      label: '현재 속도',
+                      value: vehicle.latestSpeed == null
+                          ? '—'
+                          : '${vehicle.latestSpeed!.toStringAsFixed(0)} km/h',
+                      muted: vehicle.latestSpeed == null,
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 34,
+                    color: colors.border,
+                  ),
+                  Expanded(
+                    child: _PrimaryVehicleMetric(
+                      icon: hasAttention
+                          ? Icons.warning_amber_rounded
+                          : Icons.health_and_safety_outlined,
+                      label: '상태',
+                      value: hasAttention ? '확인 필요' : '정상',
+                      color: hasAttention ? colors.warning : colors.success,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: Spacing.sm),
               Wrap(
                 spacing: Spacing.xs,
@@ -158,6 +191,59 @@ class VehicleCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PrimaryVehicleMetric extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool muted;
+  final Color? color;
+
+  const _PrimaryVehicleMetric({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.muted = false,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final tone = color ?? colors.textSecondary;
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: tone),
+        const SizedBox(width: Spacing.xs),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: FontSizes.badge,
+                  color: colors.textTertiary,
+                ),
+              ),
+              const SizedBox(height: Spacing.xxs),
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: FontSizes.body,
+                  fontWeight: FontWeight.w700,
+                  color: muted ? colors.textTertiary : tone,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
