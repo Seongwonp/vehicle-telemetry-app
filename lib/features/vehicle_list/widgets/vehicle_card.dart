@@ -84,9 +84,20 @@ class VehicleCard extends StatelessWidget {
     final colors = context.appColors;
     final signalState = fleetSignalState(vehicle.lastSeenAt, DateTime.now());
     final signalColor = signalState.color(colors);
-    final hasAttention = signalState == FleetSignalState.delayed ||
-        signalState == FleetSignalState.offline ||
-        vehicle.highAnomalyCount > 0;
+    final hasAnomaly = vehicle.highAnomalyCount > 0;
+    final hasStaleSignal = signalState == FleetSignalState.delayed ||
+        signalState == FleetSignalState.offline;
+    final hasAttention = hasAnomaly || hasStaleSignal;
+    final healthLabel = hasAnomaly
+        ? '이상 감지'
+        : hasStaleSignal
+            ? '수신 확인'
+            : '정상';
+    final healthColor = hasAnomaly
+        ? colors.danger
+        : hasStaleSignal
+            ? colors.warning
+            : colors.success;
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -166,8 +177,8 @@ class VehicleCard extends StatelessWidget {
                           ? Icons.warning_amber_rounded
                           : Icons.health_and_safety_outlined,
                       label: '상태',
-                      value: hasAttention ? '확인 필요' : '정상',
-                      color: hasAttention ? colors.warning : colors.success,
+                      value: healthLabel,
+                      color: healthColor,
                     ),
                   ),
                 ],

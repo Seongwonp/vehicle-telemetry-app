@@ -377,6 +377,13 @@ class _FleetOverview extends StatelessWidget {
         .where((v) =>
             fleetSignalState(v.lastSeenAt, now) == FleetSignalState.recent)
         .length;
+    final anomalyVehicles =
+        vehicles.where((v) => v.highAnomalyCount > 0).length;
+    final staleVehicles = vehicles.where((v) {
+      final state = fleetSignalState(v.lastSeenAt, now);
+      return state == FleetSignalState.delayed ||
+          state == FleetSignalState.offline;
+    }).length;
     final attention = vehicles.where((v) {
       final state = fleetSignalState(v.lastSeenAt, now);
       return state == FleetSignalState.delayed ||
@@ -458,6 +465,27 @@ class _FleetOverview extends StatelessWidget {
                             color: colors.textSecondary,
                           ),
                         ),
+                        if (attention > 0) ...[
+                          const SizedBox(height: Spacing.xs),
+                          Wrap(
+                            spacing: Spacing.xs,
+                            runSpacing: Spacing.xxs,
+                            children: [
+                              if (anomalyVehicles > 0)
+                                _FleetStat(
+                                  icon: Icons.warning_amber_rounded,
+                                  label: '이상 $anomalyVehicles대',
+                                  color: colors.danger,
+                                ),
+                              if (staleVehicles > 0)
+                                _FleetStat(
+                                  icon: Icons.schedule_outlined,
+                                  label: '수신 확인 $staleVehicles대',
+                                  color: colors.warning,
+                                ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -467,6 +495,47 @@ class _FleetOverview extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FleetStat extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _FleetStat({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Spacing.xs,
+        vertical: Spacing.xxs,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: Radii.pillAll,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: Spacing.xxs),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: FontSizes.badge,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }
