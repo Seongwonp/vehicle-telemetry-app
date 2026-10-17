@@ -372,11 +372,11 @@ FleetSignalState fleetSignalState(DateTime? lastSeenAt, DateTime now) {
 /// 상세 화면의 실시간 상태(10초 넘으면 "데이터 지연")와 **기준이 다르다** —
 /// 여기는 마지막 수신 시각이 5분/15분을 넘었는지를 본다. 예전에는 양쪽이 모두
 /// "지연"이라는 낱말을 써서, 목록의 "지연"이 상세의 "데이터 지연"과 같은 판정인
-/// 것처럼 읽혔다. 목록 쪽을 **수신 시각에 대한 말**로 바꿔 구분한다.
+/// 것처럼 읽혔다. 목록 쪽은 **수신 시각에 대한 말**만 사용해 구분한다.
 extension on FleetSignalState {
   String get label => switch (this) {
         FleetSignalState.recent => '최근 수신',
-        FleetSignalState.delayed => '수신 지연',
+        FleetSignalState.delayed => '오래전 수신',
         FleetSignalState.offline => '오프라인',
         FleetSignalState.noData => '데이터 없음',
       };

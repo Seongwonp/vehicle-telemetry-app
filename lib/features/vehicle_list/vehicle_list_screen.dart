@@ -500,7 +500,7 @@ class _SignalCriteriaGuide extends StatelessWidget {
             child: Text(
               '마지막 수신 시각 기준  ·  '
               '${recentSignalThreshold.inMinutes}분 이내 최근 수신  ·  '
-              '${recentSignalThreshold.inMinutes}~${delayedSignalThreshold.inMinutes}분 수신 지연  ·  '
+              '${recentSignalThreshold.inMinutes}~${delayedSignalThreshold.inMinutes}분 오래전 수신  ·  '
               '${delayedSignalThreshold.inMinutes}분 초과 오프라인',
               style: TextStyle(
                   fontSize: FontSizes.caption, color: colors.textSecondary),
