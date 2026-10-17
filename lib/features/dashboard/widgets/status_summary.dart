@@ -13,10 +13,12 @@ class StatusSummary extends StatelessWidget {
 
   /// "방금 업데이트" / "14초 전 업데이트"
   final String lastUpdatedText;
+  final VoidCallback? onViewAnomalies;
 
   const StatusSummary({
     required this.state,
     required this.lastUpdatedText,
+    this.onViewAnomalies,
     super.key,
   });
 
@@ -112,6 +114,25 @@ class StatusSummary extends StatelessWidget {
                       color: colors.textSecondary,
                     ),
                   ),
+                  if (overCount > 0 &&
+                      state.connection == DashboardConnectionState.connected &&
+                      onViewAnomalies != null) ...[
+                    const SizedBox(height: Spacing.xs),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: onViewAnomalies,
+                        icon: const Icon(Icons.open_in_new, size: 16),
+                        label: const Text('이상 이력 보기'),
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(0, TouchTarget.min),
+                          padding: EdgeInsets.zero,
+                          foregroundColor: tone,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

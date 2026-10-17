@@ -387,7 +387,13 @@ class _DashboardBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              StatusSummary(state: state, lastUpdatedText: lastUpdatedText),
+              StatusSummary(
+                state: state,
+                lastUpdatedText: lastUpdatedText,
+                onViewAnomalies: state.overCount > 0
+                    ? () => DefaultTabController.of(context).animateTo(1)
+                    : null,
+              ),
               const SizedBox(height: Spacing.md),
               if (wide)
                 Row(
