@@ -7,14 +7,8 @@ import '../../../core/theme/design_tokens.dart';
 import '../../../core/widgets/status_pill.dart';
 import 'info_chip.dart';
 
-/// 차량 목록의 카드.
-///
-/// 예전 구조는 바깥 [Row]에 `[아이콘][Expanded 정보][오른쪽 열]`을 나란히 뒀는데,
-/// 오른쪽 열(상태 배지 + 메뉴 + chevron)에 폭 제약이 없어서 좁은 화면에서 밀렸다.
-/// 자동 검사로 재보니 **320px에서는 기본 글자 크기로도 99px가 넘쳐** 잘리고 있었다
-/// (test/responsive_overflow_test.dart).
-///
-/// 그래서 가로로 경쟁하는 열을 없애고 세 줄로 쌓는다.
+/// 차량 목록의 카드. 좁은 화면에서 잘리지 않게 가로로 경쟁하는 열 없이 세 줄로 쌓는다
+/// (docs/design-system.md, test/responsive_overflow_test.dart).
 ///
 /// ```
 /// [아이콘] 차량 이름                  ● 최근 수신  [⋮]
@@ -22,17 +16,15 @@ import 'info_chip.dart';
 ///          118 km/h · HIGH 12 · 5분 전 수신
 /// ```
 ///
-/// 마지막 줄은 [Wrap]이라 폭이 모자라면 줄바꿈된다 — 잘리지 않는다.
-/// chevron은 없앴다. 카드 전체가 눌리는데 화살표까지 두면 어포던스가 셋이 되고,
-/// 그 화살표가 좁은 화면에서 폭을 가장 많이 잡아먹고 있었다.
+/// 마지막 줄은 [Wrap]이라 폭이 모자라면 줄바꿈된다.
 class VehicleCard extends StatelessWidget {
   final Vehicle vehicle;
   final VoidCallback onTap;
   final VoidCallback onDeleted;
   final ApiClient? apiClient;
 
-  /// 삭제(비활성화) 메뉴를 보일지. 백엔드는 관리자만 허용한다(2026-09-29) — 일반 사용자에게 보이면
-  /// 눌러도 403이라 권한 조회 결과를 받는다. 기본값 true는 기존 스냅샷·레이아웃 테스트를 그대로 두기 위해서다.
+  /// 삭제(비활성화) 메뉴를 보일지. 백엔드는 관리자만 허용하므로 권한 조회 결과를 받는다.
+  /// 기본값 true는 기존 스냅샷·레이아웃 테스트를 유지하기 위해서다.
   final bool canManage;
 
   const VehicleCard({
@@ -314,8 +306,7 @@ class _DeleteMenuButton extends StatelessWidget {
 
 /// 속도·이상 건수·마지막 수신 시각을 한 줄에 흘린다.
 ///
-/// [Wrap]이라 폭이 모자라면 다음 줄로 넘어간다. 예전에는 이 정보들이 서로 다른
-/// 자리에 흩어져 있어서(배지는 왼쪽 열, 시각은 오른쪽 배지 안) 눈이 두 번 움직여야 했다.
+/// [Wrap]이라 폭이 모자라면 다음 줄로 넘어간다.
 class _MetaLine extends StatelessWidget {
   final Vehicle vehicle;
   final AppSemanticColors colors;
@@ -380,10 +371,8 @@ FleetSignalState fleetSignalState(DateTime? lastSeenAt, DateTime now) {
 
 /// 목록 카드의 신호 상태 문구.
 ///
-/// 상세 화면의 실시간 상태(10초 넘으면 "데이터 지연")와 **기준이 다르다** —
-/// 여기는 마지막 수신 시각이 5분/15분을 넘었는지를 본다. 예전에는 양쪽이 모두
-/// "지연"이라는 낱말을 써서, 목록의 "지연"이 상세의 "데이터 지연"과 같은 판정인
-/// 것처럼 읽혔다. 목록 쪽은 **수신 시각에 대한 말**만 사용해 구분한다.
+/// 상세 화면의 "데이터 지연"(10초)과 기준이 다르다 — 마지막 수신이 5분/15분을 넘었는지를 본다.
+/// 같은 판정으로 읽히지 않게 "지연" 대신 수신 시각에 대한 말만 쓴다.
 extension on FleetSignalState {
   String get label => switch (this) {
         FleetSignalState.recent => '최근 수신',

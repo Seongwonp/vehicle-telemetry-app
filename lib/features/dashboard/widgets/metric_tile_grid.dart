@@ -3,11 +3,8 @@ import '../../../core/theme/design_tokens.dart';
 import '../dashboard_view_state.dart';
 import 'metric_tile.dart';
 
-/// 계측 타일을 **받은 폭**에 맞춰 줄 세운다.
-///
-/// 화면 폭 분기(`isDesktop`)가 아니라 이 위젯이 실제로 받은 폭으로 열 수를 정한다 —
-/// 2단 레이아웃 안처럼 화면은 넓어도 칸은 좁은 경우가 있다.
-/// 열 수가 3이면 2로 내린다(4개 중 1개가 혼자 남는 줄을 만들지 않는다).
+/// 계측 타일을 화면 폭이 아니라 받은 폭에 맞춰 줄 세운다(2단 안에서는 칸이 좁다).
+/// 3열은 2열로 내린다(한 개만 남는 줄을 만들지 않는다).
 class MetricTileGrid extends StatelessWidget {
   final DashboardViewState state;
 
@@ -20,11 +17,8 @@ class MetricTileGrid extends StatelessWidget {
     super.key,
   });
 
-  /// 글자 1.0배에서 타일 한 칸의 최소 폭. 글자 배율(최대 1.5)만큼 늘린다.
-  ///
-  /// 104 × 1.5 = 156 — 360px·1.5배(내용 폭 328)에서 2열, 320px·1.5배(296)에서 1열이 되는 값이다.
-  /// 이보다 좁으면 기준 문구가 세 줄로 접히고 값이 FittedBox에 과하게 눌린다
-  /// (`test/golden/snapshots/detail/`로 확인).
+  /// 글자 1.0배에서 타일 한 칸의 최소 폭. 글자 배율만큼 늘린다.
+  /// 360px·1.5배에서 2열, 320px·1.5배에서 1열이 되는 값이다(golden 스냅샷이 고정).
   static const double minTileWidth = 104;
 
   static int columnsFor(double width, double textScale, int maxColumns) {

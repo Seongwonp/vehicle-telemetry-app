@@ -8,9 +8,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/design_tokens.dart';
 import '../../core/widgets/choice_chip.dart';
 
-// 차량 상세 화면(VehicleDetailScreen)의 네 번째 탭 — 주행 히스토리를
-// 트립(연속 주행 구간) 단위로 보여준다. 백엔드가 수신 간격(3분) 기준으로
-// 알아서 구간을 나눠주므로 여기선 조회 기간만 고르고 결과를 렌더링한다.
+// 차량 상세 화면의 주행 기록 탭 — 트립 단위. 구간 분할은 백엔드가 한다.
 class TripHistoryTab extends ConsumerStatefulWidget {
   final String vehicleId;
   const TripHistoryTab({required this.vehicleId, super.key});
@@ -41,9 +39,7 @@ class _TripHistoryTabState extends ConsumerState<TripHistoryTab>
       _lastTrips = tripsAsync.requireValue;
     }
 
-    // 다른 탭과 같은 내용 폭을 쓴다 — 여기만 제한이 없어서 1280px에서 주행 카드가
-    // 화면 끝까지 늘어났고, 카드 안의 거리·평균속도·최고속도가 서로 멀어졌다.
-    // 카드 한 열이므로 `feed`다(`docs/design-system.md` "내용 폭").
+    // 카드 한 열이므로 `feed` 폭(`docs/design-system.md` "내용 폭").
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: ContentWidths.feed),

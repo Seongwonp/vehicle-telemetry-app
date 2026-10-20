@@ -7,15 +7,9 @@ import '../../../core/widgets/status_pill.dart';
 
 /// 이상 이력 목록의 카드.
 ///
-/// 예전에는 바깥 [Row]에 `[심각도 바][아이콘][Expanded 내용][심각도 배지]`를 나란히
-/// 뒀는데, 글자 배율을 1.3배로만 올려도 오른쪽 배지가 내용 영역을 밀어내 잘렸다
-/// (320·360px에서 재현, test/responsive_overflow_test.dart).
-///
-/// 배지를 제목과 같은 줄로 옮기고 제목에 [Expanded]를 줬다. 같은 정보를 담으면서
-/// 가로로 경쟁하는 고정 폭 요소가 하나 줄어든다.
-///
-/// 색도 `AppTheme`의 정적 팔레트 상수 대신 [AppSemanticColors]에서 가져온다 —
-/// 정적 상수는 다크 모드에서 그대로라 배경 대비가 무너졌다.
+/// 배지를 제목 줄에 두고 제목에 [Expanded]를 준다 — 바깥 [Row]에 두면 글자 배율이
+/// 커질 때 잘린다(test/responsive_overflow_test.dart). 색은 다크 모드를 위해
+/// [AppSemanticColors]에서 가져온다.
 class AnomalyCard extends StatelessWidget {
   final Anomaly anomaly;
   const AnomalyCard({required this.anomaly, super.key});
@@ -49,7 +43,6 @@ class AnomalyCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 왼쪽 심각도 바 — 목록을 훑을 때 색만으로 구분되게 한다.
             Container(
               width: 3,
               decoration: BoxDecoration(

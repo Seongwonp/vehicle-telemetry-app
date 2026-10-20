@@ -7,10 +7,9 @@ import '../dashboard_view_state.dart';
 ///
 /// - **수신 중**: 큰 숫자 + 단위 + 기준 한 줄
 /// - **기준 초과**: 같은 자리, danger 테두리·바탕 + 경고 아이콘
-/// - **지난 값**(재연결·지연): 큰 숫자 자리를 `—`로 비우고, 받은 시각과 값을 작게 둔다.
-///   지난 값을 큰 자리에 두면 "지금 이 속도로 달린다"로 읽힌다.
+/// - **지난 값**(재연결·지연): 큰 숫자 자리를 `—`로 비우고 값은 작게 둔다(현재 값으로 읽히지 않게).
 ///
-/// 높이는 내용이 정한다 — 고정 비율 칸에 넣으면 글자 1.5배에서 넘친다(2026-09-16, 320px 보조 지표 그리드).
+/// 높이는 내용이 정한다 — 고정 비율 칸이면 큰 글자 배율에서 넘친다.
 class MetricTile extends StatelessWidget {
   final MetricReading reading;
   final DashboardViewState state;
@@ -82,7 +81,7 @@ class MetricTile extends StatelessWidget {
             ),
             const SizedBox(height: Spacing.xs),
             if (live && !available)
-              // 값이 없는 선택 센서 — 0을 그리지 않는다. 숫자 자리에 낱말을 두되 숫자보다 흐리게.
+              // 값 없는 선택 센서는 0 대신 흐린 낱말로 둔다.
               Text(
                 reading.valueText,
                 key: Key('metric_tile_${reading.kind.name}_missing'),
@@ -117,7 +116,7 @@ class MetricTile extends StatelessWidget {
               )
             else
               Text(
-                // 받은 시각은 타일 위 머리("14:41:20에 받은 값")가 한 번 말한다.
+                // 받은 시각은 타일 위 머리글이 보여준다.
                 available
                     ? '지난 값 ${reading.valueText} ${reading.unit}'
                     : '지난 레코드에도 ${reading.valueText}',
@@ -143,7 +142,7 @@ class _LiveValue extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    // 값이 칸보다 길면(1.5배·좁은 칸) 줄바꿈 대신 줄인다 — 숫자와 단위가 갈라지면 읽기 어렵다.
+    // 숫자와 단위가 갈라지지 않게 줄바꿈 대신 줄인다.
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerLeft,

@@ -29,7 +29,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _currentController = TextEditingController();
   final _newController = TextEditingController();
   final _confirmController = TextEditingController();
-  // '다음'을 직접 다음 칸으로 넘긴다 — 기본 이동은 칸 안의 '보기' 버튼으로 가서 키보드가 닫혔다(2026-10-07 에뮬레이터).
+  // '다음'을 직접 다음 칸으로 넘긴다 — 기본 이동은 '보기' 버튼으로 가서 키보드가 닫힌다.
   final _newFocus = FocusNode();
   final _confirmFocus = FocusNode();
 
@@ -109,8 +109,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       return;
     }
 
-    // 성공 — 서버는 이미 이 사용자의 refresh token을 모두 폐기했다.
-    // 기존 로그아웃 경로가 로컬 토큰을 지운다(서버 폐기 호출 실패는 그쪽에서 삼킨다).
+    // 서버가 refresh token을 이미 폐기했다. 로컬 토큰은 기존 로그아웃 경로로 지운다.
     messenger.showSnackBar(
         const SnackBar(content: Text('비밀번호를 바꿨습니다. 다시 로그인해 주세요.')));
     await ref.read(authProvider.notifier).logout();

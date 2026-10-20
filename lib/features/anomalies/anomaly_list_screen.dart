@@ -10,8 +10,7 @@ import '../../core/theme/design_tokens.dart';
 
 enum _PeriodFilter { all, day, week }
 
-// 차량 상세 화면(VehicleDetailScreen)의 두 번째 탭 — 자체 Scaffold/AppBar 없이
-// 본문만 그린다.
+// 차량 상세 화면의 두 번째 탭. Scaffold 없이 본문만 그린다.
 class AnomalyListTab extends ConsumerStatefulWidget {
   final String vehicleId;
   const AnomalyListTab({required this.vehicleId, super.key});
@@ -22,8 +21,7 @@ class AnomalyListTab extends ConsumerStatefulWidget {
 
 class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
     with AutomaticKeepAliveClientMixin {
-  // TabBarView가 멀리 스와이프하면 탭을 언마운트해버려 필터 선택이나 목록
-  // 스크롤 위치가 초기화되는 것을 막는다.
+  // TabBarView가 탭을 언마운트해 필터·스크롤이 초기화되는 것을 막는다.
   @override
   bool get wantKeepAlive => true;
 
@@ -49,9 +47,7 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
     final anomaliesAsync = ref.watch(anomalyPageProvider(_query));
     final colors = context.appColors;
 
-    // 조회 실패(error)와 "이상 이벤트 없음"(data가 빈 리스트, 정상)을
-    // AsyncValue가 애초에 서로 다른 상태로 분리해주기 때문에, 예전처럼 catch에서
-    // 빈 리스트로 남겨둬 실패가 "정상"으로 위장되는 실수 자체가 구조적으로 불가능하다.
+    // 조회 실패와 "이벤트 없음"은 다른 상태다 — 실패가 "정상"으로 보이면 안 된다.
     return anomaliesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (_, __) => AnomalyErrorView(
@@ -113,9 +109,7 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
                     }),
                   ),
                   Expanded(
-                    // 예전에는 `anomalies.isEmpty`를 두 번 중첩해 물어서 두 번째
-                    // 분기(필터 때문에 0건)에 **도달할 수 없었다.** 필터가 걸려
-                    // 있어도 "차량이 정상 범위로 주행 중"이라고 말하고 있었다.
+                    // 필터 때문에 0건이면 "정상 주행 중"이라고 말하지 않는다.
                     child: anomalies.isEmpty
                         ? AnomalyEmptyView(filtered: _filtered)
                         : ListView.separated(
@@ -163,8 +157,7 @@ class _AnomalyListTabState extends ConsumerState<AnomalyListTab>
   }
 }
 
-// 심각도/기간 필터를 칩으로 보여준다 — 서버가 아직 기간 range 쿼리를 지원하지
-// 않아, 넉넉히(최대 100건) 받아온 데이터를 클라이언트에서 걸러낸다.
+// 심각도/기간 필터. 서버에 기간 쿼리가 없어 받아온 최대 100건을 클라이언트에서 거른다.
 class _FilterBar extends StatelessWidget {
   final String severity;
   final _PeriodFilter period;

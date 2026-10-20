@@ -65,10 +65,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _usernameController.text.trim(),
             _passwordController.text,
           );
-      // MaterialApp의 home: isLoggedIn ? ... : ... 은 이 화면이 랜딩페이지 위에
-      // push된 상태라 authProvider 값만 바뀌어서는 반영되지 않는다(Flutter의 잘 알려진
-      // 함정 — 이미 push된 라우트는 부모의 home이 바뀌어도 자동으로 안 바뀜).
-      // 로그인 성공 시 스택을 통째로 비우고 명시적으로 전환한다.
+      // 이 화면은 push된 상태라 home:이 바뀌어도 반영되지 않는다. 스택을 비우고 직접 전환한다.
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const VehicleListScreen()),
@@ -76,10 +73,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
       }
     } on DioException catch (e) {
-      // 계정 존재 여부를 숨겨야 하는 401만 "아이디/비밀번호 오류"로 뭉뚱그리고,
-      // 네트워크/타임아웃/서버 다운은 별도 메시지로 구분한다 — 예전엔 전부
-      // "비번 틀렸다"로 보여서 백엔드가 안 떠 있어도 그렇게 나와 디버깅 중
-      // 헷갈리기 쉬웠다.
+      // 401만 "아이디/비밀번호 오류"로 뭉뚱그린다(계정 존재 여부를 숨긴다).
+      // 네트워크·타임아웃·서버 장애는 따로 알린다.
       if (mounted) {
         setState(() => _error = loginErrorMessage(e));
       }
@@ -99,7 +94,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       body: DecoratedBox(
-        // 배경에 은은한 블루 글로우를 깔아 순수 단색 배경보다 입체감을 준다.
         decoration: BoxDecoration(
           gradient: RadialGradient(
             center: const Alignment(0, -0.7),
@@ -136,8 +130,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
-                                  // 로고 아이콘이 가로로 긴 비율이라 원형으로 잘라내는 대신,
-                                  // 뒤에 은은한 원형 글로우만 깔고 아이콘은 잘리지 않게 얹는다.
+                                  // 가로로 긴 로고라 원형으로 자르지 않고 뒤에 글로우만 깐다.
                                   Container(
                                     width: 100,
                                     height: 100,
@@ -178,8 +171,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: Spacing.sm),
 
                       // ── 입력 폼 ─────────────────────────────────
-                      // Key는 integration_test가 라벨 텍스트가 아니라 안정적인
-                      // 식별자로 필드를 찾을 수 있게 하기 위함(라벨은 문구가 바뀔 수 있음).
+                      // integration_test가 이 Key로 필드를 찾는다 — 바꾸지 말 것.
                       TextFormField(
                         key: const Key('login_username_field'),
                         controller: _usernameController,

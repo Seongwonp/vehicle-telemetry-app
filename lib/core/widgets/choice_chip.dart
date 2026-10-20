@@ -3,13 +3,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/design_tokens.dart';
 
-/// 하나만 고르는 필터 칩.
-///
-/// 이상 이력의 심각도·기간 필터(`_FilterChip`)와 주행 기록의 조회 기간
-/// 칩(`_PeriodChip`)이 **글자 하나 다르지 않은 같은 코드**였다. 한쪽만 고치면
-/// 두 탭의 칩이 달라지는 상태였다.
-///
-/// Material의 `ChoiceChip`과 이름이 겹치지 않게 `App` 접두사를 붙였다.
+/// 하나만 고르는 필터 칩. 이상 이력·주행 기록 탭이 같이 쓴다.
+/// Material `ChoiceChip`과 겹치지 않게 `App` 접두사를 붙였다.
 class AppChoiceChip extends StatelessWidget {
   final String label;
   final bool selected;

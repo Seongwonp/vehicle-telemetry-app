@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/anomaly.dart';
 import 'vehicle_providers.dart';
 
-// family — 차량별로 독립적인 캐시를 가진다. autoDispose — 화면을 벗어나면 정리.
 final anomaliesProvider = FutureProvider.autoDispose
     .family<List<Anomaly>, String>((ref, vehicleId) async {
   final data = await ref.watch(apiClientProvider).getAnomalies(vehicleId);

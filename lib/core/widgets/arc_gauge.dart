@@ -49,14 +49,8 @@ class ArcGauge extends StatelessWidget {
               trackColor: colors.border,
               activeColor: activeColor,
             ),
-            // 아크는 정사각 고정 크기인데 그 안의 글자는 사용자 글자 배율을 따라
-            // 커진다. 1.5배에서는 숫자+단위+라벨이 아크 안쪽 높이를 넘어
-            // 실제로 잘리고 있었다(test/responsive_overflow_test.dart의
-            // 'MetricCardRow(절반 폭)' 조합에서 재현).
-            //
-            // 글자 배율을 무시하면 접근성이 깨지고, 그대로 두면 잘린다.
-            // FittedBox로 "공간이 있으면 커지고, 모자라면 줄어들게" 한다 —
-            // 배율 설정이 반영되면서도 잘리지는 않는다.
+            // 고정 크기 아크 안에서 글자 배율을 지키면서 잘리지 않게 FittedBox로 줄인다
+            // (test/responsive_overflow_test.dart).
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(Spacing.md),

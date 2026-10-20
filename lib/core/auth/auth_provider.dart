@@ -32,12 +32,8 @@ class AuthNotifier extends StateNotifier<AuthStatus> {
         _tokenStore = tokenStore ?? const SecureTokenStore(),
         _onSessionExpired = onSessionExpired ?? _resetToLanding,
         super(AuthStatus.initializing) {
-    // refresh token 만료/무효 시 인터셉터에서 이 콜백을 호출 → 강제 로그아웃.
-    // login/logout 버튼과 달리 이 트리거는 위젯 트리 밖(인터셉터)에서 일어나
-    // BuildContext가 없다 — 로그인 화면이 이미 대시보드 등 다른 화면 위에 깊이
-    // push돼 있어도 rootNavigatorKey로 스택을 통째로 리셋해 로그인 화면으로 되돌린다.
-    // (state = false만 하고 네비게이션을 안 하면, MaterialApp의 home:은 이미 push된
-    // 라우트 위에서는 반영되지 않아 사용자가 로그아웃된 채로 같은 화면에 계속 머문다.)
+    // refresh 거부 시 강제 로그아웃. 위젯 트리 밖이라 BuildContext가 없어 rootNavigatorKey로
+    // 스택을 리셋한다 — state만 바꾸면 push된 화면에 그대로 머문다.
     _refreshFailedCallback = () async {
       await _tokenStore.clear();
       if (!mounted) return;

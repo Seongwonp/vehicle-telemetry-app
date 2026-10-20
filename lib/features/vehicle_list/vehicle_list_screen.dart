@@ -545,10 +545,9 @@ class _FleetStat extends StatelessWidget {
   }
 }
 
-/// 카드의 신호 알약이 무엇을 기준으로 정해지는지 한 줄로 알려준다.
+/// 카드의 신호 알약 기준을 한 줄로 알려준다.
 ///
-/// 문구는 [FleetSignalState]의 알약 문구와 같은 낱말을 써야 한다 — 상세 화면의
-/// "데이터 지연"(10초 기준)과 섞이지 않도록 양쪽 모두 "수신"을 붙인다.
+/// [FleetSignalState] 문구와 같은 낱말을 쓴다 — 상세 화면의 "데이터 지연"과 섞이지 않게 "수신"을 붙인다.
 class _SignalCriteriaGuide extends StatelessWidget {
   const _SignalCriteriaGuide();
 

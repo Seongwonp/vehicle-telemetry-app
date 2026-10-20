@@ -3,11 +3,9 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/design_tokens.dart';
 import '../dashboard_view_state.dart';
 
-/// 탭 맨 위의 결론 한 덩어리 — 연결 상태와 기준 초과를 **한곳에서** 말한다.
+/// 탭 맨 위 요약 — 연결 상태와 기준 초과를 한곳에서 말한다.
 ///
-/// 예전에는 연결 띠와 '이상 값 감지됨' 배너가 따로 있어, 재연결 중에도 지난 프레임의 배너가
-/// 현재 이상처럼 남았다. 색은 역할별로 하나만 쓴다: 기준 초과 danger, 재연결 warning,
-/// 데이터 지연 중립(textSecondary) — 빨강을 기준 초과 전용으로 남긴다.
+/// 빨강은 기준 초과 전용이다: 재연결 warning, 데이터 지연은 중립색.
 class StatusSummary extends StatelessWidget {
   final DashboardViewState state;
 
@@ -48,8 +46,7 @@ class StatusSummary extends StatelessWidget {
           '재연결 중 — 지금 상태를 알 수 없음',
           received,
         ),
-      // 받은 값이 있는 상태에서는 DashboardTab이 connecting을 쓰지 않는다(재연결로 둔다).
-      // 첫 값 전에는 이 위젯이 아니라 로딩·오류·데이터 없음 화면이 나온다. 방어용 분기다.
+      // connecting은 첫 값 전에만 쓰이고 그때는 이 위젯이 안 그려진다. 방어용 분기.
       DashboardConnectionState.connecting => (
           Icons.sync,
           colors.warning,

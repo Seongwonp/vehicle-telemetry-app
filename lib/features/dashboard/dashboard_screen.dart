@@ -40,8 +40,7 @@ String webSocketUrlForApiBase(String apiBaseUrl) {
       .toString();
 }
 
-// 차량 상세 화면(VehicleDetailScreen)의 첫 번째 탭 — 자체 Scaffold/AppBar
-// 없이 본문만 그린다. 웹소켓 연결 생명주기는 이 위젯이 계속 소유한다.
+// 차량 상세 화면의 첫 번째 탭. 웹소켓 연결 생명주기는 이 위젯이 소유한다.
 class DashboardTab extends StatefulWidget {
   final String vehicleId;
   final StompClientFactory stompClientFactory;
@@ -66,9 +65,7 @@ class DashboardTab extends StatefulWidget {
 
 class _DashboardTabState extends State<DashboardTab>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
-  // TabBarView는 기본적으로 현재 탭과 바로 인접한 탭만 살려두고 멀리
-  // 스와이프하면 언마운트한다 — 그러면 웹소켓이 끊기고 히스토리가 초기화된다.
-  // KeepAlive로 세 탭 다 항상 살아있게 유지한다.
+  // TabBarView가 멀리 떨어진 탭을 언마운트하면 웹소켓이 끊기고 히스토리가 사라진다.
   @override
   bool get wantKeepAlive => true;
 
@@ -83,10 +80,8 @@ class _DashboardTabState extends State<DashboardTab>
       DashboardConnectionState.connecting;
   DateTime? _lastUpdated;
 
-  // 지금 연결에서 새 프레임을 하나라도 받았는지. **소켓이 다시 붙은 것만으로는 "실시간"이 아니다** —
-  // 새 프레임이 오기 전까지 화면의 값은 끊기기 전 것이다. 이게 없으면 재연결 직후 지난 값이
-  // 큰 숫자·기준 초과로 다시 현재처럼 보였다(2026-09-16 Copilot 리뷰 지적, 코드로 확인).
-  // 역전·중복 프레임은 버려지므로 이 값을 올리지 않는다.
+  // 이번 연결에서 새 프레임을 받았는지. 재연결만으로는 실시간이 아니다 — 새 프레임 전까지
+  // 지난 값을 현재처럼 보이면 안 된다. 역전·중복 프레임은 이 값을 올리지 않는다.
   bool _frameSinceConnect = false;
   Timer? _signalTimeout;
   Timer? _staleTimer;
@@ -109,8 +104,7 @@ class _DashboardTabState extends State<DashboardTab>
     super.dispose();
   }
 
-  // 앱이 백그라운드로 가면 소켓을 끊는다 — 화면이 안 보이는데 계속 연결을
-  // 유지하는 건 배터리 낭비다. 포그라운드로 돌아오면 재연결한다.
+  // 백그라운드에서는 소켓을 끊고 포그라운드로 오면 다시 연결한다.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
@@ -132,8 +126,7 @@ class _DashboardTabState extends State<DashboardTab>
   }
 
   Future<void> _connect() async {
-    // 에러 화면의 수동 재시도와 stomp_dart_client의 자동 재연결이 겹치면
-    // 소켓/구독이 중복될 수 있으므로 새 클라이언트를 만들기 전에 기존 것을 끝낸다.
+    // 수동 재시도와 자동 재연결이 겹쳐 구독이 중복되지 않게 기존 클라이언트를 먼저 끝낸다.
     final generation = ++_connectionGeneration;
     _client?.deactivate();
     _client = null;
@@ -186,8 +179,7 @@ class _DashboardTabState extends State<DashboardTab>
     _client = client;
     client.activate();
 
-    // 연결은 됐는데 이 차량 데이터가 계속 안 들어오는 경우(비활성 차량 등)와
-    // 아예 연결 자체가 안 되는 경우를 구분하기 위한 유예 시간.
+    // "연결은 됐지만 데이터 없음"과 "연결 실패"를 가르는 유예 시간.
     _signalTimeout?.cancel();
     _signalTimeout = Timer(widget.noSignalTimeout, () {
       if (!mounted || _latest != null) return;
@@ -210,7 +202,6 @@ class _DashboardTabState extends State<DashboardTab>
           : (_connected && _frameSinceConnect
               ? DashboardConnectionState.connected
               : DashboardConnectionState.reconnecting);
-      // 매초 rebuild해 "N초 전" 표시도 데이터가 끊긴 동안 정확히 갱신한다.
       setState(() => _connectionState = nextState);
     });
   }
@@ -250,20 +241,9 @@ class _DashboardTabState extends State<DashboardTab>
         }
         if (telemetry == null) return;
 
-        // 이미 가진 값보다 오래됐거나 같은 시각의 프레임은 버린다.
-        //
-        // 파이프라인은 차량별 순서를 **전역으로 보장하지 않는다.** Kafka 브로커 장애 뒤
-        // 로컬 spool을 드레인할 때, 밀렸던 메시지가 새 메시지보다 늦게 도착할 수 있다.
-        // 실측하니 90초 장애에서 차량당 4~6건, **최대 114초 묵은 값**이 최신 메시지 뒤에
-        // 왔다(백엔드 저장소의 load-test/order-integrity/RESULT_20260905_order.md).
-        //
-        // 그대로 두면 묵은 값이 현재 값으로 표시되고, `_lastUpdated`가 도착 시각으로
-        // 갱신돼 "오래된 데이터" 표시로도 안 걸러진다. 같은 timestamp 재전달도 새
-        // 수신으로 취급하면 히스토리가 중복되고 지연 상태가 거짓으로 회복한다.
-        //
-        // 파이프라인에서 순서를 맞추지 않는 이유는 그쪽 비용이 크기 때문이다 —
-        // 드레인과 신규 발행을 한 락으로 묶으면 수집 처리량이 무너진다. 순서가 필요한 곳은
-        // "지금 값"을 보여주는 이 화면 하나뿐이라 여기서 막는 게 가장 싸고 정확하다.
+        // 이미 가진 값보다 오래됐거나 같은 시각의 프레임은 버린다. 파이프라인은 차량별
+        // 순서를 보장하지 않아(spool 드레인) 묵은 값이 늦게 올 수 있고, 받아들이면 현재 값으로
+        // 보이고 지연 표시도 거짓으로 풀린다. 근거: 백엔드 load-test/order-integrity.
         final previous = _latest;
         if (previous != null &&
             !telemetry.timestamp.isAfter(previous.timestamp)) {
@@ -293,8 +273,7 @@ class _DashboardTabState extends State<DashboardTab>
           ? DashboardConnectionState.connecting
           : DashboardConnectionState.reconnecting;
     });
-    // stomp_dart_client가 reconnectDelay에 따라 자동 재시도한다 — 여기선
-    // "아직 한 번도 데이터를 못 받았다면" 에러 상태만 반영한다.
+    // 재시도는 클라이언트가 한다. 여기선 데이터를 한 번도 못 받았을 때만 에러로 둔다.
     if (_latest == null) {
       setState(() {
         _loading = false;

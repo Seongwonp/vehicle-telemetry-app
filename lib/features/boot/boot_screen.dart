@@ -3,13 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/design_tokens.dart';
 
-/// 앱을 켠 직후 저장된 로그인 상태를 확인하는 동안 보이는 화면.
+/// 저장된 로그인 상태를 확인하는 동안의 화면. Android 시작 화면과 같은 배경·로고 위치를 쓴다.
 ///
-/// Android 시스템 시작 화면(앱 배경색 + 가운데 로고)에서 이어지도록 같은 배경색·같은 로고 위치를 쓴다.
-/// **일부러 오래 붙잡지 않는다** — 확인이 끝나면 곧바로 랜딩이나 차량 목록으로 넘어간다.
-///
-/// 워드마크는 이미지가 아니라 글자로 그린다: `assets/logo.png`는 투명 배경을 흉내 낸 체크무늬가
-/// 이미지에 박혀 있어 쓸 수 없고(2026-09-16 확인), 글자는 라이트·다크 모두 테마 색을 따른다.
+/// 워드마크는 글자로 그린다 — `assets/logo.png`에 체크무늬 배경이 박혀 있다
+/// (경위: docs/verification/2026-09-16-android-emulator.md).
 class BootScreen extends StatelessWidget {
   const BootScreen({super.key});
 

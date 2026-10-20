@@ -18,8 +18,8 @@ class MetricReading {
   final String valueText;
   final String unit;
 
-  /// 이 레코드에 값이 있는가. 선택 센서(전압)는 차량이 지원하지 않으면 값이 없다 —
-  /// 그때 [valueText]는 [DashboardViewState.missingText]이고 단위·기준 판정이 없다.
+  /// 값이 있는가. 없으면(선택 센서 미지원) [valueText]는 [DashboardViewState.missingText]이고
+  /// 단위·기준 판정이 없다.
   final bool available;
 
   /// 값만 보고 한 판정. **지금 수신 중일 때만 화면에 기준 초과로 드러낸다** — [DashboardViewState.showsOver].
@@ -56,10 +56,9 @@ class ExtraReading {
   });
 }
 
-/// '현재 상태' 탭이 무엇을 어떻게 보여줄지 — 위젯 없이 판정한다.
+/// '현재 상태' 탭의 표시 판정(위젯 없음).
 ///
-/// 핵심 규칙: **수신 중이 아니면(재연결·지연) 마지막 값을 현재 값처럼 보이지 않는다.**
-/// 큰 숫자 자리를 비우고, 지난 값은 수신 시각과 함께 작게 둔다. 지난 값으로 기준 초과를 판정하지 않는다.
+/// 수신 중이 아니면(재연결·지연) 마지막 값을 현재 값처럼 보이지 않고, 지난 값으로 기준 초과를 판정하지 않는다.
 class DashboardViewState {
   final DashboardConnectionState connection;
   final List<MetricReading> readings;
@@ -87,7 +86,7 @@ class DashboardViewState {
     final tempOver = TelemetryLimits.engineTempOver(latest.engineTemp);
     final battery = latest.batteryVoltage;
     final fuel = latest.fuelLevel;
-    // 값이 없으면 기준 판정 자체를 하지 않는다 — "기준 밖"도 "기준 안"도 아니다.
+    // 값이 없으면 기준 판정을 하지 않는다.
     final batteryOut = battery != null && TelemetryLimits.batteryOut(battery);
     return DashboardViewState._(
       connection: connection,
@@ -98,7 +97,7 @@ class DashboardViewState {
           valueText: latest.speed.toStringAsFixed(1),
           unit: 'km/h',
           over: speedOver,
-          // 단위는 값 옆에 이미 있다 — 좁은 칸에서 기준 문구가 단어 중간에서 접히지 않게 뺀다.
+          // 좁은 칸에서 접히지 않게 단위를 뺀다(값 옆에 이미 있다).
           limitText:
               '기준 ${_n(TelemetryLimits.speedMax)} ${speedOver ? '초과' : '이하'}',
         ),
@@ -167,8 +166,7 @@ class DashboardViewState {
     );
   }
 
-  /// 선택 센서(연료량·전압) 값이 레코드에 없을 때의 표기. 0이나 `—`(연결 문제의 빈자리)와 구분한다 —
-  /// `—`는 "지금 수신 중이 아님", 이 낱말은 "수신 중이지만 차량이 이 값을 보내지 않음"이다.
+  /// 선택 센서 값이 없을 때의 표기. `—`(수신 중 아님)와 다르다 — 수신 중이지만 차량이 보내지 않는 값이다.
   static const String missingText = '미수신';
 
   bool get isLive => connection == DashboardConnectionState.connected;

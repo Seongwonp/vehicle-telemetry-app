@@ -3,8 +3,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/design_tokens.dart';
 
 class AnomalyEmptyView extends StatelessWidget {
-  // 필터 때문에 0건인 경우(filtered)와 진짜 이상 이벤트가 없는 경우를
-  // 다른 문구로 구분한다 — 전자를 "정상 주행 중"으로 오인하지 않도록.
+  // 필터로 0건인 경우를 "정상 주행 중"으로 말하지 않게 구분한다.
   final bool filtered;
 
   const AnomalyEmptyView({this.filtered = false, super.key});

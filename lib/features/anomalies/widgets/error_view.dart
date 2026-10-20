@@ -19,8 +19,7 @@ class AnomalyErrorView extends StatelessWidget {
               style: TextStyle(
                   fontSize: FontSizes.subtitle, fontWeight: FontWeight.w500)),
           const SizedBox(height: Spacing.xs),
-          // "이상 이벤트 없음"(정상)과 절대 혼동되면 안 되므로 실패는 명시적으로
-          // 다른 문구/아이콘으로 보여준다 — 조회 실패를 "정상 주행 중"으로 잘못 안내하지 않기 위함.
+          // 조회 실패가 "이상 없음"으로 읽히지 않게 다른 문구·아이콘을 쓴다.
           Text('네트워크 연결 또는 로그인 상태를 확인하세요.',
               style: TextStyle(color: colors.textSecondary)),
           const SizedBox(height: Spacing.lg),

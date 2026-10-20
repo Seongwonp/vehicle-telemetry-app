@@ -6,13 +6,11 @@ import '../../../core/models/telemetry.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/design_tokens.dart';
 
-// 텔레메트리 스펙에 원래부터 lat/lng가 있었는데 화면 어디에서도 안 쓰고
-// 있었다 — 대시보드 히스토리(최근 20건)를 그대로 경로 선으로 그려서
-// "지금 어디를 달리고 있는지"를 보여준다.
+// 대시보드 히스토리(최근 20건)의 위치를 경로 선으로 그린다.
 class RouteMap extends StatefulWidget {
   final List<Telemetry> history;
 
-  /// 재연결·지연 중이면 true — 제목에 "마지막으로 받은"을 붙인다(지도 위치가 현재 위치로 읽히지 않게).
+  /// 재연결·지연 중이면 true — 제목에 "마지막으로 받은"을 붙여 현재 위치로 읽히지 않게 한다.
   final bool past;
   const RouteMap({required this.history, this.past = false, super.key});
 

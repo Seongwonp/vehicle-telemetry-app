@@ -8,10 +8,7 @@ import '../trips/trip_history_tab.dart';
 import '../../core/models/vehicle.dart';
 import 'widgets/vehicle_title.dart';
 
-// 예전엔 대시보드 앱바에 경고/뇌 아이콘 두 개만 달아두고 각각 이상 이력·AI
-// 진단으로 push했는데, 아이콘만으로는 뭘 누르는 건지 알기 어렵다는 피드백을
-// 받았다. TabBar(라벨 있는 탭) + TabBarView로 바꿔서 스와이프도 되고 각 탭이
-// 뭘 보여주는지 이름으로 바로 보이게 했다.
+// 차량 상세 — 라벨 있는 탭으로 현재 상태·이상 이력·주행 기록·보조 진단을 나눈다.
 class VehicleDetailScreen extends StatelessWidget {
   final String vehicleId;
 
@@ -37,8 +34,7 @@ class VehicleDetailScreen extends StatelessWidget {
     final textScaler = MediaQuery.textScalerOf(context);
     final compactTabs =
         screenWidth < 400 || textScaler.scale(FontSizes.badge) > 14;
-    // 가로 모드 폰(높이 < 480): 이름 두 줄 + ID에 TabBar까지 얹히면 본문이 거의 안 남는다.
-    // 줄 수만 줄이고, 잘렸을 때 '전체 이름' 버튼이 생기는 규칙은 그대로 둔다.
+    // 가로 모드 폰에서는 본문 공간을 위해 이름을 한 줄로 줄인다('전체 이름' 버튼 규칙은 유지).
     final titleMaxLines = screenSize.height < Heights.compactLandscape ? 1 : 2;
     final name = vehicle?.name.trim().isNotEmpty == true ? vehicle!.name : null;
     final titleLayout = name == null

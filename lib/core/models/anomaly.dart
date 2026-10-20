@@ -34,8 +34,7 @@ class Anomaly {
 
   bool get isHigh => severity == 'HIGH';
 
-  // 백엔드 AnomalyResponse엔 description 필드가 없다. threshold(예: "engine_temp > 105°C")가
-  // 가장 설명에 가까운 필드라 이를 부가 설명으로 쓰고, 없으면 field/value 조합으로 대체한다.
+  // 응답에 description이 없어 threshold를 설명으로 쓰고, 없으면 field/value로 대신한다.
   String get description {
     if (threshold != null && threshold!.isNotEmpty) return threshold!;
     if (field != null && value != null) return '$field = $value';

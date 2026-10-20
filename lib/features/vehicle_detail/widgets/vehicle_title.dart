@@ -64,9 +64,8 @@ class VehicleTitleLayout {
   const VehicleTitleLayout._(this.clipped, this.toolbarHeight);
 
   /// 앱바 제목 칸의 폭 = 화면 폭 − 뒤로 버튼(56) − 제목 양옆 여백(16×2) − 버튼 자리(48).
-  /// [baseStyle]은 앱바 제목의 기본 글꼴 — 글꼴이 다르면 줄 수를 잘못 잰다.
-  /// 버튼 자리는 잘리지 않은 경우에도 빼고 잰다 — 버튼이 생기면서 폭이 줄어 다시 잘리는 순환을 막는다.
-  /// [maxLines]는 [VehicleTitle]에 넘기는 값과 같아야 한다 — 다르면 잘림 판정이 화면과 어긋난다.
+  /// 버튼 자리는 항상 빼고 잰다 — 버튼이 생기며 폭이 줄어 다시 잘리는 순환을 막는다.
+  /// [baseStyle]과 [maxLines]는 [VehicleTitle]과 같아야 잘림 판정이 화면과 맞는다.
   static VehicleTitleLayout measure({
     required String name,
     required double screenWidth,
@@ -95,7 +94,6 @@ class VehicleTitleLayout {
     final idHeight = idPainter.height;
     idPainter.dispose();
 
-    // 위아래 여백 xs씩 — 두 줄 이름이 앱바 가장자리에 붙지 않게.
     final height = nameHeight + idHeight + Spacing.xs * 2;
     return VehicleTitleLayout._(
         clipped, height < kToolbarHeight ? kToolbarHeight : height);

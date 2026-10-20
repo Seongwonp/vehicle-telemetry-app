@@ -40,9 +40,7 @@ class DtcSection extends StatelessWidget {
                 .map((code) => StatusPill(
                       label: code,
                       color: warning,
-                      // 채움 대신 테두리를 쓴다. DTC 코드는 보조 정보인데
-                      // 진한 배경으로 칠하면 화면에서 가장 무거운 요소가 돼
-                      // 위계가 뒤집힌다.
+                      // 보조 정보라 채움 대신 테두리를 쓴다.
                       variant: StatusPillVariant.outlined,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,

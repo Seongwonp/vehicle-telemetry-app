@@ -5,9 +5,7 @@ import '../../core/api/api_client.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/design_tokens.dart';
 
-// OBD-II 동글/시뮬레이터가 보내는 vehicle_id와 실제로 매칭시키려면 백엔드에
-// 차량이 미리 등록되어 있어야 한다(VehicleService.register) — 그동안 이
-// 등록 API를 호출할 화면이 앱 안에 없어서 curl로만 등록할 수 있었다.
+// 차량 등록. 동글/시뮬레이터의 vehicle_id는 먼저 등록돼 있어야 매칭된다.
 class AddVehicleScreen extends StatefulWidget {
   final ApiClient? apiClient;
   const AddVehicleScreen({this.apiClient, super.key});
@@ -49,8 +47,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
       );
       if (mounted) Navigator.of(context).pop(true);
     } on DioException catch (e) {
-      // 백엔드가 중복 ID 등 검증 실패를 400 + {message}로 내려준다 —
-      // 그대로 보여주면 "왜 등록이 안 되는지" 사용자가 바로 알 수 있다.
+      // 검증 실패(중복 ID 등)는 400 + {message}라 그대로 보여준다.
       final message = e.response?.data is Map
           ? (e.response?.data as Map)['message'] as String?
           : null;

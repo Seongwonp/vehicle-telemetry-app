@@ -186,9 +186,7 @@ class _MobileLayout extends StatelessWidget {
   }
 }
 
-/// 능력치 띠의 포인트 색. 색 자체가 아니라 **어느 역할인지**를 담는다 —
-/// `AppTheme`의 정적 팔레트 상수를 그대로 들고 있으면 다크 테마에서 색이
-/// 바뀌지 않아 배경 대비가 무너진다.
+/// 능력치 띠의 포인트 색 역할. 정적 색 상수를 들고 있으면 다크 테마에서 안 바뀐다.
 enum _FeatureAccent { primary, warning, danger, success }
 
 const _features = [
@@ -220,9 +218,7 @@ Color _accentColor(BuildContext context, _FeatureAccent accent) {
   };
 }
 
-// 아이콘+설명이 딸린 큰 카드 4개 대신, 계기판 하단 인디케이터처럼 얇고
-// 압축된 띠 하나로 능력치를 나열한다 — "기능 소개 카드 그리드"라는 흔한
-// 랜딩페이지 패턴에서 벗어나기 위한 의도적인 선택.
+// 능력치를 카드 그리드 대신 계기판 인디케이터 같은 얇은 띠 하나로 나열한다.
 class _FeatureGrid extends StatelessWidget {
   final int columns;
   final _IntervalBuilder revealBuilder;

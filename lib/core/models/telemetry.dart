@@ -8,13 +8,10 @@ class Telemetry {
   final double engineTemp;
   final double throttlePosition;
 
-  /// 연료량(PID 012F). **null = 이 레코드에 값이 없다**(차량 미지원 또는 미수신) — 0이 아니다.
-  ///
-  /// 백엔드 계약에서 선택 필드다(백엔드 ADR-030). 저장 시 필드를 쓰지 않으므로 응답에서도 null로 온다.
+  /// 연료량(PID 012F). 선택 필드라(백엔드 ADR-030) null은 "값 없음"이지 0이 아니다.
   final double? fuelLevel;
 
-  /// 제어 모듈 전압(PID 0142). null이면 값 없음 — **기준(11.5–15V) 판정을 하지 않는다.**
-  /// 0으로 보면 "기준 밖"으로 빨갛게 뜬다.
+  /// 제어 모듈 전압(PID 0142). null이면 기준 판정을 하지 않는다(0으로 보면 기준 밖이 된다).
   final double? batteryVoltage;
   final double? lat;
   final double? lng;
@@ -54,8 +51,8 @@ class Telemetry {
     );
   }
 
-  /// 실시간 스트림처럼 개별 레코드 하나의 실패가 전체 구독을 깨면 안 되는 곳에서
-  /// 사용한다. REST 응답은 기존 [fromJson]을 유지해 잘못된 계약을 즉시 드러낸다.
+  /// 레코드 하나의 실패가 구독 전체를 깨면 안 되는 실시간 스트림용.
+  /// REST는 [fromJson]으로 계약 위반을 바로 드러낸다.
   static Telemetry? tryFromJson(
     Map<String, dynamic> json, {
     void Function(Object error, StackTrace stackTrace)? onError,

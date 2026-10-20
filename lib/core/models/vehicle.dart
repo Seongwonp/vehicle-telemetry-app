@@ -5,8 +5,7 @@ class Vehicle {
   final bool active;
   final DateTime registeredAt;
 
-  // fleet 목록 화면에서 차량마다 대시보드에 들어가지 않고도 상태를 비교할 수
-  // 있게 서버가 함께 내려주는 요약 필드 — 텔레메트리 이력이 없으면 null.
+  // 목록용 요약 필드. 텔레메트리 이력이 없으면 null.
   final DateTime? lastSeenAt;
   final double? latestSpeed;
   final int highAnomalyCount;
