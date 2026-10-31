@@ -21,7 +21,7 @@ import 'package:telemetrix/features/vehicle_list/widgets/vehicle_card.dart';
 import 'package:telemetrix/core/models/anomaly.dart';
 import 'package:telemetrix/core/models/vehicle.dart';
 
-/// AGENTS.md 화면 확인 체크리스트의 두 항목을 자동화한다.
+/// CONTRIBUTING.md 화면 확인 체크리스트의 두 항목을 자동화한다.
 ///
 /// - "320px, 360px, 400px 너비와 태블릿 너비에서 overflow가 없는가"
 /// - "글자 크기 1.3배와 1.5배에서도 버튼, 상태 배지, 수치가 잘리지 않는가"

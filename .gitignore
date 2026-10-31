@@ -63,3 +63,6 @@ Thumbs.db
 
 # 세션 인계 기록 — 저장소에서 제외하고 로컬에만 둔다
 docs/handoff/
+
+# 로컬 작업 지침 — 저장소에서 제외한다(공개 규칙은 CONTRIBUTING.md)
+.claude/
